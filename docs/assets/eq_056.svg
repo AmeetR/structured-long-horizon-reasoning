@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="798" height="51" viewBox="0 0 798 51" role="img">
+  <rect width="100%" height="100%" fill="white"/>
+  <text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="18" fill="#1c1f24">
+    <tspan x="14" y="30">\mathsf{Clean}(s) \wedge g(s,u)=1 \implies \mathsf{Clean}(s \oplus u).</tspan>
+  </text>
+</svg>

@@ -101,8 +101,9 @@ The output includes two static pages:
 - `docs/index.html`: the readable GitHub Pages article. It keeps LaTeX math in
   the page and renders it with MathJax.
 - `docs/medium.html`: the Medium-import page. It rewrites inline and display
-  math to SVG image URLs so Medium does not import raw `$...$` or `\[...\]`
-  markup.
+  math to local SVG assets under `docs/assets/` so Medium has concrete
+  same-site image files to import instead of script-rendered or external-service
+  equations.
 
 Paste the published `medium.html` URL into Medium's importer. Do not paste a
 GitHub source/blob URL into Medium.

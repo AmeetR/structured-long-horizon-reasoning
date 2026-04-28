@@ -6,7 +6,6 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
-from urllib.parse import quote
 
 
 BLOCK_ENVS = {
@@ -52,9 +51,9 @@ def main() -> None:
         help="Optional public GitHub Pages URL for canonical links and Medium import.",
     )
     parser.add_argument(
-        "--webtex-url",
-        default="https://latex.codecogs.com/svg.latex?",
-        help="Equation image endpoint used for the Medium-safe HTML build.",
+        "--asset-dir",
+        default="",
+        help="Directory for generated Medium-safe equation SVG assets. Defaults to OUTPUT_DIR/assets.",
     )
     args = parser.parse_args()
 
@@ -67,11 +66,13 @@ def main() -> None:
     print(f"Wrote {output}")
     if args.medium_output:
         medium_output = Path(args.medium_output)
+        asset_dir = Path(args.asset_dir) if args.asset_dir else medium_output.parent / "assets"
         medium_page = render_article(
             tex,
             canonical_url=args.canonical_url,
-            math_mode="webtex",
-            webtex_url=args.webtex_url,
+            math_mode="local-svg",
+            asset_dir=asset_dir,
+            asset_url_prefix=asset_dir.name,
         )
         medium_output.parent.mkdir(parents=True, exist_ok=True)
         medium_output.write_text(medium_page, encoding="utf-8")
@@ -82,13 +83,19 @@ def render_article(
     tex: str,
     canonical_url: str = "",
     math_mode: str = "mathjax",
-    webtex_url: str = "https://latex.codecogs.com/svg.latex?",
+    asset_dir: Path | None = None,
+    asset_url_prefix: str = "assets",
 ) -> str:
     metadata = extract_metadata(tex)
     macros = extract_macros(tex)
     body = extract_document_body(tex)
     body = strip_maketitle(body)
-    content = TexRenderer(math_mode=math_mode, macros=macros, webtex_url=webtex_url).render(body)
+    math_assets = None
+    if math_mode == "local-svg":
+        if asset_dir is None:
+            raise ValueError("asset_dir is required for local-svg math rendering.")
+        math_assets = SvgMathAssets(asset_dir=asset_dir, url_prefix=asset_url_prefix)
+    content = TexRenderer(math_mode=math_mode, macros=macros, math_assets=math_assets).render(body)
     canonical_tag = (
         f'<link rel="canonical" href="{html.escape(canonical_url, quote=True)}">\n'
         if canonical_url
@@ -239,14 +246,14 @@ class TexRenderer:
         self,
         math_mode: str = "mathjax",
         macros: dict[str, str] | None = None,
-        webtex_url: str = "https://latex.codecogs.com/svg.latex?",
+        math_assets: SvgMathAssets | None = None,
     ) -> None:
         self.env_stack: list[str] = []
         self.paragraph: list[str] = []
         self.section_index = 0
         self.math_mode = math_mode
         self.macros = macros or {}
-        self.webtex_url = webtex_url
+        self.math_assets = math_assets
 
     def render(self, body: str) -> str:
         lines = body.splitlines()
@@ -370,8 +377,10 @@ class TexRenderer:
 
     def render_display_math(self, content: str) -> str:
         math = content.strip()
-        if self.math_mode == "webtex":
-            return render_math_image(math, display=True, macros=self.macros, webtex_url=self.webtex_url)
+        if self.math_mode == "local-svg":
+            if self.math_assets is None:
+                raise ValueError("math_assets is required for local SVG rendering.")
+            return self.math_assets.render_image(math, display=True, macros=self.macros)
         escaped = html.escape(math)
         return f'<div class="math-display">\\[\n{escaped}\n\\]</div>'
 
@@ -380,7 +389,7 @@ class TexRenderer:
             text,
             math_mode=self.math_mode,
             macros=self.macros,
-            webtex_url=self.webtex_url,
+            math_assets=self.math_assets,
         )
 
 
@@ -420,7 +429,7 @@ def convert_inline(
     text: str,
     math_mode: str = "mathjax",
     macros: dict[str, str] | None = None,
-    webtex_url: str = "https://latex.codecogs.com/svg.latex?",
+    math_assets: SvgMathAssets | None = None,
 ) -> str:
     macros = macros or {}
     tokens: list[str] = []
@@ -432,7 +441,9 @@ def convert_inline(
     text = re.sub(
         r"\$[^$]+\$",
         lambda m: keep_token(
-            render_inline_math(m.group(0), math_mode=math_mode, macros=macros, webtex_url=webtex_url)
+            render_inline_math(
+                m.group(0), math_mode=math_mode, macros=macros, math_assets=math_assets
+            )
         ),
         text,
     )
@@ -466,25 +477,13 @@ def render_inline_math(
     math: str,
     math_mode: str,
     macros: dict[str, str],
-    webtex_url: str,
+    math_assets: SvgMathAssets | None,
 ) -> str:
-    if math_mode == "webtex":
-        return render_math_image(math.strip("$"), display=False, macros=macros, webtex_url=webtex_url)
+    if math_mode == "local-svg":
+        if math_assets is None:
+            raise ValueError("math_assets is required for local SVG rendering.")
+        return math_assets.render_image(math.strip("$"), display=False, macros=macros)
     return html.escape(math)
-
-
-def render_math_image(
-    math: str,
-    display: bool,
-    macros: dict[str, str],
-    webtex_url: str,
-) -> str:
-    expanded = expand_macros(math, macros)
-    encoded = quote(expanded, safe="")
-    src = f"{webtex_url}{encoded}"
-    if display:
-        return f'<figure class="math-display"><img src="{src}" alt="Equation"></figure>'
-    return f'<img class="math-inline" src="{src}" alt="math">'
 
 
 def expand_macros(math: str, macros: dict[str, str]) -> str:
@@ -492,6 +491,74 @@ def expand_macros(math: str, macros: dict[str, str]) -> str:
     for name in sorted(macros, key=len, reverse=True):
         expanded = re.sub(rf"\\{name}\b", lambda _match, value=macros[name]: value, expanded)
     return expanded
+
+
+class SvgMathAssets:
+    def __init__(self, asset_dir: Path, url_prefix: str = "assets") -> None:
+        self.asset_dir = asset_dir
+        self.url_prefix = url_prefix.strip("/")
+        self.counter = 0
+        self.asset_dir.mkdir(parents=True, exist_ok=True)
+        for stale in self.asset_dir.glob("eq_*.svg"):
+            stale.unlink()
+
+    def render_image(self, math: str, display: bool, macros: dict[str, str]) -> str:
+        expanded = normalize_math_for_svg(expand_macros(math, macros))
+        filename = self.write_svg(expanded, display=display)
+        src = f"{self.url_prefix}/{filename}"
+        alt = html.escape(math, quote=True)
+        if display:
+            return (
+                f'<figure class="math-display"><img src="{src}" alt="{alt}">'
+                f'<figcaption class="math-fallback"><code>{html.escape(math)}</code></figcaption>'
+                "</figure>"
+            )
+        return f'<img class="math-inline" src="{src}" alt="{alt}">'
+
+    def write_svg(self, math: str, display: bool) -> str:
+        self.counter += 1
+        filename = f"eq_{self.counter:03d}.svg"
+        path = self.asset_dir / filename
+        lines = math.splitlines() or [math]
+        font_size = 18 if display else 16
+        line_height = int(font_size * 1.55)
+        padding_x = 14 if display else 4
+        padding_y = 12 if display else 4
+        text_width = max((len(line) for line in lines), default=1) * int(font_size * 0.62)
+        width = min(max(text_width + padding_x * 2, 64), 1800)
+        height = max(len(lines) * line_height + padding_y * 2, font_size + padding_y * 2)
+        tspans = []
+        y = padding_y + font_size
+        for line in lines:
+            tspans.append(
+                f'<tspan x="{padding_x}" y="{y}">{html.escape(line) or " "}</tspan>'
+            )
+            y += line_height
+        svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}" role="img">
+  <rect width="100%" height="100%" fill="white"/>
+  <text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="{font_size}" fill="#1c1f24">
+    {''.join(tspans)}
+  </text>
+</svg>
+'''
+        path.write_text(svg, encoding="utf-8")
+        return filename
+
+
+def normalize_math_for_svg(math: str) -> str:
+    replacements = {
+        r"\left": "",
+        r"\right": "",
+        r"\;": " ",
+        r"\,": " ",
+        r"\!": "",
+        r"\quad": "    ",
+        r"\qquad": "        ",
+    }
+    normalized = math
+    for old, new in replacements.items():
+        normalized = normalized.replace(old, new)
+    return normalized.strip()
 
 
 def replace_text_command(

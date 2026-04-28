@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="589" height="159" viewBox="0 0 589 159" role="img">
+  <rect width="100%" height="100%" fill="white"/>
+  <text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="18" fill="#1c1f24">
+    <tspan x="14" y="30">\Pr[F_{b_h}]</tspan><tspan x="14" y="57"> = </tspan><tspan x="14" y="84">\Pr[Y_1=1]\prod_{k=1}^{b_h-1}\Pr[Y_{k+1}=1\mid F_k]</tspan><tspan x="14" y="111"> \le </tspan><tspan x="14" y="138">(1-p_h) \rho_h^{ b_h-1},</tspan>
+  </text>
+</svg>

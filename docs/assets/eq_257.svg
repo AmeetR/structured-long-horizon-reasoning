@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="479" height="78" viewBox="0 0 479 78" role="img">
+  <rect width="100%" height="100%" fill="white"/>
+  <text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="18" fill="#1c1f24">
+    <tspan x="14" y="30">\Pr[\exists \text{ bad committed update}]</tspan><tspan x="14" y="57"> \le K \alpha_{\max}^{arrow}.</tspan>
+  </text>
+</svg>

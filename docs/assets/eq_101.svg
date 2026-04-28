@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="457" height="213" viewBox="0 0 457 213" role="img">
+  <rect width="100%" height="100%" fill="white"/>
+  <text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="18" fill="#1c1f24">
+    <tspan x="14" y="30">p_h(s) =</tspan><tspan x="14" y="57">\Pr_{U \sim \pi_\theta(\cdot \mid s,h)}</tspan><tspan x="14" y="84">[</tspan><tspan x="14" y="111">g(s,U)=1</tspan><tspan x="14" y="138">\ \wedge\</tspan><tspan x="14" y="165">V(s\oplus U)&lt;V(s)</tspan><tspan x="14" y="192">].</tspan>
+  </text>
+</svg>

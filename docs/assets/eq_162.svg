@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="556" height="132" viewBox="0 0 556 132" role="img">
+  <rect width="100%" height="100%" fill="white"/>
+  <text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="18" fill="#1c1f24">
+    <tspan x="14" y="30">\Pr[\bigcap_{i=1}^{M}E_i]</tspan><tspan x="14" y="57">=\prod_{i=1}^{M}\Pr[E_i \bigg| \bigcap_{j&lt;i}E_j]</tspan><tspan x="14" y="84"> \ge </tspan><tspan x="14" y="111">\prod_{i=1}^{M} q_{h_i}^{\mathrm{LB}},</tspan>
+  </text>
+</svg>

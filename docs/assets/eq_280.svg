@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="468" height="159" viewBox="0 0 468 159" role="img">
+  <rect width="100%" height="100%" fill="white"/>
+  <text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="18" fill="#1c1f24">
+    <tspan x="14" y="30">\max_{b_1,\dots,b_M\ge 0}</tspan><tspan x="14" y="57"> </tspan><tspan x="14" y="84">\sum_{i=1}^{M}\log(1-(1-\hat p_i)^{b_i})</tspan><tspan x="14" y="111">    \text{s.t.}    </tspan><tspan x="14" y="138">\sum_{i=1}^{M} b_i \le B.</tspan>
+  </text>
+</svg>

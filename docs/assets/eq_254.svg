@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="501" height="105" viewBox="0 0 501 105" role="img">
+  <rect width="100%" height="100%" fill="white"/>
+  <text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="18" fill="#1c1f24">
+    <tspan x="14" y="30">\Pr[\bigcup_{j=1}^{N}\{V_j=1, I_j=1\}]</tspan><tspan x="14" y="57">\le \sum_{j=1}^{\bar{N}}\Pr[V_j=1, I_j=1]</tspan><tspan x="14" y="84">\le \bar{N} \alpha_{\max}^{arrow}. \qedhere</tspan>
+  </text>
+</svg>
