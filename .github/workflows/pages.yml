@@ -3,12 +3,6 @@ name: Render TeX article to GitHub Pages
 on:
   push:
     branches: [main]
-    paths:
-      - "docs/**/*.tex"
-      - "reasoning_exec/publish/**"
-      - "pyproject.toml"
-      - "uv.lock"
-      - ".github/workflows/pages.yml"
   workflow_dispatch:
 
 permissions:
