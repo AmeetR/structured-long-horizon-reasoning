@@ -7,7 +7,6 @@ import re
 import shutil
 import subprocess
 import tempfile
-import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
@@ -89,7 +88,7 @@ def render_medium_with_pandoc(source: Path, output: Path, canonical_url: str = "
                 "--to",
                 "html5",
                 "--standalone",
-                "--webtex=https://latex.codecogs.com/svg.latex?",
+                "--webtex=https://tex2pages.invalid/svg?",
                 "--metadata",
                 "title=Transactional Structured Reasoning: Contamination Safety and Recovery",
                 "-o",
@@ -103,29 +102,76 @@ def render_medium_with_pandoc(source: Path, output: Path, canonical_url: str = "
         canonical = f'<link rel="canonical" href="{html.escape(canonical_url, quote=True)}" />'
         html_page = html_page.replace("</head>", f"  {canonical}\n</head>", 1)
         output.write_text(html_page, encoding="utf-8")
-    localize_webtex_images(output)
+    render_local_math_images(output)
 
 
-def localize_webtex_images(output: Path) -> None:
+def render_local_math_images(output: Path) -> None:
     html_page = output.read_text(encoding="utf-8")
     asset_dir = output.parent / "assets"
     asset_dir.mkdir(parents=True, exist_ok=True)
     for stale in asset_dir.glob("eq_*.svg"):
         stale.unlink()
 
-    src_pattern = re.compile(r'src="(https://latex\.codecogs\.com/svg\.latex\?[^"]+)"')
-    srcs = list(dict.fromkeys(src_pattern.findall(html_page)))
-    replacements: dict[str, str] = {}
-    for index, src in enumerate(srcs, start=1):
+    image_pattern = re.compile(
+        r'<img\b(?=[^>]*\bsrc="https://tex2pages\.invalid/svg\?[^"]+")[^>]*>'
+    )
+    alt_pattern = re.compile(r'\balt="([^"]*)"')
+    class_pattern = re.compile(r'\bclass="([^"]*)"')
+    formulas: list[tuple[str, bool]] = []
+    for image_tag in image_pattern.findall(html_page):
+        alt_match = alt_pattern.search(image_tag)
+        if alt_match is None:
+            continue
+        class_match = class_pattern.search(image_tag)
+        class_names = class_match.group(1).split() if class_match else []
+        formula = html.unescape(alt_match.group(1))
+        formulas.append((formula, "display" in class_names))
+
+    unique_formulas = list(dict.fromkeys(formulas))
+    rendered_svgs = render_mathjax_svgs(unique_formulas)
+    replacements: dict[tuple[str, bool], str] = {}
+    for index, ((formula, display), svg) in enumerate(zip(unique_formulas, rendered_svgs), start=1):
         filename = f"eq_{index:03d}.svg"
         target = asset_dir / filename
-        request = urllib.request.Request(src, headers={"User-Agent": "tex2pages/1.0"})
-        with urllib.request.urlopen(request, timeout=30) as response:
-            target.write_bytes(response.read())
-        replacements[src] = f"assets/{filename}"
+        target.write_text(svg, encoding="utf-8")
+        replacements[(formula, display)] = f"assets/{filename}"
 
-    html_page = src_pattern.sub(lambda match: f'src="{replacements[match.group(1)]}"', html_page)
+    def replace_image_src(match: re.Match[str]) -> str:
+        image_tag = match.group(0)
+        alt_match = alt_pattern.search(image_tag)
+        if alt_match is None:
+            return image_tag
+        class_match = class_pattern.search(image_tag)
+        class_names = class_match.group(1).split() if class_match else []
+        key = (html.unescape(alt_match.group(1)), "display" in class_names)
+        return re.sub(
+            r'\bsrc="https://tex2pages\.invalid/svg\?[^"]+"',
+            f'src="{replacements[key]}"',
+            image_tag,
+            count=1,
+        )
+
+    html_page = image_pattern.sub(replace_image_src, html_page)
     output.write_text(html_page, encoding="utf-8")
+
+
+def render_mathjax_svgs(formulas: list[tuple[str, bool]]) -> list[str]:
+    if not formulas:
+        return []
+    node = shutil.which("node")
+    if node is None:
+        raise RuntimeError("node is required to render local SVG math for --medium-output.")
+
+    script = Path(__file__).with_name("render_mathjax_svg.mjs")
+    payload = json.dumps([{"tex": formula, "display": display} for formula, display in formulas])
+    result = subprocess.run(
+        [node, str(script)],
+        input=payload,
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    return [entry["svg"] for entry in json.loads(result.stdout)]
 
 
 def render_article(

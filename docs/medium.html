@@ -220,16 +220,16 @@ class="math display" /> where <img style="vertical-align:middle"
 src="assets/eq_003.svg"
 alt="\mathcal{H}" title="\mathcal{H}" class="math inline" /> is a finite
 set of reasoning obligations, <img style="vertical-align:middle"
-src="assets/eq_004.svg" alt="E"
-title="E" class="math inline" /> is a dependency relation, and <img
+src="assets/eq_004.svg" alt="E" title="E"
+class="math inline" /> is a dependency relation, and <img
 style="vertical-align:middle"
 src="assets/eq_005.svg"
 alt="r \in \mathcal{H}" title="r \in \mathcal{H}" class="math inline" />
 is the root obligation whose solution determines the final answer.</p>
 <p>The committed reasoning state at time <img
 style="vertical-align:middle"
-src="assets/eq_006.svg" alt="t"
-title="t" class="math inline" /> is <img style="vertical-align:middle"
+src="assets/eq_006.svg" alt="t" title="t"
+class="math inline" /> is <img style="vertical-align:middle"
 src="assets/eq_007.svg"
 alt="s_t = (F_t, D_t, K_t, \sigma_t, \Pi_t, B_t),"
 title="s_t = (F_t, D_t, K_t, \sigma_t, \Pi_t, B_t),"
@@ -246,8 +246,8 @@ title="K_t" class="math inline" /> is the set of solved obligations,
 src="assets/eq_011.svg"
 alt="\sigma_t" title="\sigma_t" class="math inline" /> is the map of
 committed values or claims, <img style="vertical-align:middle"
-src="assets/eq_012.svg"
-alt="\Pi_t" title="\Pi_t" class="math inline" /> is the set of
+src="assets/eq_012.svg" alt="\Pi_t"
+title="\Pi_t" class="math inline" /> is the set of
 certificates/provenance records, and <img style="vertical-align:middle"
 src="assets/eq_013.svg" alt="B_t"
 title="B_t" class="math inline" /> is the remaining retry budget.</p>
@@ -266,12 +266,12 @@ src="assets/eq_016.svg"
 alt="U_{h,k} \sim \pi_\theta(\cdot \mid s, h, k),"
 title="U_{h,k} \sim \pi_\theta(\cdot \mid s, h, k),"
 class="math display" /> where <img style="vertical-align:middle"
-src="assets/eq_017.svg" alt="h"
-title="h" class="math inline" /> is the current obligation and <img
+src="assets/eq_017.svg" alt="h" title="h"
+class="math inline" /> is the current obligation and <img
 style="vertical-align:middle"
-src="assets/eq_018.svg" alt="k"
-title="k" class="math inline" /> is the attempt index. The executor does
-not directly trust samples from <img style="vertical-align:middle"
+src="assets/eq_018.svg" alt="k" title="k"
+class="math inline" /> is the attempt index. The executor does not
+directly trust samples from <img style="vertical-align:middle"
 src="assets/eq_019.svg"
 alt="\pi_\theta" title="\pi_\theta" class="math inline" />. Every
 proposed update is passed through a validator <img
@@ -282,19 +282,17 @@ class="math display" /></p>
 <div class="definition">
 <p><strong>Definition 1</strong> (Committed-state transition). <em>Given
 state <img style="vertical-align:middle"
-src="assets/eq_021.svg" alt="s"
-title="s" class="math inline" /> and proposal <img
-style="vertical-align:middle"
-src="assets/eq_022.svg" alt="u"
-title="u" class="math inline" />, let <img style="vertical-align:middle"
+src="assets/eq_021.svg" alt="s" title="s"
+class="math inline" /> and proposal <img style="vertical-align:middle"
+src="assets/eq_022.svg" alt="u" title="u"
+class="math inline" />, let <img style="vertical-align:middle"
 src="assets/eq_023.svg"
 alt="s \oplus u" title="s \oplus u" class="math inline" /> denote the
 candidate state obtained by applying <img style="vertical-align:middle"
-src="assets/eq_022.svg" alt="u"
-title="u" class="math inline" /> to a copy of <img
-style="vertical-align:middle"
-src="assets/eq_021.svg" alt="s"
-title="s" class="math inline" />. The committed transition is <img
+src="assets/eq_022.svg" alt="u" title="u"
+class="math inline" /> to a copy of <img style="vertical-align:middle"
+src="assets/eq_021.svg" alt="s" title="s"
+class="math inline" />. The committed transition is <img
 style="vertical-align:middle"
 src="assets/eq_024.svg"
 alt="T(s,u) =
@@ -307,8 +305,8 @@ s \oplus u &amp; \text{if } g(s,u)=1 \text{ and } V(s \oplus u) &lt; V(s),\\
 s &amp; \text{otherwise.}
 \end{cases}" class="math display" /> The rejected case is a rollback:
 the committed state remains exactly <img style="vertical-align:middle"
-src="assets/eq_021.svg" alt="s"
-title="s" class="math inline" />.</em></p>
+src="assets/eq_021.svg" alt="s" title="s"
+class="math inline" />.</em></p>
 </div>
 <div class="definition">
 <p><strong>Definition 2</strong> (Rejection memory). <em>The executor
@@ -322,8 +320,8 @@ proposals, but it is excluded from <img style="vertical-align:middle"
 src="assets/eq_011.svg"
 alt="\sigma_t" title="\sigma_t" class="math inline" />, <img
 style="vertical-align:middle"
-src="assets/eq_012.svg"
-alt="\Pi_t" title="\Pi_t" class="math inline" />, and final answer
+src="assets/eq_012.svg" alt="\Pi_t"
+title="\Pi_t" class="math inline" />, and final answer
 extraction.</em></p>
 <p><em>On a rejected proposal <img style="vertical-align:middle"
 src="assets/eq_015.svg" alt="u_t"
@@ -354,10 +352,9 @@ style="vertical-align:middle"
 src="assets/eq_030.svg"
 alt="\mathsf{Bad}(s)=1" title="\mathsf{Bad}(s)=1" class="math inline" />
 if committed state <img style="vertical-align:middle"
-src="assets/eq_021.svg" alt="s"
-title="s" class="math inline" /> contains at least one invalid committed
-claim, value, or certificate. Otherwise <img
-style="vertical-align:middle"
+src="assets/eq_021.svg" alt="s" title="s"
+class="math inline" /> contains at least one invalid committed claim,
+value, or certificate. Otherwise <img style="vertical-align:middle"
 src="assets/eq_031.svg"
 alt="\mathsf{Bad}(s)=0" title="\mathsf{Bad}(s)=0"
 class="math inline" />. Define <img style="vertical-align:middle"
@@ -373,8 +370,8 @@ not contamination unless they enter <img style="vertical-align:middle"
 src="assets/eq_011.svg"
 alt="\sigma_t" title="\sigma_t" class="math inline" /> or <img
 style="vertical-align:middle"
-src="assets/eq_012.svg"
-alt="\Pi_t" title="\Pi_t" class="math inline" />. Rejection memory <img
+src="assets/eq_012.svg" alt="\Pi_t"
+title="\Pi_t" class="math inline" />. Rejection memory <img
 style="vertical-align:middle"
 src="assets/eq_025.svg" alt="R_t"
 title="R_t" class="math inline" /> is also not contamination, provided
@@ -405,9 +402,9 @@ title="V(s)=
 |\{h \in \mathcal{H}: \mathrm{Ch}(h)\neq\emptyset, h\notin D_t\}|."
 class="math display" /> For logic-grid tasks, <img
 style="vertical-align:middle"
-src="assets/eq_036.svg" alt="V"
-title="V" class="math inline" /> may instead count unresolved person
-obligations and remaining candidate claims.</em></p>
+src="assets/eq_036.svg" alt="V" title="V"
+class="math inline" /> may instead count unresolved person obligations
+and remaining candidate claims.</em></p>
 </div>
 <h1 id="claim-i-contamination-safety">Claim I: Contamination Safety</h1>
 <p>The first claim is the reasoning-state analogue of transactional
@@ -432,20 +429,19 @@ rejected candidate states are not directly committed.</em></p>
 <div id="ass:faithful-rollback" class="assumption">
 <p><strong>Assumption 3</strong> (Faithful rollback). <em>If a proposal
 <img style="vertical-align:middle"
-src="assets/eq_022.svg" alt="u"
-title="u" class="math inline" /> is rejected, the next committed state
-equals the previous committed state: <img style="vertical-align:middle"
+src="assets/eq_022.svg" alt="u" title="u"
+class="math inline" /> is rejected, the next committed state equals the
+previous committed state: <img style="vertical-align:middle"
 src="assets/eq_039.svg"
 alt="T(s,u)=s." title="T(s,u)=s." class="math display" /></em></p>
 </div>
 <div id="ass:validator-soundness" class="assumption">
 <p><strong>Assumption 4</strong> (Validator soundness). <em>For every
 clean state <img style="vertical-align:middle"
-src="assets/eq_021.svg" alt="s"
-title="s" class="math inline" /> and proposal <img
-style="vertical-align:middle"
-src="assets/eq_022.svg" alt="u"
-title="u" class="math inline" />, <img style="vertical-align:middle"
+src="assets/eq_021.svg" alt="s" title="s"
+class="math inline" /> and proposal <img style="vertical-align:middle"
+src="assets/eq_022.svg" alt="u" title="u"
+class="math inline" />, <img style="vertical-align:middle"
 src="assets/eq_040.svg"
 alt="\mathsf{Clean}(s) \wedge g(s,u)=1 \implies \mathsf{Clean}(s \oplus u)."
 title="\mathsf{Clean}(s) \wedge g(s,u)=1 \implies \mathsf{Clean}(s \oplus u)."
@@ -465,16 +461,16 @@ style="vertical-align:middle"
 src="assets/eq_011.svg"
 alt="\sigma_t" title="\sigma_t" class="math inline" /> and <img
 style="vertical-align:middle"
-src="assets/eq_012.svg"
-alt="\Pi_t" title="\Pi_t" class="math inline" />, not on rejected
-proposals or hidden LLM drafts.</em></p>
+src="assets/eq_012.svg" alt="\Pi_t"
+title="\Pi_t" class="math inline" />, not on rejected proposals or
+hidden LLM drafts.</em></p>
 </div>
 <div id="ass:answer-extraction" class="assumption">
 <p><strong>Assumption 6</strong> (Answer-extraction soundness). <em>The
 executor emits a final answer only when the root obligation <img
 style="vertical-align:middle"
-src="assets/eq_042.svg" alt="r"
-title="r" class="math inline" /> has been solved, i.e. <img
+src="assets/eq_042.svg" alt="r" title="r"
+class="math inline" /> has been solved, i.e. <img
 style="vertical-align:middle"
 src="assets/eq_043.svg"
 alt="r\in K_t" title="r\in K_t" class="math inline" />, and the answer
@@ -483,17 +479,17 @@ style="vertical-align:middle"
 src="assets/eq_044.svg"
 alt="\Pi_t(r)" title="\Pi_t(r)" class="math inline" /> that the same
 validator <img style="vertical-align:middle"
-src="assets/eq_045.svg" alt="g"
-title="g" class="math inline" /> has accepted as a witness for <img
+src="assets/eq_045.svg" alt="g" title="g"
+class="math inline" /> has accepted as a witness for <img
 style="vertical-align:middle"
 src="assets/eq_046.svg"
 alt="\sigma_t(r)" title="\sigma_t(r)" class="math inline" /> being the
 correct value of <img style="vertical-align:middle"
-src="assets/eq_042.svg" alt="r"
-title="r" class="math inline" />. Equivalently, the validator is invoked
-on the root certificate before any answer leaves the executor, and
-accepted certificates correctly witness their claims under the
-validator’s soundness guarantee.</em></p>
+src="assets/eq_042.svg" alt="r" title="r"
+class="math inline" />. Equivalently, the validator is invoked on the
+root certificate before any answer leaves the executor, and accepted
+certificates correctly witness their claims under the validator’s
+soundness guarantee.</em></p>
 </div>
 <p>Assumption <a href="#ass:answer-from-commit"
 data-reference-type="ref" data-reference="ass:answer-from-commit">5</a>
@@ -533,8 +529,8 @@ either.)</em></p>
 <div class="proof">
 <p><em>Proof.</em> The proof is by induction on <img
 style="vertical-align:middle"
-src="assets/eq_006.svg" alt="t"
-title="t" class="math inline" />.</p>
+src="assets/eq_006.svg" alt="t" title="t"
+class="math inline" />.</p>
 <p><strong>Base case.</strong> By the initial clean-state assumption,
 <img style="vertical-align:middle"
 src="assets/eq_048.svg"
@@ -628,8 +624,8 @@ src="assets/eq_046.svg"
 alt="\sigma_t(r)" title="\sigma_t(r)" class="math inline" />. The
 emitted answer is a deterministic function of these committed fields, so
 it agrees with the true value of <img style="vertical-align:middle"
-src="assets/eq_042.svg" alt="r"
-title="r" class="math inline" />. ◻</p>
+src="assets/eq_042.svg" alt="r" title="r"
+class="math inline" />. ◻</p>
 </div>
 <h4 id="interpretation.">Interpretation.</h4>
 <p>Theorem <a href="#thm:contamination-safety" data-reference-type="ref"
@@ -658,8 +654,8 @@ src="assets/eq_055.svg"
 alt="V(s \oplus u) &lt; V(s)," title="V(s \oplus u) &lt; V(s),"
 class="math display" /> and rejected proposals leave <img
 style="vertical-align:middle"
-src="assets/eq_021.svg" alt="s"
-title="s" class="math inline" /> unchanged, then <img
+src="assets/eq_021.svg" alt="s" title="s"
+class="math inline" /> unchanged, then <img
 style="vertical-align:middle"
 src="assets/eq_056.svg"
 alt="V(s_t)" title="V(s_t)" class="math inline" /> strictly decreases on
@@ -668,9 +664,9 @@ accepted steps and never increases on rejected steps.</em></p>
 <div class="proof">
 <p><em>Proof.</em> Accepted steps decrease <img
 style="vertical-align:middle"
-src="assets/eq_036.svg" alt="V"
-title="V" class="math inline" /> by the commit rule. Rejected steps
-produce <img style="vertical-align:middle"
+src="assets/eq_036.svg" alt="V" title="V"
+class="math inline" /> by the commit rule. Rejected steps produce <img
+style="vertical-align:middle"
 src="assets/eq_057.svg"
 alt="s_{t+1}=s_t" title="s_{t+1}=s_t" class="math inline" />, so <img
 style="vertical-align:middle"
@@ -681,13 +677,13 @@ class="math inline" />. ◻</p>
 <div class="theorem">
 <p><strong>Theorem 2</strong> (Finite-budget termination). <em>Assume
 <img style="vertical-align:middle"
-src="assets/eq_036.svg" alt="V"
-title="V" class="math inline" /> is a nonnegative integer, accepted
-steps strictly decrease <img style="vertical-align:middle"
-src="assets/eq_036.svg" alt="V"
-title="V" class="math inline" />, and rejected steps consume finite
-retry budget. Then the executor terminates with success, stall, budget
-exhaustion, or a configured max-step cap.</em></p>
+src="assets/eq_036.svg" alt="V" title="V"
+class="math inline" /> is a nonnegative integer, accepted steps strictly
+decrease <img style="vertical-align:middle"
+src="assets/eq_036.svg" alt="V" title="V"
+class="math inline" />, and rejected steps consume finite retry budget.
+Then the executor terminates with success, stall, budget exhaustion, or
+a configured max-step cap.</em></p>
 </div>
 <div class="proof">
 <p><em>Proof.</em> There can be at most <img
@@ -706,12 +702,12 @@ bound. ◻</p>
 local failures are non-catastrophic: after rollback, the executor can
 try again from the same clean state.</p>
 <p>Fix a clean state <img style="vertical-align:middle"
-src="assets/eq_021.svg" alt="s"
-title="s" class="math inline" /> and a frontier obligation <img
+src="assets/eq_021.svg" alt="s" title="s"
+class="math inline" /> and a frontier obligation <img
 style="vertical-align:middle"
-src="assets/eq_017.svg" alt="h"
-title="h" class="math inline" />. Define the one-shot local success
-probability <img style="vertical-align:middle"
+src="assets/eq_017.svg" alt="h" title="h"
+class="math inline" />. Define the one-shot local success probability
+<img style="vertical-align:middle"
 src="assets/eq_061.svg"
 alt="p_h(s) =
 \Pr_{U \sim \pi_\theta(\cdot \mid s,h)}
@@ -731,24 +727,23 @@ sample proposes an acceptable, progressive local update.</p>
 <p><strong>Theorem 3</strong> (Retry amplification, i.i.d. regime).
 <em>Suppose the executor attempts obligation <img
 style="vertical-align:middle"
-src="assets/eq_017.svg" alt="h"
-title="h" class="math inline" /> up to <img
-style="vertical-align:middle"
+src="assets/eq_017.svg" alt="h" title="h"
+class="math inline" /> up to <img style="vertical-align:middle"
 src="assets/eq_062.svg" alt="b_h"
 title="b_h" class="math inline" /> times from the same clean committed
 state <img style="vertical-align:middle"
-src="assets/eq_021.svg" alt="s"
-title="s" class="math inline" />, rejected attempts leave <img
+src="assets/eq_021.svg" alt="s" title="s"
+class="math inline" />, rejected attempts leave <img
 style="vertical-align:middle"
-src="assets/eq_021.svg" alt="s"
-title="s" class="math inline" /> unchanged, and attempts are
-conditionally independent with identical local success probability <img
+src="assets/eq_021.svg" alt="s" title="s"
+class="math inline" /> unchanged, and attempts are conditionally
+independent with identical local success probability <img
 style="vertical-align:middle"
 src="assets/eq_063.svg"
 alt="p_h(s)" title="p_h(s)" class="math inline" />. Then the probability
 of at least one valid commit for <img style="vertical-align:middle"
-src="assets/eq_017.svg" alt="h"
-title="h" class="math inline" /> is <img style="vertical-align:middle"
+src="assets/eq_017.svg" alt="h" title="h"
+class="math inline" /> is <img style="vertical-align:middle"
 src="assets/eq_064.svg"
 alt="q_h(s,b_h) =
 1-(1-p_h(s))^{b_h}." title="q_h(s,b_h) =
@@ -797,31 +792,31 @@ style="vertical-align:middle"
 src="assets/eq_062.svg" alt="b_h"
 title="b_h" class="math inline" /> retries on obligation <img
 style="vertical-align:middle"
-src="assets/eq_017.svg" alt="h"
-title="h" class="math inline" /> are conditionally independent.
-Empirically, repeated samples from a fixed LLM on a fixed prompt are
-correlated: failure modes tend to repeat. The realistic generative model
-has a latent “hardness” or “failure-mode” variable <img
+src="assets/eq_017.svg" alt="h" title="h"
+class="math inline" /> are conditionally independent. Empirically,
+repeated samples from a fixed LLM on a fixed prompt are correlated:
+failure modes tend to repeat. The realistic generative model has a
+latent “hardness” or “failure-mode” variable <img
 style="vertical-align:middle"
-src="assets/eq_070.svg" alt="Z"
-title="Z" class="math inline" /> that is sampled once per obligation
-(encoding, e.g., which sub-pattern of the prompt the model is currently
-confusing), with attempts conditionally independent given <img
+src="assets/eq_070.svg" alt="Z" title="Z"
+class="math inline" /> that is sampled once per obligation (encoding,
+e.g., which sub-pattern of the prompt the model is currently confusing),
+with attempts conditionally independent given <img
 style="vertical-align:middle"
-src="assets/eq_070.svg" alt="Z"
-title="Z" class="math inline" />.</p>
+src="assets/eq_070.svg" alt="Z" title="Z"
+class="math inline" />.</p>
 <div id="prop:correlation-upper-bound" class="proposition">
 <p><strong>Proposition 1</strong> (Correlation makes retry amplification
 an upper bound). <em>Suppose attempts on obligation <img
 style="vertical-align:middle"
-src="assets/eq_017.svg" alt="h"
-title="h" class="math inline" /> share a latent variable <img
+src="assets/eq_017.svg" alt="h" title="h"
+class="math inline" /> share a latent variable <img
 style="vertical-align:middle"
-src="assets/eq_070.svg" alt="Z"
-title="Z" class="math inline" /> such that, conditional on <img
+src="assets/eq_070.svg" alt="Z" title="Z"
+class="math inline" /> such that, conditional on <img
 style="vertical-align:middle"
-src="assets/eq_070.svg" alt="Z"
-title="Z" class="math inline" />, the failure indicators <img
+src="assets/eq_070.svg" alt="Z" title="Z"
+class="math inline" />, the failure indicators <img
 style="vertical-align:middle"
 src="assets/eq_071.svg"
 alt="Y_k=\mathbf{1}[X_k=0]" title="Y_k=\mathbf{1}[X_k=0]"
@@ -890,9 +885,8 @@ mechanisms include sampling temperature, prompt paraphrasing, varied
 few-shot exemplars, distinct draft variables, and ensembling across
 decoders or model instances. Each such intervention can be viewed as
 enlarging the support of <img style="vertical-align:middle"
-src="assets/eq_070.svg" alt="Z"
-title="Z" class="math inline" /> relative to a fixed-prompt
-baseline.</p>
+src="assets/eq_070.svg" alt="Z" title="Z"
+class="math inline" /> relative to a fixed-prompt baseline.</p>
 <h4 id="a-more-conservative-practical-bound.">A more conservative
 practical bound.</h4>
 <p>For empirical use, a pessimistic single-parameter alternative to
@@ -903,13 +897,12 @@ src="assets/eq_082.svg"
 alt="F_k=\{Y_1=\cdots=Y_k=1\}" title="F_k=\{Y_1=\cdots=Y_k=1\}"
 class="math inline" /> be the event that the first <img
 style="vertical-align:middle"
-src="assets/eq_018.svg" alt="k"
-title="k" class="math inline" /> attempts on obligation <img
+src="assets/eq_018.svg" alt="k" title="k"
+class="math inline" /> attempts on obligation <img
 style="vertical-align:middle"
-src="assets/eq_017.svg" alt="h"
-title="h" class="math inline" /> all fail, and assume the
-<em>uniform</em> persistence condition <img
-style="vertical-align:middle"
+src="assets/eq_017.svg" alt="h" title="h"
+class="math inline" /> all fail, and assume the <em>uniform</em>
+persistence condition <img style="vertical-align:middle"
 src="assets/eq_083.svg"
 alt="\Pr[Y_{k+1}=1 \mid F_k] \;\le\; \rho_h
 \quad \text{for all } k=1,\dots,b_h-1,"
@@ -921,10 +914,10 @@ alt="\rho_h\in[1-p_h,1]" title="\rho_h\in[1-p_h,1]"
 class="math inline" />. This is a stronger assumption than mere one-step
 correlation: failures must remain at most <img
 style="vertical-align:middle"
-src="assets/eq_085.svg"
-alt="\rho_h" title="\rho_h" class="math inline" />-likely conditional on
-<em>all</em> previous failures, not only on the immediately previous
-one. Then, applying the chain rule, <img style="vertical-align:middle"
+src="assets/eq_085.svg" alt="\rho_h"
+title="\rho_h" class="math inline" />-likely conditional on <em>all</em>
+previous failures, not only on the immediately previous one. Then,
+applying the chain rule, <img style="vertical-align:middle"
 src="assets/eq_086.svg"
 alt="\Pr[F_{b_h}]
 \;=\;
@@ -953,21 +946,21 @@ src="assets/eq_089.svg"
 alt="\rho_h=1" title="\rho_h=1" class="math inline" />, no amplification
 beyond the first attempt). The uniform persistence parameter <img
 style="vertical-align:middle"
-src="assets/eq_085.svg"
-alt="\rho_h" title="\rho_h" class="math inline" /> can be calibrated
-from logged retry trajectories by computing, for each prefix length <img
+src="assets/eq_085.svg" alt="\rho_h"
+title="\rho_h" class="math inline" /> can be calibrated from logged
+retry trajectories by computing, for each prefix length <img
 style="vertical-align:middle"
-src="assets/eq_018.svg" alt="k"
-title="k" class="math inline" />, the empirical fraction of trajectories
-whose <img style="vertical-align:middle"
+src="assets/eq_018.svg" alt="k" title="k"
+class="math inline" />, the empirical fraction of trajectories whose
+<img style="vertical-align:middle"
 src="assets/eq_090.svg"
 alt="(k{+}1)" title="(k{+}1)" class="math inline" />-st attempt fails
 given <img style="vertical-align:middle"
 src="assets/eq_091.svg" alt="F_k"
 title="F_k" class="math inline" />, and taking the supremum over <img
 style="vertical-align:middle"
-src="assets/eq_018.svg" alt="k"
-title="k" class="math inline" />.</p>
+src="assets/eq_018.svg" alt="k" title="k"
+class="math inline" />.</p>
 <h1 id="global-success-under-oracle-structure">Global Success Under
 Oracle Structure</h1>
 <p>Let <img style="vertical-align:middle"
@@ -1178,15 +1171,15 @@ style="vertical-align:middle"
 src="assets/eq_062.svg" alt="b_h"
 title="b_h" class="math inline" /> held fixed. As an illustration take
 <img style="vertical-align:middle"
-src="assets/eq_117.svg"
-alt="M=10" title="M=10" class="math inline" /> identical obligations,
-per-attempt local success rate <img style="vertical-align:middle"
+src="assets/eq_117.svg" alt="M=10"
+title="M=10" class="math inline" /> identical obligations, per-attempt
+local success rate <img style="vertical-align:middle"
 src="assets/eq_118.svg"
 alt="p_h=0.30" title="p_h=0.30" class="math inline" />, retry budget
 <img style="vertical-align:middle"
-src="assets/eq_119.svg"
-alt="b_h=8" title="b_h=8" class="math inline" />, and persistence
-parameter <img style="vertical-align:middle"
+src="assets/eq_119.svg" alt="b_h=8"
+title="b_h=8" class="math inline" />, and persistence parameter <img
+style="vertical-align:middle"
 src="assets/eq_120.svg"
 alt="\rho_h=0.85" title="\rho_h=0.85" class="math inline" />. Then:</p>
 <div class="center">
@@ -1209,11 +1202,11 @@ class="math inline" /></th>
 <tr>
 <td style="text-align: left;">One-shot baseline (<img
 style="vertical-align:middle"
-src="assets/eq_122.svg"
-alt="b_h=1" title="b_h=1" class="math inline" />)</td>
+src="assets/eq_122.svg" alt="b_h=1"
+title="b_h=1" class="math inline" />)</td>
 <td style="text-align: left;"><img style="vertical-align:middle"
-src="assets/eq_123.svg"
-alt="0.30" title="0.30" class="math inline" /></td>
+src="assets/eq_123.svg" alt="0.30"
+title="0.30" class="math inline" /></td>
 <td style="text-align: left;"><img style="vertical-align:middle"
 src="assets/eq_124.svg"
 alt="\approx 5.9 \times 10^{-6}" title="\approx 5.9 \times 10^{-6}"
@@ -1222,8 +1215,8 @@ class="math inline" /></td>
 <tr>
 <td style="text-align: left;">Deterministic per-prompt failure</td>
 <td style="text-align: left;"><img style="vertical-align:middle"
-src="assets/eq_123.svg"
-alt="0.30" title="0.30" class="math inline" /></td>
+src="assets/eq_123.svg" alt="0.30"
+title="0.30" class="math inline" /></td>
 <td style="text-align: left;"><img style="vertical-align:middle"
 src="assets/eq_124.svg"
 alt="\approx 5.9 \times 10^{-6}" title="\approx 5.9 \times 10^{-6}"
@@ -1260,9 +1253,9 @@ class="math inline" /></td>
 </div>
 <p>The i.i.d. regime beats the persistence-calibrated regime by roughly
 a factor of <img style="vertical-align:middle"
-src="assets/eq_129.svg" alt="7"
-title="7" class="math inline" />, and the persistence-calibrated regime
-beats the deterministic regime by roughly a factor of <img
+src="assets/eq_129.svg" alt="7" title="7"
+class="math inline" />, and the persistence-calibrated regime beats the
+deterministic regime by roughly a factor of <img
 style="vertical-align:middle"
 src="assets/eq_130.svg"
 alt="1.3\times 10^4" title="1.3\times 10^4" class="math inline" />. Note
@@ -1284,25 +1277,25 @@ coarse, the executor can refine it into smaller obligations.</p>
 <div class="definition">
 <p><strong>Definition 5</strong> (Refinement). <em>A refinement operator
 replaces a failed obligation <img style="vertical-align:middle"
-src="assets/eq_017.svg" alt="h"
-title="h" class="math inline" /> with child obligations <img
+src="assets/eq_017.svg" alt="h" title="h"
+class="math inline" /> with child obligations <img
 style="vertical-align:middle"
 src="assets/eq_131.svg"
 alt="\mathsf{Refine}(h)=\{c_1,\ldots,c_m\}"
 title="\mathsf{Refine}(h)=\{c_1,\ldots,c_m\}" class="math display" />
 plus, optionally, a recomposition obligation that combines the children
 into a solution for <img style="vertical-align:middle"
-src="assets/eq_017.svg" alt="h"
-title="h" class="math inline" />.</em></p>
+src="assets/eq_017.svg" alt="h" title="h"
+class="math inline" />.</em></p>
 </div>
 <p>Let <img style="vertical-align:middle"
 src="assets/eq_132.svg" alt="q_h"
 title="q_h" class="math inline" /> denote the (calibrated or assumed)
 probability that the executor resolves <img
 style="vertical-align:middle"
-src="assets/eq_017.svg" alt="h"
-title="h" class="math inline" /> directly under its allocated retry
-budget — that is, the <img style="vertical-align:middle"
+src="assets/eq_017.svg" alt="h" title="h"
+class="math inline" /> directly under its allocated retry budget — that
+is, the <img style="vertical-align:middle"
 src="assets/eq_115.svg"
 alt="q_h^{\mathrm{LB}}" title="q_h^{\mathrm{LB}}" class="math inline" />
 supplied by whichever local-rate model (Corollaries <a
@@ -1327,8 +1320,8 @@ src="assets/eq_136.svg"
 alt="q_{\mathrm{comp}}" title="q_{\mathrm{comp}}" class="math inline" />
 be the probability that the children can be recomposed into a validated
 solution for <img style="vertical-align:middle"
-src="assets/eq_017.svg" alt="h"
-title="h" class="math inline" />.</p>
+src="assets/eq_017.svg" alt="h" title="h"
+class="math inline" />.</p>
 <div id="prop:refinement-helps" class="proposition">
 <p><strong>Proposition 2</strong> (When refinement improves recovery).
 <em>Suppose that, conditional on refinement being accepted, the events
@@ -1342,9 +1335,8 @@ alt="i=1,\ldots,m" title="i=1,\ldots,m" class="math inline" /> and
 assumption, equivalent to asserting that no shared latent failure mode
 couples the children. Then refinement improves the probability of
 resolving <img style="vertical-align:middle"
-src="assets/eq_017.svg" alt="h"
-title="h" class="math inline" /> whenever <img
-style="vertical-align:middle"
+src="assets/eq_017.svg" alt="h" title="h"
+class="math inline" /> whenever <img style="vertical-align:middle"
 src="assets/eq_138.svg"
 alt="q_{\mathrm{exp}}
 \left(\prod_{i=1}^m q_{c_i}\right)
@@ -1373,11 +1365,11 @@ is accepted, every child obligation is resolved, and recomposition
 succeeds, assuming the stated factorisation across children. The
 right-hand side is the calibrated probability of resolving <img
 style="vertical-align:middle"
-src="assets/eq_017.svg" alt="h"
-title="h" class="math inline" /> without refinement. Refinement is
-beneficial exactly when the former exceeds the latter. The fall-back
-form follows by replacing the product with the joint probability and
-applying the same inequality. ◻</p>
+src="assets/eq_017.svg" alt="h" title="h"
+class="math inline" /> without refinement. Refinement is beneficial
+exactly when the former exceeds the latter. The fall-back form follows
+by replacing the product with the joint probability and applying the
+same inequality. ◻</p>
 </div>
 <h4 id="interpretation.-2">Interpretation.</h4>
 <p>This is a decision rule for adaptive decomposition under whichever
@@ -1465,9 +1457,9 @@ genuinely different contamination bounds.</p>
 <div id="thm:contamination-noisy-invocation" class="theorem">
 <p><strong>Theorem 5</strong> (Contamination bound, per-invocation
 form). <em>Let <img style="vertical-align:middle"
-src="assets/eq_149.svg" alt="N"
-title="N" class="math inline" /> be the (random) total number of
-validator invocations during a run, with deterministic upper bound <img
+src="assets/eq_149.svg" alt="N" title="N"
+class="math inline" /> be the (random) total number of validator
+invocations during a run, with deterministic upper bound <img
 style="vertical-align:middle"
 src="assets/eq_150.svg"
 alt="\bar{N}" title="\bar{N}" class="math inline" /> given by retry
@@ -1497,9 +1489,8 @@ src="assets/eq_155.svg"
 alt="I_j=\mathbf{1}[U_j \text{ invalid}]"
 title="I_j=\mathbf{1}[U_j \text{ invalid}]" class="math inline" />. A
 bad commit at invocation <img style="vertical-align:middle"
-src="assets/eq_156.svg" alt="j"
-title="j" class="math inline" /> is the event <img
-style="vertical-align:middle"
+src="assets/eq_156.svg" alt="j" title="j"
+class="math inline" /> is the event <img style="vertical-align:middle"
 src="assets/eq_157.svg"
 alt="V_j=1\wedge I_j=1" title="V_j=1\wedge I_j=1"
 class="math inline" />, with <img style="vertical-align:middle"
@@ -1524,9 +1515,9 @@ title="\Pr\!\left[\bigcup_{j=1}^{N}\{V_j=1, I_j=1\}\right]
 <div id="thm:contamination-noisy-posterior" class="theorem">
 <p><strong>Theorem 6</strong> (Contamination bound, per-commit form).
 <em>If the executor produces at most <img style="vertical-align:middle"
-src="assets/eq_160.svg" alt="K"
-title="K" class="math inline" /> accepted commits and every accepted
-commit satisfies <img style="vertical-align:middle"
+src="assets/eq_160.svg" alt="K" title="K"
+class="math inline" /> accepted commits and every accepted commit
+satisfies <img style="vertical-align:middle"
 src="assets/eq_161.svg"
 alt="\Pr[U\text{ invalid}\mid g(s,U)=1]\le\alpha_{\max}^{\leftarrow}"
 title="\Pr[U\text{ invalid}\mid g(s,U)=1]\le\alpha_{\max}^{\leftarrow}"
@@ -1545,8 +1536,8 @@ let <img style="vertical-align:middle"
 src="assets/eq_164.svg" alt="B_i"
 title="B_i" class="math inline" /> be the event that commit <img
 style="vertical-align:middle"
-src="assets/eq_165.svg" alt="i"
-title="i" class="math inline" /> is invalid. By assumption <img
+src="assets/eq_165.svg" alt="i" title="i"
+class="math inline" /> is invalid. By assumption <img
 style="vertical-align:middle"
 src="assets/eq_166.svg"
 alt="\Pr[B_i]\le\alpha_{\max}^{\leftarrow}"
@@ -1571,12 +1562,12 @@ src="assets/eq_170.svg"
 alt="\alpha^{\rightarrow}=10^{-3}" title="\alpha^{\rightarrow}=10^{-3}"
 class="math inline" />, the retry budget allows <img
 style="vertical-align:middle"
-src="assets/eq_171.svg"
-alt="10^4" title="10^4" class="math inline" /> invocations, and the
-executor halts after <img style="vertical-align:middle"
-src="assets/eq_172.svg"
-alt="K=1" title="K=1" class="math inline" /> accept. Every accept is
-then a bad commit, and <img style="vertical-align:middle"
+src="assets/eq_171.svg" alt="10^4"
+title="10^4" class="math inline" /> invocations, and the executor halts
+after <img style="vertical-align:middle"
+src="assets/eq_172.svg" alt="K=1"
+title="K=1" class="math inline" /> accept. Every accept is then a bad
+commit, and <img style="vertical-align:middle"
 src="assets/eq_173.svg"
 alt="\Pr[\exists \text{ bad commit}]
 =1-(1-10^{-3})^{10^4}\approx 1," title="\Pr[\exists \text{ bad commit}]
@@ -1646,8 +1637,8 @@ substantive research questions.</p>
 <h4 id="optimal-budget-allocation-across-obligations.">Optimal budget
 allocation across obligations.</h4>
 <p>Given a total invocation budget <img style="vertical-align:middle"
-src="assets/eq_178.svg" alt="B"
-title="B" class="math inline" /> and required obligations <img
+src="assets/eq_178.svg" alt="B" title="B"
+class="math inline" /> and required obligations <img
 style="vertical-align:middle"
 src="assets/eq_179.svg"
 alt="\mathcal{R}=\{h_1,\dots,h_M\}"
@@ -1697,23 +1688,23 @@ policies.</h4>
 <p>Proposition <a href="#prop:refinement-helps"
 data-reference-type="ref" data-reference="prop:refinement-helps">2</a>
 compares “solve <img style="vertical-align:middle"
-src="assets/eq_017.svg" alt="h"
-title="h" class="math inline" /> directly” against “refine <img
+src="assets/eq_017.svg" alt="h" title="h"
+class="math inline" /> directly” against “refine <img
 style="vertical-align:middle"
-src="assets/eq_017.svg" alt="h"
-title="h" class="math inline" /> then solve its children” as if they
-were exclusive. In practice, the executor first attempts <img
+src="assets/eq_017.svg" alt="h" title="h"
+class="math inline" /> then solve its children” as if they were
+exclusive. In practice, the executor first attempts <img
 style="vertical-align:middle"
-src="assets/eq_017.svg" alt="h"
-title="h" class="math inline" /> for some number of tries and refines
-only on persistent failure. The right object is a sequential policy
-that, after <img style="vertical-align:middle"
-src="assets/eq_018.svg" alt="k"
-title="k" class="math inline" /> failed attempts on <img
+src="assets/eq_017.svg" alt="h" title="h"
+class="math inline" /> for some number of tries and refines only on
+persistent failure. The right object is a sequential policy that, after
+<img style="vertical-align:middle"
+src="assets/eq_018.svg" alt="k" title="k"
+class="math inline" /> failed attempts on <img
 style="vertical-align:middle"
-src="assets/eq_017.svg" alt="h"
-title="h" class="math inline" />, decides among continue, refine, or
-abandon, given a posterior over <img style="vertical-align:middle"
+src="assets/eq_017.svg" alt="h" title="h"
+class="math inline" />, decides among continue, refine, or abandon,
+given a posterior over <img style="vertical-align:middle"
 src="assets/eq_081.svg" alt="p_h"
 title="p_h" class="math inline" /> and the remaining budget. Casting
 this as an optimal stopping problem and characterising the resulting
@@ -1745,11 +1736,11 @@ optimisation of validator and proposer.</h4>
 src="assets/eq_019.svg"
 alt="\pi_\theta" title="\pi_\theta" class="math inline" /> and <img
 style="vertical-align:middle"
-src="assets/eq_045.svg" alt="g"
-title="g" class="math inline" /> as independent. In practice they share
-a model family, and improving the validator can degrade the proposer
-(and vice versa) under a fixed compute budget. The Pareto frontier
-between <img style="vertical-align:middle"
+src="assets/eq_045.svg" alt="g" title="g"
+class="math inline" /> as independent. In practice they share a model
+family, and improving the validator can degrade the proposer (and vice
+versa) under a fixed compute budget. The Pareto frontier between <img
+style="vertical-align:middle"
 src="assets/eq_081.svg" alt="p_h"
 title="p_h" class="math inline" />, <img style="vertical-align:middle"
 src="assets/eq_146.svg"
@@ -1821,9 +1812,9 @@ href="#prop:correlation-upper-bound" data-reference-type="ref"
 data-reference="prop:correlation-upper-bound">1</a>);</p></li>
 <li><p>under a calibrated uniform persistence parameter <img
 style="vertical-align:middle"
-src="assets/eq_085.svg"
-alt="\rho_h" title="\rho_h" class="math inline" />, the rate is at least
-<img style="vertical-align:middle"
+src="assets/eq_085.svg" alt="\rho_h"
+title="\rho_h" class="math inline" />, the rate is at least <img
+style="vertical-align:middle"
 src="assets/eq_186.svg"
 alt="1-(1-p_h)\rho_h^{\,b_h-1}" title="1-(1-p_h)\rho_h^{\,b_h-1}"
 class="math inline" />, interpolating between the two extremes.</p></li>
@@ -1849,10 +1840,10 @@ and sample diversity — none of which the framework itself produces. The
 substantive engineering questions (constructing sound validators for the
 task class, inducing enough sample diversity to push <img
 style="vertical-align:middle"
-src="assets/eq_085.svg"
-alt="\rho_h" title="\rho_h" class="math inline" /> below 1, allocating
-retry budget across obligations) remain open and are surveyed in
-Section <a href="#sec:open-problems" data-reference-type="ref"
+src="assets/eq_085.svg" alt="\rho_h"
+title="\rho_h" class="math inline" /> below 1, allocating retry budget
+across obligations) remain open and are surveyed in Section <a
+href="#sec:open-problems" data-reference-type="ref"
 data-reference="sec:open-problems">9</a>.</p>
 </body>
 </html>
