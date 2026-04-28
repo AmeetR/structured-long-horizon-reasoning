@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Transactional Structured Reasoning: Contamination Safety and Recovery</title>
+  <meta name="description" content="Transactional Structured Reasoning: Contamination Safety and Recovery">
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f8f7f3;
+      --paper: #fffdfa;
+      --ink: #1c1f24;
+      --muted: #606975;
+      --line: #d9d6cc;
+      --accent: #256f73;
+      --accent-soft: #e7f1ef;
+      --proof: #f2f5f8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+      line-height: 1.62;
+    }
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 48px 22px 72px;
+      background: var(--paper);
+      min-height: 100vh;
+      box-shadow: 0 0 0 1px rgba(28, 31, 36, 0.05);
+    }
+    header { margin-bottom: 36px; border-bottom: 1px solid var(--line); padding-bottom: 24px; }
+    h1, h2, h3 { line-height: 1.2; letter-spacing: 0; }
+    h1 { font-size: clamp(2rem, 7vw, 3.2rem); margin: 0 0 12px; }
+    h2 { font-size: 1.55rem; margin: 42px 0 16px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+    h3 { font-size: 1.1rem; margin: 24px 0 8px; color: var(--accent); }
+    p { margin: 0 0 16px; }
+    a { color: var(--accent); }
+    .byline { color: var(--muted); font-size: 0.98rem; }
+    .abstract, .statement, .proof {
+      border-left: 4px solid var(--accent);
+      margin: 22px 0;
+      padding: 14px 18px;
+      background: var(--accent-soft);
+    }
+    .proof { border-left-color: #708090; background: var(--proof); }
+    .statement-title, .proof-title { font-weight: 700; margin-bottom: 8px; }
+    .paragraph-title { font-weight: 700; color: var(--accent); }
+    ol, ul { padding-left: 1.5rem; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.95rem; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; }
+    th { background: var(--accent-soft); text-align: left; }
+    .math-display { overflow-x: auto; margin: 18px 0; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    @media (max-width: 640px) {
+      main { padding: 32px 16px 56px; }
+      table { display: block; overflow-x: auto; white-space: nowrap; }
+    }
+  </style>
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          macros: {
+        State: ["\\mathcal{S}"],
+        Actions: ["\\mathcal{U}"],
+        Obligations: ["\\mathcal{H}"],
+        Valid: ["\\mathsf{Valid}"],
+        Bad: ["\\mathsf{Bad}"],
+        Clean: ["\\mathsf{Clean}"],
+        commit: ["\\mathsf{commit}"],
+        abort: ["\\mathsf{abort}"],
+        Refine: ["\\mathsf{Refine}"],
+        LLM: ["\\pi_\\theta"],
+        pot: ["V"]
+          }
+        }
+      };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Transactional Structured Reasoning: Contamination Safety and Recovery</h1>
+      
+    </header>
+    <section class="abstract"><div class="statement-title">Abstract</div>
+    <p>We formalize a transactional execution semantics for structured reasoning with LLM-generated local proposals. The central object is not the model&#x27;s hidden chain of thought, but the committed reasoning state used to produce the final answer. We prove two basic claims. First, under sound validation, faithful rollback, and answer-extraction soundness, invalid intermediate proposals cannot contaminate committed reasoning state, and any emitted final answer is certified by a committed root certificate. Second, treating the LLM as a stochastic proposal kernel, retries and refinement <em>can</em> amplify the probability of eventually finding a valid local update without increasing contamination risk under exact validation, but the amount of amplification is conditional: it is the i.i.d. rate $1-(1-p_h)^{b_h}$ only under sample independence, is upper-bounded by it under shared latent failure modes, and is recovered in calibrated form via a persistence bound. These claims are intended as the reasoning-state analogue of transactional no-regression, adapted from mutable system state to mutable proof/claim state.</p>
+    </section>
+    <h2 id="setup">Setup</h2>
+    <p>Let a problem instance be represented by a rooted dependency structure</p>
+    <div class="math-display">\[
+G = (\Obligations, E, r),
+\]</div>
+    <p>where $\Obligations$ is a finite set of reasoning obligations, $E$ is a dependency relation, and $r \in \Obligations$ is the root obligation whose solution determines the final answer.</p>
+    <p>The committed reasoning state at time $t$ is</p>
+    <div class="math-display">\[
+s_t = (F_t, D_t, K_t, \sigma_t, \Pi_t, B_t),
+\]</div>
+    <p>where $F_t$ is the actionable frontier, $D_t$ is the set of expanded obligations, $K_t$ is the set of solved obligations, $\sigma_t$ is the map of committed values or claims, $\Pi_t$ is the set of certificates/provenance records, and $B_t$ is the remaining retry budget.</p>
+    <p>A local proposal is an update</p>
+    <div class="math-display">\[
+u_t \in \Actions.
+\]</div>
+    <p>Depending on the task, $u_t$ may be a numeric local solution, an executable local expression, an assignment claim, an elimination claim, or a structural expansion.</p>
+    <p>The LLM is modeled as a stochastic proposal kernel:</p>
+    <div class="math-display">\[
+U_{h,k} \sim \LLM(\cdot \mid s, h, k),
+\]</div>
+    <p>where $h$ is the current obligation and $k$ is the attempt index. The executor does not directly trust samples from $\LLM$. Every proposed update is passed through a validator</p>
+    <div class="math-display">\[
+g(s,u) \in \{0,1\}.
+\]</div>
+    <section class="statement definition"><div class="statement-title">Definition: Committed-state transition</div>
+    <p>Given state $s$ and proposal $u$, let $s \oplus u$ denote the candidate state obtained by applying $u$ to a copy of $s$. The committed transition is</p>
+    <div class="math-display">\[
+T(s,u) =
+\begin{cases}
+s \oplus u &amp; \text{if } g(s,u)=1 \text{ and } \pot(s \oplus u) &lt; \pot(s),\\
+s &amp; \text{otherwise.}
+\end{cases}
+\]</div>
+    <p>The rejected case is a rollback: the committed state remains exactly $s$.</p>
+    </section>
+    <section class="statement definition"><div class="statement-title">Definition: Rejection memory</div>
+    <p>The executor may also maintain an auxiliary rejection memory $R_t$ containing records of rejected proposals, validator reasons, and retry counts. This is operational feedback, not committed reasoning state. It may condition later LLM proposals, but it is excluded from $\sigma_t$, $\Pi_t$, and final answer extraction.</p>
+    <p>On a rejected proposal $u_t$ for obligation $h_t$, the operational context may change from $(s_t,R_t)$ to</p>
+    <div class="math-display">\[
+(s_t, R_t \cup \{(h_t,u_t,\mathrm{reason}_t)\}),
+\]</div>
+    <p>or to a bounded/windowed version of that update. The committed projection remains exactly $s_t$. On an accepted update, $R_t$ may be reset or scoped to the new committed state, because the entailment context has changed.</p>
+    </section>
+    <section class="statement definition"><div class="statement-title">Definition: Bad and clean states</div>
+    <p>Let $\Bad(s)=1$ if committed state $s$ contains at least one invalid committed claim, value, or certificate. Otherwise $\Bad(s)=0$. Define</p>
+    <div class="math-display">\[
+\Clean(s) \iff \Bad(s)=0.
+\]</div>
+    <p>The predicate $\Clean$ concerns committed reasoning state only. The LLM may generate invalid hidden text, invalid drafts, or invalid candidate proposals; these are not contamination unless they enter $\sigma_t$ or $\Pi_t$. Rejection memory $R_t$ is also not contamination, provided final answer extraction ignores $R_t$ and $R_t$ is not treated as a committed fact store.</p>
+    </section>
+    <section class="statement definition"><div class="statement-title">Definition: Progress potential</div>
+    <p>$\pot : \State \to \mathbb{N}$ is a nonnegative integer potential measuring unresolved work. In the current implementation this may be an action-unit potential such as</p>
+    <div class="math-display">\[
+\pot(s)=
+|\{h \in \Obligations : h \notin K_t\}|
++
+|\{h \in \Obligations : \mathrm{Ch}(h)\neq\emptyset, h\notin D_t\}|.
+\]</div>
+    <p>For logic-grid tasks, $\pot$ may instead count unresolved person obligations and remaining candidate claims.</p>
+    </section>
+    <h2 id="claim-i-contamination-safety">Claim I: Contamination Safety</h2>
+    <p>The first claim is the reasoning-state analogue of transactional safety: invalid intermediate thoughts cannot poison the state used for the final answer.</p>
+    <section class="statement assumption"><div class="statement-title">Assumption: Initial clean state</div>
+    <p></p>
+    <div class="math-display">\[
+\Clean(s_0).
+\]</div>
+    </section>
+    <section class="statement assumption"><div class="statement-title">Assumption: Exclusive commit authority</div>
+    <p> Only the transactional executor can mutate committed state fields $(D_t,K_t,\sigma_t,\Pi_t)$. Model samples, prompts, scratchpads, and rejected candidate states are not directly committed.</p>
+    </section>
+    <section class="statement assumption"><div class="statement-title">Assumption: Faithful rollback</div>
+    <p> If a proposal $u$ is rejected, the next committed state equals the previous committed state:</p>
+    <div class="math-display">\[
+T(s,u)=s.
+\]</div>
+    </section>
+    <section class="statement assumption"><div class="statement-title">Assumption: Validator soundness</div>
+    <p> For every clean state $s$ and proposal $u$,</p>
+    <div class="math-display">\[
+\Clean(s) \wedge g(s,u)=1 \implies \Clean(s \oplus u).
+\]</div>
+    <p>For exact validators, this is enforced by checking the proposed local update against an oracle evaluator, solver, proof checker, or entailment checker.</p>
+    </section>
+    <section class="statement assumption"><div class="statement-title">Assumption: Final answer reads only committed state</div>
+    <p> The final answer is computed by a function</p>
+    <div class="math-display">\[
+A : \State \to \mathcal{Y}
+\]</div>
+    <p>that depends only on committed fields such as $\sigma_t$ and $\Pi_t$, not on rejected proposals or hidden LLM drafts.</p>
+    </section>
+    <section class="statement assumption"><div class="statement-title">Assumption: Answer-extraction soundness</div>
+    <p> The executor emits a final answer only when the root obligation $r$ has been solved, i.e. $r\in K_t$, and the answer is computed deterministically from a committed certificate $\Pi_t(r)$ that the same validator $g$ has accepted as a witness for $\sigma_t(r)$ being the correct value of $r$. Equivalently, the validator is invoked on the root certificate before any answer leaves the executor, and accepted certificates correctly witness their claims under the validator&#x27;s soundness guarantee.</p>
+    </section>
+    <p>Assumption ass:answer-from-commit is purely structural: it says rejected proposals are not read at answer time. Assumption ass:answer-extraction is what is needed for <em>correctness</em> of an emitted answer; without it, contamination safety guarantees only that the answer was extracted from a clean committed state, not that the emitted value is right.</p>
+    <section class="statement theorem"><div class="statement-title">Theorem: Transactional Reasoning Contamination Safety</div>
+    <p> Assume the initial clean state, exclusive commit authority, faithful rollback, and validator soundness assumptions (Assumptions ass:initial-clean--ass:validator-soundness). Then every committed state reachable by the transactional executor is clean:</p>
+    <div class="math-display">\[
+\forall t \ge 0,\quad \Clean(s_t).
+\]</div>
+    <p>Consequently, rejected or invalid intermediate proposals cannot contaminate the reasoning state used to compute the final answer.</p>
+    <p>(Note that Assumption ass:answer-from-commit is needed only to guarantee the final answer reads exclusively from this clean committed state, and Assumption ass:answer-extraction is needed only for the correctness corollary below; the cleanness of $s_t$ itself does not depend on either.)</p>
+    </section>
+    <section class="proof"><div class="proof-title">Proof</div>
+    <p>The proof is by induction on $t$.</p>
+    <p><strong>Base case.</strong> By the initial clean-state assumption, $\Clean(s_0)$.</p>
+    <p><strong>Inductive step.</strong> Assume $\Clean(s_t)$. Consider a proposal $u_t$. There are two cases.</p>
+    <p>If $u_t$ is rejected, faithful rollback gives</p>
+    <div class="math-display">\[
+s_{t+1}=T(s_t,u_t)=s_t.
+\]</div>
+    <p>Therefore $\Clean(s_{t+1})$ by the induction hypothesis.</p>
+    <p>If $u_t$ is accepted, then $g(s_t,u_t)=1$ and</p>
+    <div class="math-display">\[
+s_{t+1}=s_t\oplus u_t.
+\]</div>
+    <p>By validator soundness and $\Clean(s_t)$, it follows that</p>
+    <div class="math-display">\[
+\Clean(s_t\oplus u_t),
+\]</div>
+    <p>and hence $\Clean(s_{t+1})$.</p>
+    <p>Thus $\Clean(s_t)$ holds for all reachable committed states. Since the final answer function reads only committed state, rejected or invalid intermediate proposals cannot affect the final answer except by failing to contribute a valid committed update.</p>
+    </section>
+    <section class="statement corollary"><div class="statement-title">Corollary: No poisoning under exact validation</div>
+    <p>If the validator is exact, $\Clean(s_0)$, and the final answer depends only on committed state, then the final answer cannot be poisoned by invalid rejected thoughts.</p>
+    </section>
+    <section class="statement corollary"><div class="statement-title">Corollary: Conditional correctness of emitted answers</div>
+    <p> Under Assumptions ass:initial-clean--ass:answer-extraction with exact validation, if the executor emits a final answer, that answer is correct.</p>
+    </section>
+    <section class="proof"><div class="proof-title">Proof</div>
+    <p>By Theorem thm:contamination-safety every committed state $s_t$ is clean. By Assumption ass:answer-extraction an answer is emitted only when $r\in K_t$ and the validator has accepted the root certificate $\Pi_t(r)$; exact validation then implies $\Pi_t(r)$ correctly witnesses $\sigma_t(r)$. The emitted answer is a deterministic function of these committed fields, so it agrees with the true value of $r$.</p>
+    </section>
+    <p><span class="paragraph-title">Interpretation..</span></p>
+    <p>Theorem thm:contamination-safety alone does not give correctness; it gives only that whatever lands in committed state was accepted by the validator on a clean predecessor. Correctness of an emitted answer requires the additional Assumption ass:answer-extraction: the same validator must certify the root before extraction. Even with both assumptions, the executor may still fail to emit (retry budget exhausted, stall, no valid proposal), so the guarantee is conditional on emission. The role of Theorem thm:contamination-safety in this picture is to ensure the predecessor state on which the root certificate is checked is itself clean, so the validator&#x27;s local guarantee composes into a global correctness guarantee.</p>
+    <h2 id="progress-and-termination">Progress and Termination</h2>
+    <p>Contamination safety prevents bad updates from poisoning the answer. A separate progress condition prevents the system from accepting valid but unhelpful updates forever.</p>
+    <section class="statement lemma"><div class="statement-title">Lemma: Monotone progress</div>
+    <p>If every accepted proposal satisfies</p>
+    <div class="math-display">\[
+\pot(s \oplus u) &lt; \pot(s),
+\]</div>
+    <p>and rejected proposals leave $s$ unchanged, then $\pot(s_t)$ strictly decreases on accepted steps and never increases on rejected steps.</p>
+    </section>
+    <section class="proof"><div class="proof-title">Proof</div>
+    <p>Accepted steps decrease $\pot$ by the commit rule. Rejected steps produce $s_{t+1}=s_t$, so $\pot(s_{t+1})=\pot(s_t)$.</p>
+    </section>
+    <section class="statement theorem"><div class="statement-title">Theorem: Finite-budget termination</div>
+    <p>Assume $\pot$ is a nonnegative integer, accepted steps strictly decrease $\pot$, and rejected steps consume finite retry budget. Then the executor terminates with success, stall, budget exhaustion, or a configured max-step cap.</p>
+    </section>
+    <section class="proof"><div class="proof-title">Proof</div>
+    <p>There can be at most $\pot(s_0)$ accepted steps before the potential reaches zero, and at most $B_0$ rejected steps before retry budget is exhausted. A configured max-step cap gives an additional finite bound.</p>
+    </section>
+    <h2 id="claim-ii-recovery-by-retry">Claim II: Recovery by Retry</h2>
+    <p>Safety alone is insufficient. The useful property is that rejected local failures are non-catastrophic: after rollback, the executor can try again from the same clean state.</p>
+    <p>Fix a clean state $s$ and a frontier obligation $h$. Define the one-shot local success probability</p>
+    <div class="math-display">\[
+p_h(s) =
+\Pr_{U \sim \LLM(\cdot \mid s,h)}
+\left[
+g(s,U)=1
+\ \wedge\
+\pot(s\oplus U)&lt;\pot(s)
+\right].
+\]</div>
+    <p>This is the probability that one LLM sample proposes an acceptable, progressive local update.</p>
+    <section class="statement theorem"><div class="statement-title">Theorem: Retry amplification, i.i.d.\ regime</div>
+    <p> Suppose the executor attempts obligation $h$ up to $b_h$ times from the same clean committed state $s$, rejected attempts leave $s$ unchanged, and attempts are conditionally independent with identical local success probability $p_h(s)$. Then the probability of at least one valid commit for $h$ is</p>
+    <div class="math-display">\[
+q_h(s,b_h) =
+1-(1-p_h(s))^{b_h}.
+\]</div>
+    </section>
+    <section class="proof"><div class="proof-title">Proof</div>
+    <p>Each attempt fails with probability $1-p_h(s)$. By conditional independence, all $b_h$ attempts fail with probability</p>
+    <div class="math-display">\[
+(1-p_h(s))^{b_h}.
+\]</div>
+    <p>Therefore at least one attempt succeeds with probability</p>
+    <div class="math-display">\[
+1-(1-p_h(s))^{b_h}.
+\]</div>
+    <p>Because rejected attempts roll back to the same clean committed state, failed samples do not alter the success probability by contaminating future attempts.</p>
+    </section>
+    <section class="statement corollary"><div class="statement-title">Corollary: Almost-sure local recovery under nonzero support</div>
+    <p>If $p_h(s)&gt;0$, then</p>
+    <div class="math-display">\[
+\lim_{b_h\to\infty} q_h(s,b_h)=1.
+\]</div>
+    </section>
+    <p><span class="paragraph-title">Interpretation..</span></p>
+    <p>The LLM need not be reliable globally. It only needs to assign nonzero probability mass to valid local proposals. Transactions allow the executor to sample this distribution repeatedly while preventing invalid samples from corrupting state.</p>
+    <h2 id="sample-correlation-and-the-limits-of-retry-amplification">Sample Correlation and the Limits of Retry Amplification</h2>
+    <p></p>
+    <p>Theorem thm:retry-amplification assumes that the $b_h$ retries on obligation $h$ are conditionally independent. Empirically, repeated samples from a fixed LLM on a fixed prompt are correlated: failure modes tend to repeat. The realistic generative model has a latent ``hardness&#x27;&#x27; or ``failure-mode&#x27;&#x27; variable $Z$ that is sampled once per obligation (encoding, e.g., which sub-pattern of the prompt the model is currently confusing), with attempts conditionally independent given $Z$.</p>
+    <section class="statement proposition"><div class="statement-title">Proposition: Correlation makes retry amplification an upper bound</div>
+    <p> Suppose attempts on obligation $h$ share a latent variable $Z$ such that, conditional on $Z$, the failure indicators $Y_k=\mathbf{1}[X_k=0]$ are i.i.d. Bernoulli$(\rho(Z))$ for some measurable $\rho:Z\to[0,1]$ with $\mathbb{E}[\rho(Z)]=1-p_h$. Then</p>
+    <div class="math-display">\[
+\Pr[Y_1=\cdots=Y_{b_h}=1]
+=\mathbb{E}\!\left[\rho(Z)^{b_h}\right]
+\;\ge\;
+\bigl(\mathbb{E}[\rho(Z)]\bigr)^{b_h}
+=(1-p_h)^{b_h},
+\]</div>
+    <p>by Jensen&#x27;s inequality applied to the convex function $x\mapsto x^{b_h}$. Equivalently,</p>
+    <div class="math-display">\[
+\Pr[\text{success in } b_h \text{ tries}]
+\;\le\;
+1-(1-p_h)^{b_h}.
+\]</div>
+    </section>
+    <p>The bound of Theorem thm:retry-amplification is therefore an <em>upper</em> bound on the achievable retry amplification under the latent-mode model, not a guarantee. The gap $\mathbb{E}[\rho(Z)^{b_h}]-(1-p_h)^{b_h}$ grows with the variance of $\rho(Z)$: when failure mode is essentially deterministic per-prompt ($\rho(Z)\in\{0,1\}$ almost surely), retries achieve no amplification and the realised success rate is exactly $p_h$ regardless of $b_h$.</p>
+    <p><span class="paragraph-title">Diversity restores amplification..</span></p>
+    <p>The framework therefore implicitly relies on diversity-inducing machinery to make samples behave more like independent draws and reduce the variance of $\rho(Z)$. Practical mechanisms include sampling temperature, prompt paraphrasing, varied few-shot exemplars, distinct draft variables, and ensembling across decoders or model instances. Each such intervention can be viewed as enlarging the support of $Z$ relative to a fixed-prompt baseline.</p>
+    <p><span class="paragraph-title">A more conservative practical bound..</span></p>
+    <p>For empirical use, a pessimistic single-parameter alternative to Theorem thm:retry-amplification is the conditional persistence bound. Let $F_k=\{Y_1=\cdots=Y_k=1\}$ be the event that the first $k$ attempts on obligation $h$ all fail, and assume the <em>uniform</em> persistence condition</p>
+    <div class="math-display">\[
+\Pr[Y_{k+1}=1 \mid F_k] \;\le\; \rho_h
+\quad \text{for all } k=1,\dots,b_h-1,
+\]</div>
+    <p>with $\rho_h\in[1-p_h,1]$. This is a stronger assumption than mere one-step correlation: failures must remain at most $\rho_h$-likely conditional on <em>all</em> previous failures, not only on the immediately previous one. Then, applying the chain rule,</p>
+    <div class="math-display">\[
+\Pr[F_{b_h}]
+\;=\;
+\Pr[Y_1=1]\prod_{k=1}^{b_h-1}\Pr[Y_{k+1}=1\mid F_k]
+\;\le\;
+(1-p_h)\,\rho_h^{\,b_h-1},
+\]</div>
+    <p>so</p>
+    <div class="math-display">\[
+\Pr[\text{success in } b_h \text{ tries}]
+\;\ge\;
+1 - (1-p_h)\,\rho_h^{\,b_h-1}.
+\]</div>
+    <p>The bound interpolates between independence ($\rho_h=1-p_h$, recovering the Theorem thm:retry-amplification rate) and total correlation ($\rho_h=1$, no amplification beyond the first attempt). The uniform persistence parameter $\rho_h$ can be calibrated from logged retry trajectories by computing, for each prefix length $k$, the empirical fraction of trajectories whose $(k{+}1)$-st attempt fails given $F_k$, and taking the supremum over $k$.</p>
+    <h2 id="global-success-under-oracle-structure">Global Success Under Oracle Structure</h2>
+    <p>Let $\mathcal{R} \subseteq \Obligations$ be the set of required obligations for a successful derivation under a fixed oracle structure, topologically ordered as $h_1,\ldots,h_M$ along dependency edges. Suppose the executor must obtain one valid commit for each $h\in\mathcal{R}$. We separate the structural chain-rule argument from the local-rate model.</p>
+    <section class="statement theorem"><div class="statement-title">Theorem: Product lower bound, abstract form</div>
+    <p> Assume exact validation and rollback safety. Suppose that for each obligation $h_i$, conditional on all prior obligations $h_1,\ldots,h_{i-1}$ having been resolved (i.e. on reaching a clean committed state in which $h_i$ becomes the active frontier element), the executor resolves $h_i$ with probability at least $q_{h_i}^{\mathrm{LB}}$. Then</p>
+    <div class="math-display">\[
+\Pr[\mathrm{success}]
+\;\ge\;
+\prod_{i=1}^{M} q_{h_i}^{\mathrm{LB}}.
+\]</div>
+    </section>
+    <section class="proof"><div class="proof-title">Proof</div>
+    <p>Let $E_i$ denote the event that $h_i$ is resolved. By the chain rule,</p>
+    <div class="math-display">\[
+\Pr\!\left[\bigcap_{i=1}^{M}E_i\right]
+=\prod_{i=1}^{M}\Pr\!\left[E_i\;\bigg|\;\bigcap_{j&lt;i}E_j\right]
+\;\ge\;
+\prod_{i=1}^{M} q_{h_i}^{\mathrm{LB}},
+\]</div>
+    <p>using the assumed conditional lower bound at each topological position. Exact validation and clean predecessor states (Theorem thm:contamination-safety) ensure the preconditions of each $q_{h_i}^{\mathrm{LB}}$ are satisfied along any path that reaches $h_i$.</p>
+    </section>
+    <p>The role of any specific local model — i.i.d. retries, persistence bound, exchangeable mixture — is to supply $q_{h_i}^{\mathrm{LB}}$. Three natural instantiations:</p>
+    <section class="statement corollary"><div class="statement-title">Corollary: Instantiation: independent retries</div>
+    <p> If, conditional on reaching the state at which $h_i$ is attempted, the $b_{h_i}$ retries are i.i.d. with marginal success probability at least $p_{h_i}$, then $q_{h_i}^{\mathrm{LB}} = 1-(1-p_{h_i})^{b_{h_i}}$ and</p>
+    <div class="math-display">\[
+\Pr[\mathrm{success}]
+\;\ge\;
+\prod_{i=1}^{M}\left(1-(1-p_{h_i})^{b_{h_i}}\right).
+\]</div>
+    </section>
+    <section class="statement corollary"><div class="statement-title">Corollary: Instantiation: persistence-calibrated retries</div>
+    <p> If, conditional on reaching the state at which $h_i$ is attempted, retries on $h_i$ satisfy the uniform persistence condition with parameter $\rho_{h_i}\in[1-p_{h_i},1]$, then $q_{h_i}^{\mathrm{LB}} = 1 - (1-p_{h_i})\rho_{h_i}^{\,b_{h_i}-1}$ and</p>
+    <div class="math-display">\[
+\Pr[\mathrm{success}]
+\;\ge\;
+\prod_{i=1}^{M}\left(1-(1-p_{h_i})\,\rho_{h_i}^{\,b_{h_i}-1}\right).
+\]</div>
+    </section>
+    <section class="statement corollary"><div class="statement-title">Corollary: Instantiation: deterministic per-prompt failure</div>
+    <p> If on each obligation the failure mode is essentially deterministic given the prompt ($\rho(Z)\in\{0,1\}$ a.s. in the latent-mode model of Proposition prop:correlation-upper-bound), then $q_{h_i}^{\mathrm{LB}} = p_{h_i}$ regardless of $b_{h_i}$, and the lower bound degenerates to the one-shot structured baseline $\prod_i p_{h_i}$.</p>
+    </section>
+    <section class="statement corollary"><div class="statement-title">Corollary: Uniform i.i.d.\ lower bound</div>
+    <p>If, in addition to the i.i.d. instantiation, $p_h \ge p_{\min}&gt;0$ and $b_h\ge b$ for all $h\in\mathcal{R}$, and $|\mathcal{R}|=M$, then</p>
+    <div class="math-display">\[
+\Pr[\mathrm{success}]
+\;\ge\;
+\left(1-(1-p_{\min})^b\right)^M.
+\]</div>
+    </section>
+    <p><span class="paragraph-title">Comparison to non-transactional structured execution..</span></p>
+    <p>A one-shot structured baseline that commits the first local proposal succeeds with probability approximately $\prod_{h\in\mathcal{R}} p_h$ (and is also unsafe: rejected proposals can corrupt downstream state). Transactional retry changes the local factor from $p_h$ to $q_h^{\mathrm{LB}}$, where $q_h^{\mathrm{LB}}\in[p_h,\, 1-(1-p_h)^{b_h}]$ depending on the diversity of samples within an obligation. Exact validation simultaneously prevents failed attempts from contaminating downstream obligations.</p>
+    <p><span class="paragraph-title">Worked example: same $p_h$, four different global rates..</span></p>
+    <p>The choice of local-rate model dominates the global success probability, even with $p_h$ and $b_h$ held fixed. As an illustration take $M=10$ identical obligations, per-attempt local success rate $p_h=0.30$, retry budget $b_h=8$, and persistence parameter $\rho_h=0.85$. Then:</p>
+    <div class="center">
+    <table>
+<tr><th>Regime</th><th>Per-obligation $q_h^{\mathrm{LB}}$</th><th>Global $\Pr[\text{success}]$</th></tr>
+<tr><td>One-shot baseline ($b_h=1$)</td><td>$0.30$</td><td>$\approx 5.9 \times 10^{-6}$</td></tr>
+<tr><td>Deterministic per-prompt failure</td><td>$0.30$</td><td>$\approx 5.9 \times 10^{-6}$</td></tr>
+<tr><td>Persistence-calibrated, $\rho_h=0.85$</td><td>$1-(1-p_h)\rho_h^{\,b_h-1}\approx 0.776$</td><td>$\approx 7.9 \times 10^{-2}$</td></tr>
+<tr><td>I.i.d. retries</td><td>$1-(1-p_h)^{b_h}\approx 0.942$</td><td>$\approx 5.5 \times 10^{-1}$</td></tr>
+</table>
+    </div>
+    <p>The i.i.d. regime beats the persistence-calibrated regime by roughly a factor of $7$, and the persistence-calibrated regime beats the deterministic regime by roughly a factor of $1.3\times 10^4$. Note that the deterministic regime is indistinguishable from the one-shot baseline at the global level: when each obligation&#x27;s failure mode is fixed by the prompt, retries within an obligation are wasted and only diversity <em>across</em> prompts (or refinement) can help. The practical implication is that the operative quantity is not $b_h$ but the variance of $\rho(Z)$ that the executor&#x27;s diversity machinery induces.</p>
+    <h2 id="recovery-by-refinement">Recovery by Refinement</h2>
+    <p>Retry is not the only recovery operator. If an obligation is too coarse, the executor can refine it into smaller obligations.</p>
+    <section class="statement definition"><div class="statement-title">Definition: Refinement</div>
+    <p>A refinement operator replaces a failed obligation $h$ with child obligations</p>
+    <div class="math-display">\[
+\Refine(h)=\{c_1,\ldots,c_m\}
+\]</div>
+    <p>plus, optionally, a recomposition obligation that combines the children into a solution for $h$.</p>
+    </section>
+    <p>Let $q_h$ denote the (calibrated or assumed) probability that the executor resolves $h$ directly under its allocated retry budget — that is, the $q_h^{\mathrm{LB}}$ supplied by whichever local-rate model (Corollaries cor:product-iid--cor:product-deterministic) applies. Let $q_{c_i}$ denote the analogous resolution probability for child $c_i$. Let $q_{\mathrm{exp}}$ be the probability that the refinement step itself is proposed validly and accepted by the validator, and let $q_{\mathrm{comp}}$ be the probability that the children can be recomposed into a validated solution for $h$.</p>
+    <section class="statement proposition"><div class="statement-title">Proposition: When refinement improves recovery</div>
+    <p> Suppose that, conditional on refinement being accepted, the events ``$c_i$ resolved&#x27;&#x27; for $i=1,\ldots,m$ and ``recomposition succeeds&#x27;&#x27; are mutually independent — a substantive assumption, equivalent to asserting that no shared latent failure mode couples the children. Then refinement improves the probability of resolving $h$ whenever</p>
+    <div class="math-display">\[
+q_{\mathrm{exp}}
+\left(\prod_{i=1}^m q_{c_i}\right)
+q_{\mathrm{comp}}
+\;&gt;\;
+q_h.
+\]</div>
+    <p>Without the cross-child independence assumption, the same comparison holds with $\prod_{i=1}^m q_{c_i}$ replaced by the joint resolution probability $\Pr[\text{all children resolved}\mid \text{refinement accepted}]$, which must be supplied by the local-rate model.</p>
+    </section>
+    <section class="proof"><div class="proof-title">Proof</div>
+    <p>The left-hand side is the probability that refinement is accepted, every child obligation is resolved, and recomposition succeeds, assuming the stated factorisation across children. The right-hand side is the calibrated probability of resolving $h$ without refinement. Refinement is beneficial exactly when the former exceeds the latter. The fall-back form follows by replacing the product with the joint probability and applying the same inequality.</p>
+    </section>
+    <p><span class="paragraph-title">Interpretation..</span></p>
+    <p>This is a decision rule for adaptive decomposition under whichever model of local resolution the system has calibrated. When local rates are $p_h$ and samples are i.i.d., $q_h$ takes the form $1-(1-p_h)^{b_h}$ and the comparison reduces to the original retry-vs-refinement formula. When samples are correlated, $q_h$ may be much smaller than this i.i.d. value, and the comparison should use the calibrated $q_h$ rather than substituting the i.i.d. formula. Naively using the i.i.d. amplified rate when samples share a latent failure mode tends to make refinement look worse than it is, since diverse children can break a shared failure mode that a single coarser obligation cannot.</p>
+    <h2 id="noisy-validators">Noisy Validators</h2>
+    <p>Exact validators are the cleanest case. For freeform reasoning, validators may be noisy. Two distinct false-accept rates that are easy to confuse must be kept separate:</p>
+    <div class="math-display">\[
+\alpha_h^{\rightarrow}
+=
+\Pr[g(s,U)=1 \mid U \text{ is invalid}]
+\quad\text{(conditional false-accept rate),}
+\]</div>
+    <div class="math-display">\[
+\alpha_h^{\leftarrow}
+=
+\Pr[U \text{ is invalid} \mid g(s,U)=1]
+\quad\text{(posterior false-accept rate),}
+\]</div>
+    <div class="math-display">\[
+\beta_h
+=
+\Pr[g(s,U)=0 \mid U \text{ is valid}]
+\quad\text{(false-reject rate).}
+\]</div>
+    <p>The two false-accept rates are related by Bayes,</p>
+    <div class="math-display">\[
+\alpha_h^{\leftarrow}
+=
+\frac{\alpha_h^{\rightarrow}\,\Pr[U \text{ invalid}]}
+     {\alpha_h^{\rightarrow}\,\Pr[U \text{ invalid}]
+      +(1-\beta_h)\,\Pr[U \text{ valid}]},
+\]</div>
+    <p>and $\alpha_h^{\leftarrow}$ can be much larger than $\alpha_h^{\rightarrow}$ when the proposal kernel is weak (high $\Pr[U\text{ invalid}]$) or the validator is conservative on valid proposals (high $\beta_h$). The two yield genuinely different contamination bounds.</p>
+    <section class="statement theorem"><div class="statement-title">Theorem: Contamination bound, per-invocation form</div>
+    <p> Let $N$ be the (random) total number of validator invocations during a run, with deterministic upper bound $\bar{N}$ given by retry budget plus the commit cap. If every validator invocation has conditional false-accept rate at most $\alpha_{\max}^{\rightarrow}$, then</p>
+    <div class="math-display">\[
+\Pr[\exists \text{ bad committed update}]
+\;\le\;
+\bar{N}\,\alpha_{\max}^{\rightarrow}.
+\]</div>
+    </section>
+    <section class="proof"><div class="proof-title">Proof</div>
+    <p>Index validator invocations by $j=1,\dots,N$. Let $V_j=\mathbf{1}[g_j=1]$ and $I_j=\mathbf{1}[U_j \text{ invalid}]$. A bad commit at invocation $j$ is the event $V_j=1\wedge I_j=1$, with</p>
+    <div class="math-display">\[
+\Pr[V_j=1, I_j=1]
+=\Pr[V_j=1\mid I_j=1]\,\Pr[I_j=1]
+\le \alpha_{\max}^{\rightarrow}\cdot 1.
+\]</div>
+    <p>Union-bounding over the at most $\bar{N}$ invocations,</p>
+    <div class="math-display">\[
+\Pr\!\left[\bigcup_{j=1}^{N}\{V_j=1, I_j=1\}\right]
+\le \sum_{j=1}^{\bar{N}}\Pr[V_j=1, I_j=1]
+\le \bar{N}\,\alpha_{\max}^{\rightarrow}. \qedhere
+\]</div>
+    </section>
+    <section class="statement theorem"><div class="statement-title">Theorem: Contamination bound, per-commit form</div>
+    <p> If the executor produces at most $K$ accepted commits and every accepted commit satisfies $\Pr[U\text{ invalid}\mid g(s,U)=1]\le\alpha_{\max}^{\leftarrow}$, then</p>
+    <div class="math-display">\[
+\Pr[\exists \text{ bad committed update}]
+\;\le\;K\,\alpha_{\max}^{\leftarrow}.
+\]</div>
+    </section>
+    <section class="proof"><div class="proof-title">Proof</div>
+    <p>For commit $i\in\{1,\dots,K\}$ let $B_i$ be the event that commit $i$ is invalid. By assumption $\Pr[B_i]\le\alpha_{\max}^{\leftarrow}$. Union-bounding, $\Pr[\bigcup_{i=1}^{K}B_i]\le K\,\alpha_{\max}^{\leftarrow}$.</p>
+    </section>
+    <p><span class="paragraph-title">Why the distinction matters..</span></p>
+    <p>A naive union bound of the form $K\alpha_{\max}^{\rightarrow}$, mixing a commit count with a conditional false-accept rate, is incorrect. As a counterexample, suppose all proposals are invalid ($\Pr[U \text{ invalid}]=1$), $\alpha^{\rightarrow}=10^{-3}$, the retry budget allows $10^4$ invocations, and the executor halts after $K=1$ accept. Every accept is then a bad commit, and</p>
+    <div class="math-display">\[
+\Pr[\exists \text{ bad commit}]
+=1-(1-10^{-3})^{10^4}\approx 1,
+\]</div>
+    <p>which exceeds $K\alpha^{\rightarrow}=10^{-3}$ by three orders of magnitude. Theorem thm:contamination-noisy-invocation gives the correct value $10^4\cdot 10^{-3}=10$, which is vacuous but not false; this reflects that the operating regime is genuinely unsafe.</p>
+    <p><span class="paragraph-title">Which bound to use..</span></p>
+    <p>The conditional rate $\alpha_h^{\rightarrow}$ is what one usually estimates when calibrating a learned validator (held-out invalid examples passed through the validator). The per-invocation bound is therefore the directly measurable one, at the cost of paying for every rejected attempt. The per-commit bound is tighter when it applies, but $\alpha_h^{\leftarrow}$ depends on the proposal distribution and is not a property of the validator alone.</p>
+    <p><span class="paragraph-title">Effect of false rejects on recovery..</span></p>
+    <p>False rejects do not contaminate state, but they reduce recovery probability. If the model proposes a valid local update with probability $p_h$ and the validator rejects valid proposals with probability $\beta_h$, then the effective accepted local success probability is</p>
+    <div class="math-display">\[
+p&#x27;_h = p_h(1-\beta_h),
+\]</div>
+    <p>and retry amplification becomes</p>
+    <div class="math-display">\[
+q&#x27;_h = 1-(1-p_h(1-\beta_h))^{b_h}.
+\]</div>
+    <h2 id="open-problems">Open Problems</h2>
+    <p></p>
+    <p>The conditional guarantees above leave the substantive design problems open. We collect them here.</p>
+    <p><span class="paragraph-title">Constructing sound validators..</span></p>
+    <p>Theorem thm:contamination-safety assumes a sound validator. For most freeform reasoning targets (natural-language proofs, multi-step plans with side effects, open-ended program synthesis), constructing such a validator <em>is</em> the central problem. The framework is most directly useful for tasks that admit a cheap, exact local checker: numeric solvers, executable code with deterministic oracles, formal proofs in a checkable calculus, and constraint problems with verifier subroutines. Identifying the boundary of validator-friendly tasks, and designing decompositions that push freeform problems into validator- friendly sub-obligations, are the substantive research questions.</p>
+    <p><span class="paragraph-title">Optimal budget allocation across obligations..</span></p>
+    <p>Given a total invocation budget $B$ and required obligations $\mathcal{R}=\{h_1,\dots,h_M\}$ with estimated local success rates $\hat p_1,\dots,\hat p_M$, the natural objective derived from the product lower bound is</p>
+    <div class="math-display">\[
+\max_{b_1,\dots,b_M\ge 0}
+\;
+\sum_{i=1}^{M}\log\!\left(1-(1-\hat p_i)^{b_i}\right)
+\quad\text{s.t.}\quad
+\sum_{i=1}^{M} b_i \le B.
+\]</div>
+    <p>This is a separable concave allocation; its KKT conditions yield a water-filling rule</p>
+    <div class="math-display">\[
+\frac{(1-\hat p_i)^{b_i}\log\frac{1}{1-\hat p_i}}
+     {1-(1-\hat p_i)^{b_i}}
+\;=\;
+\lambda
+\quad\forall i\in\mathcal{R},
+\]</div>
+    <p>for a common dual $\lambda$ tuned to the budget. With unknown $\hat p_i$, the problem becomes a structured multi-armed bandit: each obligation is a Bernoulli arm with unknown success probability, retries are pulls, but pulls also drain a shared budget and feed into a topological dependency. Whether standard strategies (UCB, Thompson sampling, or an explore-then-allocate phase based on the water-filling rule above) admit useful regret guarantees against the offline product optimum is open.</p>
+    <p><span class="paragraph-title">Adaptive refinement policies..</span></p>
+    <p>Proposition prop:refinement-helps compares ``solve $h$ directly&#x27;&#x27; against ``refine $h$ then solve its children&#x27;&#x27; as if they were exclusive. In practice, the executor first attempts $h$ for some number of tries and refines only on persistent failure. The right object is a sequential policy that, after $k$ failed attempts on $h$, decides among continue, refine, or abandon, given a posterior over $p_h$ and the remaining budget. Casting this as an optimal stopping problem and characterising the resulting policy (presumably a threshold rule on the posterior mean of $p_h$ relative to the per-child rates) is open.</p>
+    <p>\paragraph{Strengthening the contamination bound under correlated validator errors.} The per-invocation union bound $\bar N\,\alpha_{\max}^{\rightarrow}$ of Theorem thm:contamination-noisy-invocation is loose when validator false accepts are correlated across invocations, e.g. a learned validator with a systematic blind spot for a particular invalid pattern. In that regime the right object is a mixture model over latent ``vulnerability classes&#x27;&#x27; that the validator either does or does not catch, with concentration measured against the structure of the proposal distribution rather than the number of attempts. We do not address this here.</p>
+    <p><span class="paragraph-title">Joint optimisation of validator and proposer..</span></p>
+    <p>The framework treats $\LLM$ and $g$ as independent. In practice they share a model family, and improving the validator can degrade the proposer (and vice versa) under a fixed compute budget. The Pareto frontier between $p_h$, $\alpha_h^{\rightarrow}$, and $\beta_h$ at fixed compute is the practically relevant object, and is unaddressed.</p>
+    <p><span class="paragraph-title">Quantifying the latent-mode variance..</span></p>
+    <p>Proposition prop:correlation-upper-bound reduces the gap between realised and ideal retry amplification to the variance of $\rho(Z)$. Empirical calibration of this variance for representative model/prompt families, together with a quantitative theory of how diversity-inducing interventions shrink it, would convert Theorem thm:retry-amplification from an asymptotic target into a usable operating bound.</p>
+    <h2 id="summary-of-claims">Summary of Claims</h2>
+    <p>The transactional structured reasoning framework supports two core theoretical claims, one structural and one stochastic.</p>
+    <p><span class="paragraph-title">Contamination safety and conditional correctness..</span></p>
+    <p>Under clean initialization, exclusive commit authority, faithful rollback, sound validation, final-answer dependence only on committed state, and answer-extraction soundness, two things follow:</p>
+    <ol>
+    <li>every committed state reachable by the executor is clean (Theorem thm:contamination-safety);</li>
+    <li>if the executor emits a final answer, that answer is correct</li>
+    <p>(Corollary cor:conditional-correctness).</p>
+    </ol>
+    <p>Contamination safety is the structural part — bad samples don&#x27;t enter committed state — and is unconditional given the assumptions. Correctness of an emitted answer additionally requires that the validator certify the root certificate before extraction. Neither result claims the executor will emit; failure modes (timeout, stall, budget exhaustion) remain.</p>
+    <p><span class="paragraph-title">Safe retry plus conditional recovery improvement..</span></p>
+    <p>Treating the LLM as a stochastic proposal kernel, transactional retries under exact validation cannot increase contamination risk relative to a one-shot baseline (rejected attempts roll back to a clean state). The quantitative improvement they provide depends on a local-rate model:</p>
+    <ul>
+    <li>under conditional independence, the per-obligation rate amplifies from</li>
+    <p>$p_h$ to $1-(1-p_h)^{b_h}$ (Theorem thm:retry-amplification);</p>
+    <li>under shared latent failure modes, that i.i.d. rate is an <em>upper</em></li>
+    <p>bound on what is achievable, and the realised rate can be as low as $p_h$ (Proposition prop:correlation-upper-bound);</p>
+    <li>under a calibrated uniform persistence parameter $\rho_h$, the rate</li>
+    <p>is at least $1-(1-p_h)\rho_h^{\,b_h-1}$, interpolating between the two extremes.</p>
+    </ul>
+    <p>The global product lower bound (Theorem thm:product-abstract) is stated abstractly in terms of per-obligation lower bounds $q_h^{\mathrm{LB}}$, which the local-rate model supplies. Refinement is beneficial when the analogous expression for refinement exceeds $q_h$ for the same calibrated rates.</p>
+    <p><span class="paragraph-title">Scope..</span></p>
+    <p>These are conditional guarantees, not claims that arbitrary long-horizon reasoning is solved. The structural guarantees (no contamination, conditional correctness) hold whenever the assumptions hold. The recovery improvement is guaranteed to be safe but its magnitude is a function of validator strength, local proposal quality, and sample diversity — none of which the framework itself produces. The substantive engineering questions (constructing sound validators for the task class, inducing enough sample diversity to push $\rho_h$ below 1, allocating retry budget across obligations) remain open and are surveyed in Section sec:open-problems.</p>
+  </main>
+</body>
+</html>
