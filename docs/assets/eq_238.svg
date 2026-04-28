@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="534" height="159" viewBox="0 0 534 159" role="img">
-  <rect width="100%" height="100%" fill="white"/>
-  <text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="18" fill="#1c1f24">
-    <tspan x="14" y="30">\alpha_h^{arrow}</tspan><tspan x="14" y="57">=</tspan><tspan x="14" y="84">\frac{\alpha_h^{arrow} \Pr[U \text{ invalid}]}</tspan><tspan x="14" y="111">     {\alpha_h^{arrow} \Pr[U \text{ invalid}]</tspan><tspan x="14" y="138">      +(1-\beta_h) \Pr[U \text{ valid}]},</tspan>
-  </text>
-</svg>

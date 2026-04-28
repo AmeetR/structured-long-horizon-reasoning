@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="281" height="159" viewBox="0 0 281 159" role="img">
-  <rect width="100%" height="100%" fill="white"/>
-  <text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="18" fill="#1c1f24">
-    <tspan x="14" y="30">q_{\mathrm{exp}}</tspan><tspan x="14" y="57">(\prod_{i=1}^m q_{c_i})</tspan><tspan x="14" y="84">q_{\mathrm{comp}}</tspan><tspan x="14" y="111"> &gt; </tspan><tspan x="14" y="138">q_h.</tspan>
-  </text>
-</svg>

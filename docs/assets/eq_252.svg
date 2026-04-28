@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="391" height="105" viewBox="0 0 391 105" role="img">
-  <rect width="100%" height="100%" fill="white"/>
-  <text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="18" fill="#1c1f24">
-    <tspan x="14" y="30">\Pr[V_j=1, I_j=1]</tspan><tspan x="14" y="57">=\Pr[V_j=1\mid I_j=1] \Pr[I_j=1]</tspan><tspan x="14" y="84">\le \alpha_{\max}^{arrow}\cdot 1.</tspan>
-  </text>
-</svg>

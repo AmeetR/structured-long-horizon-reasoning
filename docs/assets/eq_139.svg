@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="435" height="78" viewBox="0 0 435 78" role="img">
-  <rect width="100%" height="100%" fill="white"/>
-  <text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="18" fill="#1c1f24">
-    <tspan x="14" y="30">\Pr[Y_{k+1}=1 \mid F_k]  \le  \rho_h</tspan><tspan x="14" y="57">     \text{for all } k=1,\dots,b_h-1,</tspan>
-  </text>
-</svg>

@@ -2,7 +2,11 @@ from __future__ import annotations
 
 import argparse
 import html
+import json
 import re
+import shutil
+import subprocess
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
@@ -43,17 +47,12 @@ def main() -> None:
     parser.add_argument(
         "--medium-output",
         default="",
-        help="Optional path to write a Medium-import-safe page with math as SVG images.",
+        help="Optional path to write a Pandoc-rendered Medium import page with MathML.",
     )
     parser.add_argument(
         "--canonical-url",
         default="",
         help="Optional public GitHub Pages URL for canonical links and Medium import.",
-    )
-    parser.add_argument(
-        "--asset-dir",
-        default="",
-        help="Directory for generated Medium-safe equation SVG assets. Defaults to OUTPUT_DIR/assets.",
     )
     args = parser.parse_args()
 
@@ -66,17 +65,43 @@ def main() -> None:
     print(f"Wrote {output}")
     if args.medium_output:
         medium_output = Path(args.medium_output)
-        asset_dir = Path(args.asset_dir) if args.asset_dir else medium_output.parent / "assets"
-        medium_page = render_article(
-            tex,
-            canonical_url=args.canonical_url,
-            math_mode="local-svg",
-            asset_dir=asset_dir,
-            asset_url_prefix=asset_dir.name,
-        )
-        medium_output.parent.mkdir(parents=True, exist_ok=True)
-        medium_output.write_text(medium_page, encoding="utf-8")
+        render_medium_with_pandoc(source, medium_output, canonical_url=args.canonical_url)
         print(f"Wrote {medium_output}")
+
+
+def render_medium_with_pandoc(source: Path, output: Path, canonical_url: str = "") -> None:
+    if shutil.which("pandoc") is None:
+        raise RuntimeError("pandoc is required for --medium-output. Install pandoc and rerun.")
+
+    tex = source.read_text(encoding="utf-8")
+    tex = tex.replace(r"\qedhere", "")
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmp_source = Path(tmpdir) / source.name
+        tmp_source.write_text(tex, encoding="utf-8")
+        output.parent.mkdir(parents=True, exist_ok=True)
+        subprocess.run(
+            [
+                "pandoc",
+                str(tmp_source),
+                "--from",
+                "latex",
+                "--to",
+                "html5",
+                "--standalone",
+                "--mathml",
+                "--metadata",
+                "title=Transactional Structured Reasoning: Contamination Safety and Recovery",
+                "-o",
+                str(output),
+            ],
+            check=True,
+        )
+
+    if canonical_url:
+        html_page = output.read_text(encoding="utf-8")
+        canonical = f'<link rel="canonical" href="{html.escape(canonical_url, quote=True)}" />'
+        html_page = html_page.replace("</head>", f"  {canonical}\n</head>", 1)
+        output.write_text(html_page, encoding="utf-8")
 
 
 def render_article(
@@ -96,6 +121,8 @@ def render_article(
             raise ValueError("asset_dir is required for local-svg math rendering.")
         math_assets = SvgMathAssets(asset_dir=asset_dir, url_prefix=asset_url_prefix)
     content = TexRenderer(math_mode=math_mode, macros=macros, math_assets=math_assets).render(body)
+    if math_assets is not None:
+        math_assets.render_pending()
     canonical_tag = (
         f'<link rel="canonical" href="{html.escape(canonical_url, quote=True)}">\n'
         if canonical_url
@@ -498,26 +525,62 @@ class SvgMathAssets:
         self.asset_dir = asset_dir
         self.url_prefix = url_prefix.strip("/")
         self.counter = 0
+        self.pending: list[dict[str, object]] = []
         self.asset_dir.mkdir(parents=True, exist_ok=True)
         for stale in self.asset_dir.glob("eq_*.svg"):
             stale.unlink()
 
     def render_image(self, math: str, display: bool, macros: dict[str, str]) -> str:
         expanded = normalize_math_for_svg(expand_macros(math, macros))
-        filename = self.write_svg(expanded, display=display)
+        filename = self.reserve_svg(expanded, display=display)
         src = f"{self.url_prefix}/{filename}"
         alt = html.escape(math, quote=True)
         if display:
-            return (
-                f'<figure class="math-display"><img src="{src}" alt="{alt}">'
-                f'<figcaption class="math-fallback"><code>{html.escape(math)}</code></figcaption>'
-                "</figure>"
-            )
+            return f'<figure class="math-display"><img src="{src}" alt="{alt}"></figure>'
         return f'<img class="math-inline" src="{src}" alt="{alt}">'
 
-    def write_svg(self, math: str, display: bool) -> str:
+    def reserve_svg(self, math: str, display: bool) -> str:
         self.counter += 1
         filename = f"eq_{self.counter:03d}.svg"
+        self.pending.append({"id": filename.removesuffix(".svg"), "filename": filename, "math": math, "display": display})
+        return filename
+
+    def render_pending(self) -> None:
+        if not self.pending:
+            return
+        try:
+            self.render_with_mathjax()
+        except (OSError, subprocess.SubprocessError, json.JSONDecodeError) as error:
+            print(f"Warning: MathJax SVG render failed; using text fallback: {error}")
+            for item in self.pending:
+                self.write_text_svg(
+                    filename=str(item["filename"]),
+                    math=str(item["math"]),
+                    display=bool(item["display"]),
+                )
+
+    def render_with_mathjax(self) -> None:
+        script = Path(__file__).resolve().parents[2] / "scripts" / "render_math_svg.mjs"
+        payload = {
+            "items": [
+                {"id": item["id"], "math": item["math"], "display": item["display"]}
+                for item in self.pending
+            ]
+        }
+        result = subprocess.run(
+            ["node", str(script)],
+            input=json.dumps(payload),
+            text=True,
+            capture_output=True,
+            check=True,
+        )
+        rendered_items = json.loads(result.stdout)
+        by_id = {item["id"]: item["svg"] for item in rendered_items}
+        for item in self.pending:
+            svg = by_id[str(item["id"])]
+            (self.asset_dir / str(item["filename"])).write_text(svg, encoding="utf-8")
+
+    def write_text_svg(self, filename: str, math: str, display: bool) -> None:
         path = self.asset_dir / filename
         lines = math.splitlines() or [math]
         font_size = 18 if display else 16
@@ -542,7 +605,6 @@ class SvgMathAssets:
 </svg>
 '''
         path.write_text(svg, encoding="utf-8")
-        return filename
 
 
 def normalize_math_for_svg(math: str) -> str:

@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="435" height="159" viewBox="0 0 435 159" role="img">
-  <rect width="100%" height="100%" fill="white"/>
-  <text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="18" fill="#1c1f24">
-    <tspan x="14" y="30">\Pr[Y_1=\cdots=Y_{b_h}=1]</tspan><tspan x="14" y="57">=\mathbb{E}[\rho(Z)^{b_h}]</tspan><tspan x="14" y="84"> \ge </tspan><tspan x="14" y="111">\bigl(\mathbb{E}[\rho(Z)]\bigr)^{b_h}</tspan><tspan x="14" y="138">=(1-p_h)^{b_h},</tspan>
-  </text>
-</svg>
