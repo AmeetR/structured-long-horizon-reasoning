@@ -4,6 +4,7 @@ import { mathjax } from "mathjax-full/js/mathjax.js";
 import { SVG } from "mathjax-full/js/output/svg.js";
 import { AllPackages } from "mathjax-full/js/input/tex/AllPackages.js";
 import { TeX } from "mathjax-full/js/input/tex.js";
+import sharp from "sharp";
 
 const input = await readStdin();
 const formulas = JSON.parse(input);
@@ -22,10 +23,12 @@ const document = mathjax.document("", {
   OutputJax: svg,
 });
 
-const rendered = formulas.map(({ tex: formula, display }) => {
+const rendered = await Promise.all(formulas.map(async ({ tex: formula, display }) => {
   const node = document.convert(formula, { display: Boolean(display) });
-  return { svg: adaptor.innerHTML(node) };
-});
+  const svgSource = scaleSvgExUnits(adaptor.innerHTML(node), 18);
+  const png = await sharp(Buffer.from(svgSource)).png().toBuffer();
+  return { png: png.toString("base64") };
+}));
 
 process.stdout.write(JSON.stringify(rendered));
 
@@ -39,4 +42,10 @@ function readStdin() {
     process.stdin.on("end", () => resolve(data));
     process.stdin.on("error", reject);
   });
+}
+
+function scaleSvgExUnits(svgSource, pixelsPerEx) {
+  return svgSource
+    .replace(/width="([0-9.]+)ex"/, (_, width) => `width="${Number(width) * pixelsPerEx}px"`)
+    .replace(/height="([0-9.]+)ex"/, (_, height) => `height="${Number(height) * pixelsPerEx}px"`);
 }

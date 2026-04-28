@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import html
 import json
 import re
@@ -102,14 +103,14 @@ def render_medium_with_pandoc(source: Path, output: Path, canonical_url: str = "
         canonical = f'<link rel="canonical" href="{html.escape(canonical_url, quote=True)}" />'
         html_page = html_page.replace("</head>", f"  {canonical}\n</head>", 1)
         output.write_text(html_page, encoding="utf-8")
-    render_local_math_images(output)
+    render_medium_math(output, canonical_url=canonical_url)
 
 
-def render_local_math_images(output: Path) -> None:
+def render_medium_math(output: Path, canonical_url: str = "") -> None:
     html_page = output.read_text(encoding="utf-8")
     asset_dir = output.parent / "assets"
     asset_dir.mkdir(parents=True, exist_ok=True)
-    for stale in asset_dir.glob("eq_*.svg"):
+    for stale in [*asset_dir.glob("eq_*.svg"), *asset_dir.glob("eq_*.png")]:
         stale.unlink()
 
     image_pattern = re.compile(
@@ -117,7 +118,7 @@ def render_local_math_images(output: Path) -> None:
     )
     alt_pattern = re.compile(r'\balt="([^"]*)"')
     class_pattern = re.compile(r'\bclass="([^"]*)"')
-    formulas: list[tuple[str, bool]] = []
+    display_formulas: list[str] = []
     for image_tag in image_pattern.findall(html_page):
         alt_match = alt_pattern.search(image_tag)
         if alt_match is None:
@@ -125,45 +126,128 @@ def render_local_math_images(output: Path) -> None:
         class_match = class_pattern.search(image_tag)
         class_names = class_match.group(1).split() if class_match else []
         formula = html.unescape(alt_match.group(1))
-        formulas.append((formula, "display" in class_names))
+        if "display" in class_names:
+            display_formulas.append(formula)
 
-    unique_formulas = list(dict.fromkeys(formulas))
-    rendered_svgs = render_mathjax_svgs(unique_formulas)
-    replacements: dict[tuple[str, bool], str] = {}
-    for index, ((formula, display), svg) in enumerate(zip(unique_formulas, rendered_svgs), start=1):
-        filename = f"eq_{index:03d}.svg"
+    unique_display_formulas = list(dict.fromkeys(display_formulas))
+    rendered_pngs = render_mathjax_pngs(unique_display_formulas)
+    display_replacements: dict[str, str] = {}
+    asset_url_prefix = absolute_asset_prefix(canonical_url) if canonical_url else "assets"
+    for index, (formula, png) in enumerate(zip(unique_display_formulas, rendered_pngs), start=1):
+        filename = f"eq_{index:03d}.png"
         target = asset_dir / filename
-        target.write_text(svg, encoding="utf-8")
-        replacements[(formula, display)] = f"assets/{filename}"
+        target.write_bytes(png)
+        display_replacements[formula] = f"{asset_url_prefix}/{filename}"
 
-    def replace_image_src(match: re.Match[str]) -> str:
+    def replace_math_image(match: re.Match[str]) -> str:
         image_tag = match.group(0)
         alt_match = alt_pattern.search(image_tag)
         if alt_match is None:
             return image_tag
         class_match = class_pattern.search(image_tag)
         class_names = class_match.group(1).split() if class_match else []
-        key = (html.unescape(alt_match.group(1)), "display" in class_names)
-        return re.sub(
-            r'\bsrc="https://tex2pages\.invalid/svg\?[^"]+"',
-            f'src="{replacements[key]}"',
-            image_tag,
-            count=1,
+        formula = html.unescape(alt_match.group(1))
+        title = html.escape(formula, quote=True)
+        if "display" not in class_names:
+            inline_text = html.escape(tex_to_inline_math_text(formula))
+            return f'<span class="math-text" title="{title}">{inline_text}</span>'
+
+        src = html.escape(display_replacements[formula], quote=True)
+        alt = html.escape(formula, quote=True)
+        return (
+            '<span class="math-display" style="display:block;text-align:center;margin:16px 0;">'
+            f'<img src="{src}" alt="{alt}" title="{title}" '
+            'style="max-width:100%;height:auto;">'
+            "</span>"
         )
 
-    html_page = image_pattern.sub(replace_image_src, html_page)
+    html_page = image_pattern.sub(replace_math_image, html_page)
     output.write_text(html_page, encoding="utf-8")
 
 
-def render_mathjax_svgs(formulas: list[tuple[str, bool]]) -> list[str]:
+def absolute_asset_prefix(canonical_url: str) -> str:
+    return f"{canonical_url.rstrip('/')}/assets"
+
+
+def tex_to_inline_math_text(formula: str) -> str:
+    text = formula
+    replacements = {
+        r"\alpha": "α",
+        r"\beta": "β",
+        r"\gamma": "γ",
+        r"\delta": "δ",
+        r"\epsilon": "ε",
+        r"\theta": "θ",
+        r"\lambda": "λ",
+        r"\mu": "μ",
+        r"\pi": "π",
+        r"\rho": "ρ",
+        r"\sigma": "σ",
+        r"\Pi": "Π",
+        r"\Pr": "Pr",
+        r"\in": "∈",
+        r"\notin": "∉",
+        r"\le": "≤",
+        r"\ge": "≥",
+        r"\neq": "≠",
+        r"\wedge": "∧",
+        r"\vee": "∨",
+        r"\iff": "⇔",
+        r"\implies": "⇒",
+        r"\to": "→",
+        r"\leftarrow": "←",
+        r"\rightarrow": "→",
+        r"\sim": "∼",
+        r"\mid": "|",
+        r"\cdot": "·",
+        r"\times": "×",
+        r"\oplus": "⊕",
+        r"\cup": "∪",
+        r"\cap": "∩",
+        r"\emptyset": "∅",
+        r"\exists": "∃",
+        r"\forall": "∀",
+        r"\dots": "...",
+        r"\ldots": "...",
+        r"\bar": "bar ",
+        r"\hat": "hat ",
+    }
+    for old, new in replacements.items():
+        text = text.replace(old, new)
+
+    script_letters = {
+        "A": "𝒜",
+        "B": "ℬ",
+        "H": "ℋ",
+        "O": "𝒪",
+        "R": "ℛ",
+        "S": "𝒮",
+        "U": "𝒰",
+        "Y": "𝒴",
+    }
+    text = re.sub(
+        r"\\mathcal\{([A-Za-z])\}",
+        lambda match: script_letters.get(match.group(1), match.group(1)),
+        text,
+    )
+    text = re.sub(r"\\(?:mathrm|mathsf|text)\{([^{}]*)\}", r"\1", text)
+    text = re.sub(r"\\(?:left|right|,|;|!| )", "", text)
+    text = re.sub(r"\^\{([^{}]+)\}", r"^(\1)", text)
+    text = re.sub(r"_\{([^{}]+)\}", r"_\1", text)
+    text = text.replace("{", "").replace("}", "")
+    text = re.sub(r"\s+", " ", text)
+    return text.strip()
+
+
+def render_mathjax_pngs(formulas: list[str]) -> list[bytes]:
     if not formulas:
         return []
     node = shutil.which("node")
     if node is None:
-        raise RuntimeError("node is required to render local SVG math for --medium-output.")
+        raise RuntimeError("node is required to render PNG math for --medium-output.")
 
     script = Path(__file__).with_name("render_mathjax_svg.mjs")
-    payload = json.dumps([{"tex": formula, "display": display} for formula, display in formulas])
+    payload = json.dumps([{"tex": formula, "display": True} for formula in formulas])
     result = subprocess.run(
         [node, str(script)],
         input=payload,
@@ -171,7 +255,7 @@ def render_mathjax_svgs(formulas: list[tuple[str, bool]]) -> list[str]:
         capture_output=True,
         check=True,
     )
-    return [entry["svg"] for entry in json.loads(result.stdout)]
+    return [base64.b64decode(entry["png"]) for entry in json.loads(result.stdout)]
 
 
 def render_article(

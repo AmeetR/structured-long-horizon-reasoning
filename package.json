@@ -1,5 +1,6 @@
 {
   "devDependencies": {
-    "mathjax-full": "^3.2.2"
+    "mathjax-full": "^3.2.2",
+    "sharp": "^0.34.5"
   }
 }
