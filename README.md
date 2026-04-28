@@ -92,13 +92,20 @@ article pages:
 ```bash
 uv run tex2pages docs/transactional_reasoning_theory.tex \
   --output docs/index.html \
+  --medium-output docs/medium.html \
   --canonical-url https://YOURNAME.github.io/structured-long-horizon-reasoning/
 ```
 
-The output is a normal static HTML article at `docs/index.html`. It keeps LaTeX
-math in the page and renders it with MathJax, so the GitHub Pages URL is the
-URL to paste into Medium's importer. Do not paste a GitHub source/blob URL into
-Medium.
+The output includes two static pages:
+
+- `docs/index.html`: the readable GitHub Pages article. It keeps LaTeX math in
+  the page and renders it with MathJax.
+- `docs/medium.html`: the Medium-import page. It rewrites inline and display
+  math to SVG image URLs so Medium does not import raw `$...$` or `\[...\]`
+  markup.
+
+Paste the published `medium.html` URL into Medium's importer. Do not paste a
+GitHub source/blob URL into Medium.
 
 Two deployment modes are supported:
 
@@ -106,8 +113,8 @@ Two deployment modes are supported:
   `docs/index.html`, then configure GitHub Pages to publish from the `main`
   branch `/docs` folder.
 - GitHub Actions render: configure GitHub Pages to use GitHub Actions. The
-  workflow in `.github/workflows/pages.yml` renders the TeX file and deploys the
-  generated `docs/` site on pushes to `main`.
+  workflow in `.github/workflows/pages.yml` renders both HTML files and deploys
+  the generated `docs/` site on pushes to `main`.
 
 Run a real API-backed transactional experiment. The CLI is API-first by default:
 

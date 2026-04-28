@@ -30,6 +30,7 @@ jobs:
         run: >-
           uv run tex2pages docs/transactional_reasoning_theory.tex
           --output docs/index.html
+          --medium-output docs/medium.html
           --canonical-url "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

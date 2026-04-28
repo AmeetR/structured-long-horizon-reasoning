@@ -4,7 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Transactional Structured Reasoning: Contamination Safety and Recovery</title>
-  <meta name="description" content="Transactional Structured Reasoning: Contamination Safety and Recovery">
+  <link rel="canonical" href="https://ameetr.github.io/structured-long-horizon-reasoning/">
+<meta name="description" content="Transactional Structured Reasoning: Contamination Safety and Recovery">
   <style>
     :root {
       color-scheme: light;
@@ -55,6 +56,8 @@
     th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; }
     th { background: var(--accent-soft); text-align: left; }
     .math-display { overflow-x: auto; margin: 18px 0; }
+    .math-display img { max-width: 100%; height: auto; }
+    .math-inline { display: inline; height: 1.15em; max-width: 100%; vertical-align: -0.2em; }
     code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
     @media (max-width: 640px) {
       main { padding: 32px 16px 56px; }
@@ -519,7 +522,7 @@ q&#x27;_h = 1-(1-p_h(1-\beta_h))^{b_h}.
     <p>for a common dual $\lambda$ tuned to the budget. With unknown $\hat p_i$, the problem becomes a structured multi-armed bandit: each obligation is a Bernoulli arm with unknown success probability, retries are pulls, but pulls also drain a shared budget and feed into a topological dependency. Whether standard strategies (UCB, Thompson sampling, or an explore-then-allocate phase based on the water-filling rule above) admit useful regret guarantees against the offline product optimum is open.</p>
     <p><span class="paragraph-title">Adaptive refinement policies..</span></p>
     <p>Proposition prop:refinement-helps compares ``solve $h$ directly&#x27;&#x27; against ``refine $h$ then solve its children&#x27;&#x27; as if they were exclusive. In practice, the executor first attempts $h$ for some number of tries and refines only on persistent failure. The right object is a sequential policy that, after $k$ failed attempts on $h$, decides among continue, refine, or abandon, given a posterior over $p_h$ and the remaining budget. Casting this as an optimal stopping problem and characterising the resulting policy (presumably a threshold rule on the posterior mean of $p_h$ relative to the per-child rates) is open.</p>
-    <p>\paragraph{Strengthening the contamination bound under correlated validator errors.} The per-invocation union bound $\bar N\,\alpha_{\max}^{\rightarrow}$ of Theorem thm:contamination-noisy-invocation is loose when validator false accepts are correlated across invocations, e.g. a learned validator with a systematic blind spot for a particular invalid pattern. In that regime the right object is a mixture model over latent ``vulnerability classes&#x27;&#x27; that the validator either does or does not catch, with concentration measured against the structure of the proposal distribution rather than the number of attempts. We do not address this here.</p>
+    <p>&lt;span class=&quot;paragraph-title&quot;&gt;Strengthening the contamination bound under correlated validator errors..&lt;/span&gt; The per-invocation union bound Theorem thm:contamination-noisy-invocation is loose when validator false accepts are correlated across invocations, e.g. a learned validator with a systematic blind spot for a particular invalid pattern. In that regime the right object is a mixture model over latent ``vulnerability classes&#x27;&#x27; that the validator either does or does not catch, with concentration measured against the structure of the proposal distribution rather than the number of attempts. We do not address this here.</p>
     <p><span class="paragraph-title">Joint optimisation of validator and proposer..</span></p>
     <p>The framework treats $\LLM$ and $g$ as independent. In practice they share a model family, and improving the validator can degrade the proposer (and vice versa) under a fixed compute budget. The Pareto frontier between $p_h$, $\alpha_h^{\rightarrow}$, and $\beta_h$ at fixed compute is the practically relevant object, and is unaddressed.</p>
     <p><span class="paragraph-title">Quantifying the latent-mode variance..</span></p>

@@ -6,6 +6,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
+from urllib.parse import quote
 
 
 BLOCK_ENVS = {
@@ -41,27 +42,53 @@ def main() -> None:
         help="Path to write the rendered HTML page.",
     )
     parser.add_argument(
+        "--medium-output",
+        default="",
+        help="Optional path to write a Medium-import-safe page with math as SVG images.",
+    )
+    parser.add_argument(
         "--canonical-url",
         default="",
         help="Optional public GitHub Pages URL for canonical links and Medium import.",
+    )
+    parser.add_argument(
+        "--webtex-url",
+        default="https://latex.codecogs.com/svg.latex?",
+        help="Equation image endpoint used for the Medium-safe HTML build.",
     )
     args = parser.parse_args()
 
     source = Path(args.source)
     output = Path(args.output)
     tex = source.read_text(encoding="utf-8")
-    html_page = render_article(tex, canonical_url=args.canonical_url)
+    html_page = render_article(tex, canonical_url=args.canonical_url, math_mode="mathjax")
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(html_page, encoding="utf-8")
     print(f"Wrote {output}")
+    if args.medium_output:
+        medium_output = Path(args.medium_output)
+        medium_page = render_article(
+            tex,
+            canonical_url=args.canonical_url,
+            math_mode="webtex",
+            webtex_url=args.webtex_url,
+        )
+        medium_output.parent.mkdir(parents=True, exist_ok=True)
+        medium_output.write_text(medium_page, encoding="utf-8")
+        print(f"Wrote {medium_output}")
 
 
-def render_article(tex: str, canonical_url: str = "") -> str:
+def render_article(
+    tex: str,
+    canonical_url: str = "",
+    math_mode: str = "mathjax",
+    webtex_url: str = "https://latex.codecogs.com/svg.latex?",
+) -> str:
     metadata = extract_metadata(tex)
     macros = extract_macros(tex)
     body = extract_document_body(tex)
     body = strip_maketitle(body)
-    content = TexRenderer().render(body)
+    content = TexRenderer(math_mode=math_mode, macros=macros, webtex_url=webtex_url).render(body)
     canonical_tag = (
         f'<link rel="canonical" href="{html.escape(canonical_url, quote=True)}">\n'
         if canonical_url
@@ -70,7 +97,9 @@ def render_article(tex: str, canonical_url: str = "") -> str:
     mathjax_macros = ",\n".join(
         f"        {name}: {macro_to_js_array(definition)}" for name, definition in macros.items()
     )
-    mathjax_config = f"""
+    mathjax_config = ""
+    if math_mode == "mathjax":
+        mathjax_config = f"""
     <script>
       window.MathJax = {{
         tex: {{
@@ -140,6 +169,8 @@ def render_article(tex: str, canonical_url: str = "") -> str:
     th, td {{ border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; }}
     th {{ background: var(--accent-soft); text-align: left; }}
     .math-display {{ overflow-x: auto; margin: 18px 0; }}
+    .math-display img {{ max-width: 100%; height: auto; }}
+    .math-inline {{ display: inline; height: 1.15em; max-width: 100%; vertical-align: -0.2em; }}
     code {{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }}
     @media (max-width: 640px) {{
       main {{ padding: 32px 16px 56px; }}
@@ -204,10 +235,18 @@ def render_byline(metadata: Metadata) -> str:
 
 
 class TexRenderer:
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        math_mode: str = "mathjax",
+        macros: dict[str, str] | None = None,
+        webtex_url: str = "https://latex.codecogs.com/svg.latex?",
+    ) -> None:
         self.env_stack: list[str] = []
         self.paragraph: list[str] = []
         self.section_index = 0
+        self.math_mode = math_mode
+        self.macros = macros or {}
+        self.webtex_url = webtex_url
 
     def render(self, body: str) -> str:
         lines = body.splitlines()
@@ -229,7 +268,7 @@ class TexRenderer:
                 while i < len(lines) and not lines[i].strip().startswith(r"\]"):
                     block.append(lines[i])
                     i += 1
-                output.append(render_display_math("\n".join(block)))
+                output.append(self.render_display_math("\n".join(block)))
                 i += 1
                 continue
 
@@ -241,21 +280,33 @@ class TexRenderer:
                 while i < len(lines) and not lines[i].strip().startswith(r"\end{tabular}"):
                     table_lines.append(lines[i].strip())
                     i += 1
-                output.append(render_table(table_lines))
+                output.append(render_table(table_lines, self.convert_inline))
                 i += 1
                 continue
 
             if section := re.match(r"\\section\{(.+)\}", stripped):
                 self.flush_paragraph(output)
                 self.section_index += 1
-                title = convert_inline(section.group(1))
+                title = self.convert_inline(section.group(1))
                 output.append(f'<h2 id="{slugify(strip_commands(section.group(1)))}">{title}</h2>')
                 i += 1
                 continue
 
+            if stripped.startswith(r"\paragraph{") and "}" not in stripped:
+                self.flush_paragraph(output)
+                paragraph_lines = [stripped]
+                i += 1
+                while i < len(lines) and "}" not in lines[i]:
+                    paragraph_lines.append(lines[i].strip())
+                    i += 1
+                if i < len(lines):
+                    paragraph_lines.append(lines[i].strip())
+                    i += 1
+                stripped = " ".join(paragraph_lines)
+
             if paragraph := re.match(r"\\paragraph\{(.+)\}\.?", stripped):
                 self.flush_paragraph(output)
-                title = convert_inline(paragraph.group(1))
+                title = self.convert_inline(paragraph.group(1))
                 remainder = stripped[paragraph.end() :].strip()
                 if remainder:
                     self.paragraph.append(f'<span class="paragraph-title">{title}.</span> {remainder}')
@@ -298,7 +349,7 @@ class TexRenderer:
 
             if item := re.match(r"\\item\s*(.*)", stripped):
                 self.flush_paragraph(output)
-                output.append(f"<li>{convert_inline(item.group(1))}</li>")
+                output.append(f"<li>{self.convert_inline(item.group(1))}</li>")
                 i += 1
                 continue
 
@@ -314,8 +365,23 @@ class TexRenderer:
         text = " ".join(self.paragraph)
         text = re.sub(r"\s+", " ", text).strip()
         if text:
-            output.append(f"<p>{convert_inline(text)}</p>")
+            output.append(f"<p>{self.convert_inline(text)}</p>")
         self.paragraph.clear()
+
+    def render_display_math(self, content: str) -> str:
+        math = content.strip()
+        if self.math_mode == "webtex":
+            return render_math_image(math, display=True, macros=self.macros, webtex_url=self.webtex_url)
+        escaped = html.escape(math)
+        return f'<div class="math-display">\\[\n{escaped}\n\\]</div>'
+
+    def convert_inline(self, text: str) -> str:
+        return convert_inline(
+            text,
+            math_mode=self.math_mode,
+            macros=self.macros,
+            webtex_url=self.webtex_url,
+        )
 
 
 def render_env_start(env: str, title: str | None) -> str:
@@ -329,12 +395,9 @@ def render_env_start(env: str, title: str | None) -> str:
     return f'<section class="statement {env}"><div class="statement-title">{label}</div>'
 
 
-def render_display_math(content: str) -> str:
-    escaped = html.escape(content.strip())
-    return f'<div class="math-display">\\[\n{escaped}\n\\]</div>'
-
-
-def render_table(lines: list[str]) -> str:
+def render_table(lines: list[str], inline_renderer: Callable[[str], str] | None = None) -> str:
+    if inline_renderer is None:
+        inline_renderer = convert_inline
     rows: list[list[str]] = []
     for line in lines:
         if not line or line == r"\hline":
@@ -342,7 +405,7 @@ def render_table(lines: list[str]) -> str:
         line = line.replace(r"\\", "").strip()
         if not line:
             continue
-        rows.append([convert_inline(cell.strip()) for cell in line.split("&")])
+        rows.append([inline_renderer(cell.strip()) for cell in line.split("&")])
     if not rows:
         return ""
     html_rows = []
@@ -353,14 +416,26 @@ def render_table(lines: list[str]) -> str:
     return "<table>\n" + "\n".join(html_rows) + "\n</table>"
 
 
-def convert_inline(text: str) -> str:
+def convert_inline(
+    text: str,
+    math_mode: str = "mathjax",
+    macros: dict[str, str] | None = None,
+    webtex_url: str = "https://latex.codecogs.com/svg.latex?",
+) -> str:
+    macros = macros or {}
     tokens: list[str] = []
 
     def keep_token(rendered: str) -> str:
         tokens.append(rendered)
         return f"@@TOKEN{len(tokens) - 1}@@"
 
-    text = re.sub(r"\$[^$]+\$", lambda m: keep_token(html.escape(m.group(0))), text)
+    text = re.sub(
+        r"\$[^$]+\$",
+        lambda m: keep_token(
+            render_inline_math(m.group(0), math_mode=math_mode, macros=macros, webtex_url=webtex_url)
+        ),
+        text,
+    )
     text = re.sub(r"\\label\{[^}]+\}", "", text)
     text = re.sub(r"\\ref\{([^}]+)\}", lambda m: keep_token(html.escape(m.group(1))), text)
     text = re.sub(
@@ -385,6 +460,38 @@ def convert_inline(text: str) -> str:
     for index, rendered in enumerate(tokens):
         text = text.replace(f"@@TOKEN{index}@@", rendered)
     return text
+
+
+def render_inline_math(
+    math: str,
+    math_mode: str,
+    macros: dict[str, str],
+    webtex_url: str,
+) -> str:
+    if math_mode == "webtex":
+        return render_math_image(math.strip("$"), display=False, macros=macros, webtex_url=webtex_url)
+    return html.escape(math)
+
+
+def render_math_image(
+    math: str,
+    display: bool,
+    macros: dict[str, str],
+    webtex_url: str,
+) -> str:
+    expanded = expand_macros(math, macros)
+    encoded = quote(expanded, safe="")
+    src = f"{webtex_url}{encoded}"
+    if display:
+        return f'<figure class="math-display"><img src="{src}" alt="Equation"></figure>'
+    return f'<img class="math-inline" src="{src}" alt="math">'
+
+
+def expand_macros(math: str, macros: dict[str, str]) -> str:
+    expanded = math
+    for name in sorted(macros, key=len, reverse=True):
+        expanded = re.sub(rf"\\{name}\b", lambda _match, value=macros[name]: value, expanded)
+    return expanded
 
 
 def replace_text_command(

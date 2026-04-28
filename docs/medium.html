@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Transactional Structured Reasoning: Contamination Safety and Recovery</title>
+  <link rel="canonical" href="https://ameetr.github.io/structured-long-horizon-reasoning/">
+<meta name="description" content="Transactional Structured Reasoning: Contamination Safety and Recovery">
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f8f7f3;
+      --paper: #fffdfa;
+      --ink: #1c1f24;
+      --muted: #606975;
+      --line: #d9d6cc;
+      --accent: #256f73;
+      --accent-soft: #e7f1ef;
+      --proof: #f2f5f8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+      line-height: 1.62;
+    }
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 48px 22px 72px;
+      background: var(--paper);
+      min-height: 100vh;
+      box-shadow: 0 0 0 1px rgba(28, 31, 36, 0.05);
+    }
+    header { margin-bottom: 36px; border-bottom: 1px solid var(--line); padding-bottom: 24px; }
+    h1, h2, h3 { line-height: 1.2; letter-spacing: 0; }
+    h1 { font-size: clamp(2rem, 7vw, 3.2rem); margin: 0 0 12px; }
+    h2 { font-size: 1.55rem; margin: 42px 0 16px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+    h3 { font-size: 1.1rem; margin: 24px 0 8px; color: var(--accent); }
+    p { margin: 0 0 16px; }
+    a { color: var(--accent); }
+    .byline { color: var(--muted); font-size: 0.98rem; }
+    .abstract, .statement, .proof {
+      border-left: 4px solid var(--accent);
+      margin: 22px 0;
+      padding: 14px 18px;
+      background: var(--accent-soft);
+    }
+    .proof { border-left-color: #708090; background: var(--proof); }
+    .statement-title, .proof-title { font-weight: 700; margin-bottom: 8px; }
+    .paragraph-title { font-weight: 700; color: var(--accent); }
+    ol, ul { padding-left: 1.5rem; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.95rem; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; }
+    th { background: var(--accent-soft); text-align: left; }
+    .math-display { overflow-x: auto; margin: 18px 0; }
+    .math-display img { max-width: 100%; height: auto; }
+    .math-inline { display: inline; height: 1.15em; max-width: 100%; vertical-align: -0.2em; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    @media (max-width: 640px) {
+      main { padding: 32px 16px 56px; }
+      table { display: block; overflow-x: auto; white-space: nowrap; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Transactional Structured Reasoning: Contamination Safety and Recovery</h1>
+      
+    </header>
+    <section class="abstract"><div class="statement-title">Abstract</div>
+    <p>We formalize a transactional execution semantics for structured reasoning with LLM-generated local proposals. The central object is not the model&#x27;s hidden chain of thought, but the committed reasoning state used to produce the final answer. We prove two basic claims. First, under sound validation, faithful rollback, and answer-extraction soundness, invalid intermediate proposals cannot contaminate committed reasoning state, and any emitted final answer is certified by a committed root certificate. Second, treating the LLM as a stochastic proposal kernel, retries and refinement <em>can</em> amplify the probability of eventually finding a valid local update without increasing contamination risk under exact validation, but the amount of amplification is conditional: it is the i.i.d. rate <img class="math-inline" src="https://latex.codecogs.com/svg.latex?1-%281-p_h%29%5E%7Bb_h%7D" alt="math"> only under sample independence, is upper-bounded by it under shared latent failure modes, and is recovered in calibrated form via a persistence bound. These claims are intended as the reasoning-state analogue of transactional no-regression, adapted from mutable system state to mutable proof/claim state.</p>
+    </section>
+    <h2 id="setup">Setup</h2>
+    <p>Let a problem instance be represented by a rooted dependency structure</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?G%20%3D%20%28%5Cmathcal%7BH%7D%2C%20E%2C%20r%29%2C" alt="Equation"></figure>
+    <p>where <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Cmathcal%7BH%7D" alt="math"> is a finite set of reasoning obligations, <img class="math-inline" src="https://latex.codecogs.com/svg.latex?E" alt="math"> is a dependency relation, and <img class="math-inline" src="https://latex.codecogs.com/svg.latex?r%20%5Cin%20%5Cmathcal%7BH%7D" alt="math"> is the root obligation whose solution determines the final answer.</p>
+    <p>The committed reasoning state at time <img class="math-inline" src="https://latex.codecogs.com/svg.latex?t" alt="math"> is</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?s_t%20%3D%20%28F_t%2C%20D_t%2C%20K_t%2C%20%5Csigma_t%2C%20%5CPi_t%2C%20B_t%29%2C" alt="Equation"></figure>
+    <p>where <img class="math-inline" src="https://latex.codecogs.com/svg.latex?F_t" alt="math"> is the actionable frontier, <img class="math-inline" src="https://latex.codecogs.com/svg.latex?D_t" alt="math"> is the set of expanded obligations, <img class="math-inline" src="https://latex.codecogs.com/svg.latex?K_t" alt="math"> is the set of solved obligations, <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Csigma_t" alt="math"> is the map of committed values or claims, <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5CPi_t" alt="math"> is the set of certificates/provenance records, and <img class="math-inline" src="https://latex.codecogs.com/svg.latex?B_t" alt="math"> is the remaining retry budget.</p>
+    <p>A local proposal is an update</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?u_t%20%5Cin%20%5Cmathcal%7BU%7D." alt="Equation"></figure>
+    <p>Depending on the task, <img class="math-inline" src="https://latex.codecogs.com/svg.latex?u_t" alt="math"> may be a numeric local solution, an executable local expression, an assignment claim, an elimination claim, or a structural expansion.</p>
+    <p>The LLM is modeled as a stochastic proposal kernel:</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?U_%7Bh%2Ck%7D%20%5Csim%20%5Cpi_%5Ctheta%28%5Ccdot%20%5Cmid%20s%2C%20h%2C%20k%29%2C" alt="Equation"></figure>
+    <p>where <img class="math-inline" src="https://latex.codecogs.com/svg.latex?h" alt="math"> is the current obligation and <img class="math-inline" src="https://latex.codecogs.com/svg.latex?k" alt="math"> is the attempt index. The executor does not directly trust samples from <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Cpi_%5Ctheta" alt="math">. Every proposed update is passed through a validator</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?g%28s%2Cu%29%20%5Cin%20%5C%7B0%2C1%5C%7D." alt="Equation"></figure>
+    <section class="statement definition"><div class="statement-title">Definition: Committed-state transition</div>
+    <p>Given state <img class="math-inline" src="https://latex.codecogs.com/svg.latex?s" alt="math"> and proposal <img class="math-inline" src="https://latex.codecogs.com/svg.latex?u" alt="math">, let <img class="math-inline" src="https://latex.codecogs.com/svg.latex?s%20%5Coplus%20u" alt="math"> denote the candidate state obtained by applying <img class="math-inline" src="https://latex.codecogs.com/svg.latex?u" alt="math"> to a copy of <img class="math-inline" src="https://latex.codecogs.com/svg.latex?s" alt="math">. The committed transition is</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?T%28s%2Cu%29%20%3D%0A%5Cbegin%7Bcases%7D%0As%20%5Coplus%20u%20%26%20%5Ctext%7Bif%20%7D%20g%28s%2Cu%29%3D1%20%5Ctext%7B%20and%20%7D%20V%28s%20%5Coplus%20u%29%20%3C%20V%28s%29%2C%5C%5C%0As%20%26%20%5Ctext%7Botherwise.%7D%0A%5Cend%7Bcases%7D" alt="Equation"></figure>
+    <p>The rejected case is a rollback: the committed state remains exactly <img class="math-inline" src="https://latex.codecogs.com/svg.latex?s" alt="math">.</p>
+    </section>
+    <section class="statement definition"><div class="statement-title">Definition: Rejection memory</div>
+    <p>The executor may also maintain an auxiliary rejection memory <img class="math-inline" src="https://latex.codecogs.com/svg.latex?R_t" alt="math"> containing records of rejected proposals, validator reasons, and retry counts. This is operational feedback, not committed reasoning state. It may condition later LLM proposals, but it is excluded from <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Csigma_t" alt="math">, <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5CPi_t" alt="math">, and final answer extraction.</p>
+    <p>On a rejected proposal <img class="math-inline" src="https://latex.codecogs.com/svg.latex?u_t" alt="math"> for obligation <img class="math-inline" src="https://latex.codecogs.com/svg.latex?h_t" alt="math">, the operational context may change from <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%28s_t%2CR_t%29" alt="math"> to</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?%28s_t%2C%20R_t%20%5Ccup%20%5C%7B%28h_t%2Cu_t%2C%5Cmathrm%7Breason%7D_t%29%5C%7D%29%2C" alt="Equation"></figure>
+    <p>or to a bounded/windowed version of that update. The committed projection remains exactly <img class="math-inline" src="https://latex.codecogs.com/svg.latex?s_t" alt="math">. On an accepted update, <img class="math-inline" src="https://latex.codecogs.com/svg.latex?R_t" alt="math"> may be reset or scoped to the new committed state, because the entailment context has changed.</p>
+    </section>
+    <section class="statement definition"><div class="statement-title">Definition: Bad and clean states</div>
+    <p>Let <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Cmathsf%7BBad%7D%28s%29%3D1" alt="math"> if committed state <img class="math-inline" src="https://latex.codecogs.com/svg.latex?s" alt="math"> contains at least one invalid committed claim, value, or certificate. Otherwise <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Cmathsf%7BBad%7D%28s%29%3D0" alt="math">. Define</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?%5Cmathsf%7BClean%7D%28s%29%20%5Ciff%20%5Cmathsf%7BBad%7D%28s%29%3D0." alt="Equation"></figure>
+    <p>The predicate <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Cmathsf%7BClean%7D" alt="math"> concerns committed reasoning state only. The LLM may generate invalid hidden text, invalid drafts, or invalid candidate proposals; these are not contamination unless they enter <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Csigma_t" alt="math"> or <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5CPi_t" alt="math">. Rejection memory <img class="math-inline" src="https://latex.codecogs.com/svg.latex?R_t" alt="math"> is also not contamination, provided final answer extraction ignores <img class="math-inline" src="https://latex.codecogs.com/svg.latex?R_t" alt="math"> and <img class="math-inline" src="https://latex.codecogs.com/svg.latex?R_t" alt="math"> is not treated as a committed fact store.</p>
+    </section>
+    <section class="statement definition"><div class="statement-title">Definition: Progress potential</div>
+    <p><img class="math-inline" src="https://latex.codecogs.com/svg.latex?V%20%3A%20%5Cmathcal%7BS%7D%20%5Cto%20%5Cmathbb%7BN%7D" alt="math"> is a nonnegative integer potential measuring unresolved work. In the current implementation this may be an action-unit potential such as</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?V%28s%29%3D%0A%7C%5C%7Bh%20%5Cin%20%5Cmathcal%7BH%7D%20%3A%20h%20%5Cnotin%20K_t%5C%7D%7C%0A%2B%0A%7C%5C%7Bh%20%5Cin%20%5Cmathcal%7BH%7D%20%3A%20%5Cmathrm%7BCh%7D%28h%29%5Cneq%5Cemptyset%2C%20h%5Cnotin%20D_t%5C%7D%7C." alt="Equation"></figure>
+    <p>For logic-grid tasks, <img class="math-inline" src="https://latex.codecogs.com/svg.latex?V" alt="math"> may instead count unresolved person obligations and remaining candidate claims.</p>
+    </section>
+    <h2 id="claim-i-contamination-safety">Claim I: Contamination Safety</h2>
+    <p>The first claim is the reasoning-state analogue of transactional safety: invalid intermediate thoughts cannot poison the state used for the final answer.</p>
+    <section class="statement assumption"><div class="statement-title">Assumption: Initial clean state</div>
+    <p></p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?%5Cmathsf%7BClean%7D%28s_0%29." alt="Equation"></figure>
+    </section>
+    <section class="statement assumption"><div class="statement-title">Assumption: Exclusive commit authority</div>
+    <p> Only the transactional executor can mutate committed state fields <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%28D_t%2CK_t%2C%5Csigma_t%2C%5CPi_t%29" alt="math">. Model samples, prompts, scratchpads, and rejected candidate states are not directly committed.</p>
+    </section>
+    <section class="statement assumption"><div class="statement-title">Assumption: Faithful rollback</div>
+    <p> If a proposal <img class="math-inline" src="https://latex.codecogs.com/svg.latex?u" alt="math"> is rejected, the next committed state equals the previous committed state:</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?T%28s%2Cu%29%3Ds." alt="Equation"></figure>
+    </section>
+    <section class="statement assumption"><div class="statement-title">Assumption: Validator soundness</div>
+    <p> For every clean state <img class="math-inline" src="https://latex.codecogs.com/svg.latex?s" alt="math"> and proposal <img class="math-inline" src="https://latex.codecogs.com/svg.latex?u" alt="math">,</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?%5Cmathsf%7BClean%7D%28s%29%20%5Cwedge%20g%28s%2Cu%29%3D1%20%5Cimplies%20%5Cmathsf%7BClean%7D%28s%20%5Coplus%20u%29." alt="Equation"></figure>
+    <p>For exact validators, this is enforced by checking the proposed local update against an oracle evaluator, solver, proof checker, or entailment checker.</p>
+    </section>
+    <section class="statement assumption"><div class="statement-title">Assumption: Final answer reads only committed state</div>
+    <p> The final answer is computed by a function</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?A%20%3A%20%5Cmathcal%7BS%7D%20%5Cto%20%5Cmathcal%7BY%7D" alt="Equation"></figure>
+    <p>that depends only on committed fields such as <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Csigma_t" alt="math"> and <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5CPi_t" alt="math">, not on rejected proposals or hidden LLM drafts.</p>
+    </section>
+    <section class="statement assumption"><div class="statement-title">Assumption: Answer-extraction soundness</div>
+    <p> The executor emits a final answer only when the root obligation <img class="math-inline" src="https://latex.codecogs.com/svg.latex?r" alt="math"> has been solved, i.e. <img class="math-inline" src="https://latex.codecogs.com/svg.latex?r%5Cin%20K_t" alt="math">, and the answer is computed deterministically from a committed certificate <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5CPi_t%28r%29" alt="math"> that the same validator <img class="math-inline" src="https://latex.codecogs.com/svg.latex?g" alt="math"> has accepted as a witness for <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Csigma_t%28r%29" alt="math"> being the correct value of <img class="math-inline" src="https://latex.codecogs.com/svg.latex?r" alt="math">. Equivalently, the validator is invoked on the root certificate before any answer leaves the executor, and accepted certificates correctly witness their claims under the validator&#x27;s soundness guarantee.</p>
+    </section>
+    <p>Assumption ass:answer-from-commit is purely structural: it says rejected proposals are not read at answer time. Assumption ass:answer-extraction is what is needed for <em>correctness</em> of an emitted answer; without it, contamination safety guarantees only that the answer was extracted from a clean committed state, not that the emitted value is right.</p>
+    <section class="statement theorem"><div class="statement-title">Theorem: Transactional Reasoning Contamination Safety</div>
+    <p> Assume the initial clean state, exclusive commit authority, faithful rollback, and validator soundness assumptions (Assumptions ass:initial-clean--ass:validator-soundness). Then every committed state reachable by the transactional executor is clean:</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?%5Cforall%20t%20%5Cge%200%2C%5Cquad%20%5Cmathsf%7BClean%7D%28s_t%29." alt="Equation"></figure>
+    <p>Consequently, rejected or invalid intermediate proposals cannot contaminate the reasoning state used to compute the final answer.</p>
+    <p>(Note that Assumption ass:answer-from-commit is needed only to guarantee the final answer reads exclusively from this clean committed state, and Assumption ass:answer-extraction is needed only for the correctness corollary below; the cleanness of <img class="math-inline" src="https://latex.codecogs.com/svg.latex?s_t" alt="math"> itself does not depend on either.)</p>
+    </section>
+    <section class="proof"><div class="proof-title">Proof</div>
+    <p>The proof is by induction on <img class="math-inline" src="https://latex.codecogs.com/svg.latex?t" alt="math">.</p>
+    <p><strong>Base case.</strong> By the initial clean-state assumption, <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Cmathsf%7BClean%7D%28s_0%29" alt="math">.</p>
+    <p><strong>Inductive step.</strong> Assume <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Cmathsf%7BClean%7D%28s_t%29" alt="math">. Consider a proposal <img class="math-inline" src="https://latex.codecogs.com/svg.latex?u_t" alt="math">. There are two cases.</p>
+    <p>If <img class="math-inline" src="https://latex.codecogs.com/svg.latex?u_t" alt="math"> is rejected, faithful rollback gives</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?s_%7Bt%2B1%7D%3DT%28s_t%2Cu_t%29%3Ds_t." alt="Equation"></figure>
+    <p>Therefore <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Cmathsf%7BClean%7D%28s_%7Bt%2B1%7D%29" alt="math"> by the induction hypothesis.</p>
+    <p>If <img class="math-inline" src="https://latex.codecogs.com/svg.latex?u_t" alt="math"> is accepted, then <img class="math-inline" src="https://latex.codecogs.com/svg.latex?g%28s_t%2Cu_t%29%3D1" alt="math"> and</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?s_%7Bt%2B1%7D%3Ds_t%5Coplus%20u_t." alt="Equation"></figure>
+    <p>By validator soundness and <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Cmathsf%7BClean%7D%28s_t%29" alt="math">, it follows that</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?%5Cmathsf%7BClean%7D%28s_t%5Coplus%20u_t%29%2C" alt="Equation"></figure>
+    <p>and hence <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Cmathsf%7BClean%7D%28s_%7Bt%2B1%7D%29" alt="math">.</p>
+    <p>Thus <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Cmathsf%7BClean%7D%28s_t%29" alt="math"> holds for all reachable committed states. Since the final answer function reads only committed state, rejected or invalid intermediate proposals cannot affect the final answer except by failing to contribute a valid committed update.</p>
+    </section>
+    <section class="statement corollary"><div class="statement-title">Corollary: No poisoning under exact validation</div>
+    <p>If the validator is exact, <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Cmathsf%7BClean%7D%28s_0%29" alt="math">, and the final answer depends only on committed state, then the final answer cannot be poisoned by invalid rejected thoughts.</p>
+    </section>
+    <section class="statement corollary"><div class="statement-title">Corollary: Conditional correctness of emitted answers</div>
+    <p> Under Assumptions ass:initial-clean--ass:answer-extraction with exact validation, if the executor emits a final answer, that answer is correct.</p>
+    </section>
+    <section class="proof"><div class="proof-title">Proof</div>
+    <p>By Theorem thm:contamination-safety every committed state <img class="math-inline" src="https://latex.codecogs.com/svg.latex?s_t" alt="math"> is clean. By Assumption ass:answer-extraction an answer is emitted only when <img class="math-inline" src="https://latex.codecogs.com/svg.latex?r%5Cin%20K_t" alt="math"> and the validator has accepted the root certificate <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5CPi_t%28r%29" alt="math">; exact validation then implies <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5CPi_t%28r%29" alt="math"> correctly witnesses <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Csigma_t%28r%29" alt="math">. The emitted answer is a deterministic function of these committed fields, so it agrees with the true value of <img class="math-inline" src="https://latex.codecogs.com/svg.latex?r" alt="math">.</p>
+    </section>
+    <p><span class="paragraph-title">Interpretation..</span></p>
+    <p>Theorem thm:contamination-safety alone does not give correctness; it gives only that whatever lands in committed state was accepted by the validator on a clean predecessor. Correctness of an emitted answer requires the additional Assumption ass:answer-extraction: the same validator must certify the root before extraction. Even with both assumptions, the executor may still fail to emit (retry budget exhausted, stall, no valid proposal), so the guarantee is conditional on emission. The role of Theorem thm:contamination-safety in this picture is to ensure the predecessor state on which the root certificate is checked is itself clean, so the validator&#x27;s local guarantee composes into a global correctness guarantee.</p>
+    <h2 id="progress-and-termination">Progress and Termination</h2>
+    <p>Contamination safety prevents bad updates from poisoning the answer. A separate progress condition prevents the system from accepting valid but unhelpful updates forever.</p>
+    <section class="statement lemma"><div class="statement-title">Lemma: Monotone progress</div>
+    <p>If every accepted proposal satisfies</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?V%28s%20%5Coplus%20u%29%20%3C%20V%28s%29%2C" alt="Equation"></figure>
+    <p>and rejected proposals leave <img class="math-inline" src="https://latex.codecogs.com/svg.latex?s" alt="math"> unchanged, then <img class="math-inline" src="https://latex.codecogs.com/svg.latex?V%28s_t%29" alt="math"> strictly decreases on accepted steps and never increases on rejected steps.</p>
+    </section>
+    <section class="proof"><div class="proof-title">Proof</div>
+    <p>Accepted steps decrease <img class="math-inline" src="https://latex.codecogs.com/svg.latex?V" alt="math"> by the commit rule. Rejected steps produce <img class="math-inline" src="https://latex.codecogs.com/svg.latex?s_%7Bt%2B1%7D%3Ds_t" alt="math">, so <img class="math-inline" src="https://latex.codecogs.com/svg.latex?V%28s_%7Bt%2B1%7D%29%3DV%28s_t%29" alt="math">.</p>
+    </section>
+    <section class="statement theorem"><div class="statement-title">Theorem: Finite-budget termination</div>
+    <p>Assume <img class="math-inline" src="https://latex.codecogs.com/svg.latex?V" alt="math"> is a nonnegative integer, accepted steps strictly decrease <img class="math-inline" src="https://latex.codecogs.com/svg.latex?V" alt="math">, and rejected steps consume finite retry budget. Then the executor terminates with success, stall, budget exhaustion, or a configured max-step cap.</p>
+    </section>
+    <section class="proof"><div class="proof-title">Proof</div>
+    <p>There can be at most <img class="math-inline" src="https://latex.codecogs.com/svg.latex?V%28s_0%29" alt="math"> accepted steps before the potential reaches zero, and at most <img class="math-inline" src="https://latex.codecogs.com/svg.latex?B_0" alt="math"> rejected steps before retry budget is exhausted. A configured max-step cap gives an additional finite bound.</p>
+    </section>
+    <h2 id="claim-ii-recovery-by-retry">Claim II: Recovery by Retry</h2>
+    <p>Safety alone is insufficient. The useful property is that rejected local failures are non-catastrophic: after rollback, the executor can try again from the same clean state.</p>
+    <p>Fix a clean state <img class="math-inline" src="https://latex.codecogs.com/svg.latex?s" alt="math"> and a frontier obligation <img class="math-inline" src="https://latex.codecogs.com/svg.latex?h" alt="math">. Define the one-shot local success probability</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?p_h%28s%29%20%3D%0A%5CPr_%7BU%20%5Csim%20%5Cpi_%5Ctheta%28%5Ccdot%20%5Cmid%20s%2Ch%29%7D%0A%5Cleft%5B%0Ag%28s%2CU%29%3D1%0A%5C%20%5Cwedge%5C%0AV%28s%5Coplus%20U%29%3CV%28s%29%0A%5Cright%5D." alt="Equation"></figure>
+    <p>This is the probability that one LLM sample proposes an acceptable, progressive local update.</p>
+    <section class="statement theorem"><div class="statement-title">Theorem: Retry amplification, i.i.d.\ regime</div>
+    <p> Suppose the executor attempts obligation <img class="math-inline" src="https://latex.codecogs.com/svg.latex?h" alt="math"> up to <img class="math-inline" src="https://latex.codecogs.com/svg.latex?b_h" alt="math"> times from the same clean committed state <img class="math-inline" src="https://latex.codecogs.com/svg.latex?s" alt="math">, rejected attempts leave <img class="math-inline" src="https://latex.codecogs.com/svg.latex?s" alt="math"> unchanged, and attempts are conditionally independent with identical local success probability <img class="math-inline" src="https://latex.codecogs.com/svg.latex?p_h%28s%29" alt="math">. Then the probability of at least one valid commit for <img class="math-inline" src="https://latex.codecogs.com/svg.latex?h" alt="math"> is</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?q_h%28s%2Cb_h%29%20%3D%0A1-%281-p_h%28s%29%29%5E%7Bb_h%7D." alt="Equation"></figure>
+    </section>
+    <section class="proof"><div class="proof-title">Proof</div>
+    <p>Each attempt fails with probability <img class="math-inline" src="https://latex.codecogs.com/svg.latex?1-p_h%28s%29" alt="math">. By conditional independence, all <img class="math-inline" src="https://latex.codecogs.com/svg.latex?b_h" alt="math"> attempts fail with probability</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?%281-p_h%28s%29%29%5E%7Bb_h%7D." alt="Equation"></figure>
+    <p>Therefore at least one attempt succeeds with probability</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?1-%281-p_h%28s%29%29%5E%7Bb_h%7D." alt="Equation"></figure>
+    <p>Because rejected attempts roll back to the same clean committed state, failed samples do not alter the success probability by contaminating future attempts.</p>
+    </section>
+    <section class="statement corollary"><div class="statement-title">Corollary: Almost-sure local recovery under nonzero support</div>
+    <p>If <img class="math-inline" src="https://latex.codecogs.com/svg.latex?p_h%28s%29%3E0" alt="math">, then</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?%5Clim_%7Bb_h%5Cto%5Cinfty%7D%20q_h%28s%2Cb_h%29%3D1." alt="Equation"></figure>
+    </section>
+    <p><span class="paragraph-title">Interpretation..</span></p>
+    <p>The LLM need not be reliable globally. It only needs to assign nonzero probability mass to valid local proposals. Transactions allow the executor to sample this distribution repeatedly while preventing invalid samples from corrupting state.</p>
+    <h2 id="sample-correlation-and-the-limits-of-retry-amplification">Sample Correlation and the Limits of Retry Amplification</h2>
+    <p></p>
+    <p>Theorem thm:retry-amplification assumes that the <img class="math-inline" src="https://latex.codecogs.com/svg.latex?b_h" alt="math"> retries on obligation <img class="math-inline" src="https://latex.codecogs.com/svg.latex?h" alt="math"> are conditionally independent. Empirically, repeated samples from a fixed LLM on a fixed prompt are correlated: failure modes tend to repeat. The realistic generative model has a latent ``hardness&#x27;&#x27; or ``failure-mode&#x27;&#x27; variable <img class="math-inline" src="https://latex.codecogs.com/svg.latex?Z" alt="math"> that is sampled once per obligation (encoding, e.g., which sub-pattern of the prompt the model is currently confusing), with attempts conditionally independent given <img class="math-inline" src="https://latex.codecogs.com/svg.latex?Z" alt="math">.</p>
+    <section class="statement proposition"><div class="statement-title">Proposition: Correlation makes retry amplification an upper bound</div>
+    <p> Suppose attempts on obligation <img class="math-inline" src="https://latex.codecogs.com/svg.latex?h" alt="math"> share a latent variable <img class="math-inline" src="https://latex.codecogs.com/svg.latex?Z" alt="math"> such that, conditional on <img class="math-inline" src="https://latex.codecogs.com/svg.latex?Z" alt="math">, the failure indicators <img class="math-inline" src="https://latex.codecogs.com/svg.latex?Y_k%3D%5Cmathbf%7B1%7D%5BX_k%3D0%5D" alt="math"> are i.i.d. Bernoulli<img class="math-inline" src="https://latex.codecogs.com/svg.latex?%28%5Crho%28Z%29%29" alt="math"> for some measurable <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Crho%3AZ%5Cto%5B0%2C1%5D" alt="math"> with <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Cmathbb%7BE%7D%5B%5Crho%28Z%29%5D%3D1-p_h" alt="math">. Then</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?%5CPr%5BY_1%3D%5Ccdots%3DY_%7Bb_h%7D%3D1%5D%0A%3D%5Cmathbb%7BE%7D%5C%21%5Cleft%5B%5Crho%28Z%29%5E%7Bb_h%7D%5Cright%5D%0A%5C%3B%5Cge%5C%3B%0A%5Cbigl%28%5Cmathbb%7BE%7D%5B%5Crho%28Z%29%5D%5Cbigr%29%5E%7Bb_h%7D%0A%3D%281-p_h%29%5E%7Bb_h%7D%2C" alt="Equation"></figure>
+    <p>by Jensen&#x27;s inequality applied to the convex function <img class="math-inline" src="https://latex.codecogs.com/svg.latex?x%5Cmapsto%20x%5E%7Bb_h%7D" alt="math">. Equivalently,</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?%5CPr%5B%5Ctext%7Bsuccess%20in%20%7D%20b_h%20%5Ctext%7B%20tries%7D%5D%0A%5C%3B%5Cle%5C%3B%0A1-%281-p_h%29%5E%7Bb_h%7D." alt="Equation"></figure>
+    </section>
+    <p>The bound of Theorem thm:retry-amplification is therefore an <em>upper</em> bound on the achievable retry amplification under the latent-mode model, not a guarantee. The gap <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Cmathbb%7BE%7D%5B%5Crho%28Z%29%5E%7Bb_h%7D%5D-%281-p_h%29%5E%7Bb_h%7D" alt="math"> grows with the variance of <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Crho%28Z%29" alt="math">: when failure mode is essentially deterministic per-prompt (<img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Crho%28Z%29%5Cin%5C%7B0%2C1%5C%7D" alt="math"> almost surely), retries achieve no amplification and the realised success rate is exactly <img class="math-inline" src="https://latex.codecogs.com/svg.latex?p_h" alt="math"> regardless of <img class="math-inline" src="https://latex.codecogs.com/svg.latex?b_h" alt="math">.</p>
+    <p><span class="paragraph-title">Diversity restores amplification..</span></p>
+    <p>The framework therefore implicitly relies on diversity-inducing machinery to make samples behave more like independent draws and reduce the variance of <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Crho%28Z%29" alt="math">. Practical mechanisms include sampling temperature, prompt paraphrasing, varied few-shot exemplars, distinct draft variables, and ensembling across decoders or model instances. Each such intervention can be viewed as enlarging the support of <img class="math-inline" src="https://latex.codecogs.com/svg.latex?Z" alt="math"> relative to a fixed-prompt baseline.</p>
+    <p><span class="paragraph-title">A more conservative practical bound..</span></p>
+    <p>For empirical use, a pessimistic single-parameter alternative to Theorem thm:retry-amplification is the conditional persistence bound. Let <img class="math-inline" src="https://latex.codecogs.com/svg.latex?F_k%3D%5C%7BY_1%3D%5Ccdots%3DY_k%3D1%5C%7D" alt="math"> be the event that the first <img class="math-inline" src="https://latex.codecogs.com/svg.latex?k" alt="math"> attempts on obligation <img class="math-inline" src="https://latex.codecogs.com/svg.latex?h" alt="math"> all fail, and assume the <em>uniform</em> persistence condition</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?%5CPr%5BY_%7Bk%2B1%7D%3D1%20%5Cmid%20F_k%5D%20%5C%3B%5Cle%5C%3B%20%5Crho_h%0A%5Cquad%20%5Ctext%7Bfor%20all%20%7D%20k%3D1%2C%5Cdots%2Cb_h-1%2C" alt="Equation"></figure>
+    <p>with <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Crho_h%5Cin%5B1-p_h%2C1%5D" alt="math">. This is a stronger assumption than mere one-step correlation: failures must remain at most <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Crho_h" alt="math">-likely conditional on <em>all</em> previous failures, not only on the immediately previous one. Then, applying the chain rule,</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?%5CPr%5BF_%7Bb_h%7D%5D%0A%5C%3B%3D%5C%3B%0A%5CPr%5BY_1%3D1%5D%5Cprod_%7Bk%3D1%7D%5E%7Bb_h-1%7D%5CPr%5BY_%7Bk%2B1%7D%3D1%5Cmid%20F_k%5D%0A%5C%3B%5Cle%5C%3B%0A%281-p_h%29%5C%2C%5Crho_h%5E%7B%5C%2Cb_h-1%7D%2C" alt="Equation"></figure>
+    <p>so</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?%5CPr%5B%5Ctext%7Bsuccess%20in%20%7D%20b_h%20%5Ctext%7B%20tries%7D%5D%0A%5C%3B%5Cge%5C%3B%0A1%20-%20%281-p_h%29%5C%2C%5Crho_h%5E%7B%5C%2Cb_h-1%7D." alt="Equation"></figure>
+    <p>The bound interpolates between independence (<img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Crho_h%3D1-p_h" alt="math">, recovering the Theorem thm:retry-amplification rate) and total correlation (<img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Crho_h%3D1" alt="math">, no amplification beyond the first attempt). The uniform persistence parameter <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Crho_h" alt="math"> can be calibrated from logged retry trajectories by computing, for each prefix length <img class="math-inline" src="https://latex.codecogs.com/svg.latex?k" alt="math">, the empirical fraction of trajectories whose <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%28k%7B%2B%7D1%29" alt="math">-st attempt fails given <img class="math-inline" src="https://latex.codecogs.com/svg.latex?F_k" alt="math">, and taking the supremum over <img class="math-inline" src="https://latex.codecogs.com/svg.latex?k" alt="math">.</p>
+    <h2 id="global-success-under-oracle-structure">Global Success Under Oracle Structure</h2>
+    <p>Let <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Cmathcal%7BR%7D%20%5Csubseteq%20%5Cmathcal%7BH%7D" alt="math"> be the set of required obligations for a successful derivation under a fixed oracle structure, topologically ordered as <img class="math-inline" src="https://latex.codecogs.com/svg.latex?h_1%2C%5Cldots%2Ch_M" alt="math"> along dependency edges. Suppose the executor must obtain one valid commit for each <img class="math-inline" src="https://latex.codecogs.com/svg.latex?h%5Cin%5Cmathcal%7BR%7D" alt="math">. We separate the structural chain-rule argument from the local-rate model.</p>
+    <section class="statement theorem"><div class="statement-title">Theorem: Product lower bound, abstract form</div>
+    <p> Assume exact validation and rollback safety. Suppose that for each obligation <img class="math-inline" src="https://latex.codecogs.com/svg.latex?h_i" alt="math">, conditional on all prior obligations <img class="math-inline" src="https://latex.codecogs.com/svg.latex?h_1%2C%5Cldots%2Ch_%7Bi-1%7D" alt="math"> having been resolved (i.e. on reaching a clean committed state in which <img class="math-inline" src="https://latex.codecogs.com/svg.latex?h_i" alt="math"> becomes the active frontier element), the executor resolves <img class="math-inline" src="https://latex.codecogs.com/svg.latex?h_i" alt="math"> with probability at least <img class="math-inline" src="https://latex.codecogs.com/svg.latex?q_%7Bh_i%7D%5E%7B%5Cmathrm%7BLB%7D%7D" alt="math">. Then</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?%5CPr%5B%5Cmathrm%7Bsuccess%7D%5D%0A%5C%3B%5Cge%5C%3B%0A%5Cprod_%7Bi%3D1%7D%5E%7BM%7D%20q_%7Bh_i%7D%5E%7B%5Cmathrm%7BLB%7D%7D." alt="Equation"></figure>
+    </section>
+    <section class="proof"><div class="proof-title">Proof</div>
+    <p>Let <img class="math-inline" src="https://latex.codecogs.com/svg.latex?E_i" alt="math"> denote the event that <img class="math-inline" src="https://latex.codecogs.com/svg.latex?h_i" alt="math"> is resolved. By the chain rule,</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?%5CPr%5C%21%5Cleft%5B%5Cbigcap_%7Bi%3D1%7D%5E%7BM%7DE_i%5Cright%5D%0A%3D%5Cprod_%7Bi%3D1%7D%5E%7BM%7D%5CPr%5C%21%5Cleft%5BE_i%5C%3B%5Cbigg%7C%5C%3B%5Cbigcap_%7Bj%3Ci%7DE_j%5Cright%5D%0A%5C%3B%5Cge%5C%3B%0A%5Cprod_%7Bi%3D1%7D%5E%7BM%7D%20q_%7Bh_i%7D%5E%7B%5Cmathrm%7BLB%7D%7D%2C" alt="Equation"></figure>
+    <p>using the assumed conditional lower bound at each topological position. Exact validation and clean predecessor states (Theorem thm:contamination-safety) ensure the preconditions of each <img class="math-inline" src="https://latex.codecogs.com/svg.latex?q_%7Bh_i%7D%5E%7B%5Cmathrm%7BLB%7D%7D" alt="math"> are satisfied along any path that reaches <img class="math-inline" src="https://latex.codecogs.com/svg.latex?h_i" alt="math">.</p>
+    </section>
+    <p>The role of any specific local model — i.i.d. retries, persistence bound, exchangeable mixture — is to supply <img class="math-inline" src="https://latex.codecogs.com/svg.latex?q_%7Bh_i%7D%5E%7B%5Cmathrm%7BLB%7D%7D" alt="math">. Three natural instantiations:</p>
+    <section class="statement corollary"><div class="statement-title">Corollary: Instantiation: independent retries</div>
+    <p> If, conditional on reaching the state at which <img class="math-inline" src="https://latex.codecogs.com/svg.latex?h_i" alt="math"> is attempted, the <img class="math-inline" src="https://latex.codecogs.com/svg.latex?b_%7Bh_i%7D" alt="math"> retries are i.i.d. with marginal success probability at least <img class="math-inline" src="https://latex.codecogs.com/svg.latex?p_%7Bh_i%7D" alt="math">, then <img class="math-inline" src="https://latex.codecogs.com/svg.latex?q_%7Bh_i%7D%5E%7B%5Cmathrm%7BLB%7D%7D%20%3D%201-%281-p_%7Bh_i%7D%29%5E%7Bb_%7Bh_i%7D%7D" alt="math"> and</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?%5CPr%5B%5Cmathrm%7Bsuccess%7D%5D%0A%5C%3B%5Cge%5C%3B%0A%5Cprod_%7Bi%3D1%7D%5E%7BM%7D%5Cleft%281-%281-p_%7Bh_i%7D%29%5E%7Bb_%7Bh_i%7D%7D%5Cright%29." alt="Equation"></figure>
+    </section>
+    <section class="statement corollary"><div class="statement-title">Corollary: Instantiation: persistence-calibrated retries</div>
+    <p> If, conditional on reaching the state at which <img class="math-inline" src="https://latex.codecogs.com/svg.latex?h_i" alt="math"> is attempted, retries on <img class="math-inline" src="https://latex.codecogs.com/svg.latex?h_i" alt="math"> satisfy the uniform persistence condition with parameter <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Crho_%7Bh_i%7D%5Cin%5B1-p_%7Bh_i%7D%2C1%5D" alt="math">, then <img class="math-inline" src="https://latex.codecogs.com/svg.latex?q_%7Bh_i%7D%5E%7B%5Cmathrm%7BLB%7D%7D%20%3D%201%20-%20%281-p_%7Bh_i%7D%29%5Crho_%7Bh_i%7D%5E%7B%5C%2Cb_%7Bh_i%7D-1%7D" alt="math"> and</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?%5CPr%5B%5Cmathrm%7Bsuccess%7D%5D%0A%5C%3B%5Cge%5C%3B%0A%5Cprod_%7Bi%3D1%7D%5E%7BM%7D%5Cleft%281-%281-p_%7Bh_i%7D%29%5C%2C%5Crho_%7Bh_i%7D%5E%7B%5C%2Cb_%7Bh_i%7D-1%7D%5Cright%29." alt="Equation"></figure>
+    </section>
+    <section class="statement corollary"><div class="statement-title">Corollary: Instantiation: deterministic per-prompt failure</div>
+    <p> If on each obligation the failure mode is essentially deterministic given the prompt (<img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Crho%28Z%29%5Cin%5C%7B0%2C1%5C%7D" alt="math"> a.s. in the latent-mode model of Proposition prop:correlation-upper-bound), then <img class="math-inline" src="https://latex.codecogs.com/svg.latex?q_%7Bh_i%7D%5E%7B%5Cmathrm%7BLB%7D%7D%20%3D%20p_%7Bh_i%7D" alt="math"> regardless of <img class="math-inline" src="https://latex.codecogs.com/svg.latex?b_%7Bh_i%7D" alt="math">, and the lower bound degenerates to the one-shot structured baseline <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Cprod_i%20p_%7Bh_i%7D" alt="math">.</p>
+    </section>
+    <section class="statement corollary"><div class="statement-title">Corollary: Uniform i.i.d.\ lower bound</div>
+    <p>If, in addition to the i.i.d. instantiation, <img class="math-inline" src="https://latex.codecogs.com/svg.latex?p_h%20%5Cge%20p_%7B%5Cmin%7D%3E0" alt="math"> and <img class="math-inline" src="https://latex.codecogs.com/svg.latex?b_h%5Cge%20b" alt="math"> for all <img class="math-inline" src="https://latex.codecogs.com/svg.latex?h%5Cin%5Cmathcal%7BR%7D" alt="math">, and <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%7C%5Cmathcal%7BR%7D%7C%3DM" alt="math">, then</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?%5CPr%5B%5Cmathrm%7Bsuccess%7D%5D%0A%5C%3B%5Cge%5C%3B%0A%5Cleft%281-%281-p_%7B%5Cmin%7D%29%5Eb%5Cright%29%5EM." alt="Equation"></figure>
+    </section>
+    <p><span class="paragraph-title">Comparison to non-transactional structured execution..</span></p>
+    <p>A one-shot structured baseline that commits the first local proposal succeeds with probability approximately <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Cprod_%7Bh%5Cin%5Cmathcal%7BR%7D%7D%20p_h" alt="math"> (and is also unsafe: rejected proposals can corrupt downstream state). Transactional retry changes the local factor from <img class="math-inline" src="https://latex.codecogs.com/svg.latex?p_h" alt="math"> to <img class="math-inline" src="https://latex.codecogs.com/svg.latex?q_h%5E%7B%5Cmathrm%7BLB%7D%7D" alt="math">, where <img class="math-inline" src="https://latex.codecogs.com/svg.latex?q_h%5E%7B%5Cmathrm%7BLB%7D%7D%5Cin%5Bp_h%2C%5C%2C%201-%281-p_h%29%5E%7Bb_h%7D%5D" alt="math"> depending on the diversity of samples within an obligation. Exact validation simultaneously prevents failed attempts from contaminating downstream obligations.</p>
+    <p><span class="paragraph-title">Worked example: same <img class="math-inline" src="https://latex.codecogs.com/svg.latex?p_h" alt="math">, four different global rates..</span></p>
+    <p>The choice of local-rate model dominates the global success probability, even with <img class="math-inline" src="https://latex.codecogs.com/svg.latex?p_h" alt="math"> and <img class="math-inline" src="https://latex.codecogs.com/svg.latex?b_h" alt="math"> held fixed. As an illustration take <img class="math-inline" src="https://latex.codecogs.com/svg.latex?M%3D10" alt="math"> identical obligations, per-attempt local success rate <img class="math-inline" src="https://latex.codecogs.com/svg.latex?p_h%3D0.30" alt="math">, retry budget <img class="math-inline" src="https://latex.codecogs.com/svg.latex?b_h%3D8" alt="math">, and persistence parameter <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Crho_h%3D0.85" alt="math">. Then:</p>
+    <div class="center">
+    <table>
+<tr><th>Regime</th><th>Per-obligation <img class="math-inline" src="https://latex.codecogs.com/svg.latex?q_h%5E%7B%5Cmathrm%7BLB%7D%7D" alt="math"></th><th>Global <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5CPr%5B%5Ctext%7Bsuccess%7D%5D" alt="math"></th></tr>
+<tr><td>One-shot baseline (<img class="math-inline" src="https://latex.codecogs.com/svg.latex?b_h%3D1" alt="math">)</td><td><img class="math-inline" src="https://latex.codecogs.com/svg.latex?0.30" alt="math"></td><td><img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Capprox%205.9%20%5Ctimes%2010%5E%7B-6%7D" alt="math"></td></tr>
+<tr><td>Deterministic per-prompt failure</td><td><img class="math-inline" src="https://latex.codecogs.com/svg.latex?0.30" alt="math"></td><td><img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Capprox%205.9%20%5Ctimes%2010%5E%7B-6%7D" alt="math"></td></tr>
+<tr><td>Persistence-calibrated, <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Crho_h%3D0.85" alt="math"></td><td><img class="math-inline" src="https://latex.codecogs.com/svg.latex?1-%281-p_h%29%5Crho_h%5E%7B%5C%2Cb_h-1%7D%5Capprox%200.776" alt="math"></td><td><img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Capprox%207.9%20%5Ctimes%2010%5E%7B-2%7D" alt="math"></td></tr>
+<tr><td>I.i.d. retries</td><td><img class="math-inline" src="https://latex.codecogs.com/svg.latex?1-%281-p_h%29%5E%7Bb_h%7D%5Capprox%200.942" alt="math"></td><td><img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Capprox%205.5%20%5Ctimes%2010%5E%7B-1%7D" alt="math"></td></tr>
+</table>
+    </div>
+    <p>The i.i.d. regime beats the persistence-calibrated regime by roughly a factor of <img class="math-inline" src="https://latex.codecogs.com/svg.latex?7" alt="math">, and the persistence-calibrated regime beats the deterministic regime by roughly a factor of <img class="math-inline" src="https://latex.codecogs.com/svg.latex?1.3%5Ctimes%2010%5E4" alt="math">. Note that the deterministic regime is indistinguishable from the one-shot baseline at the global level: when each obligation&#x27;s failure mode is fixed by the prompt, retries within an obligation are wasted and only diversity <em>across</em> prompts (or refinement) can help. The practical implication is that the operative quantity is not <img class="math-inline" src="https://latex.codecogs.com/svg.latex?b_h" alt="math"> but the variance of <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Crho%28Z%29" alt="math"> that the executor&#x27;s diversity machinery induces.</p>
+    <h2 id="recovery-by-refinement">Recovery by Refinement</h2>
+    <p>Retry is not the only recovery operator. If an obligation is too coarse, the executor can refine it into smaller obligations.</p>
+    <section class="statement definition"><div class="statement-title">Definition: Refinement</div>
+    <p>A refinement operator replaces a failed obligation <img class="math-inline" src="https://latex.codecogs.com/svg.latex?h" alt="math"> with child obligations</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?%5Cmathsf%7BRefine%7D%28h%29%3D%5C%7Bc_1%2C%5Cldots%2Cc_m%5C%7D" alt="Equation"></figure>
+    <p>plus, optionally, a recomposition obligation that combines the children into a solution for <img class="math-inline" src="https://latex.codecogs.com/svg.latex?h" alt="math">.</p>
+    </section>
+    <p>Let <img class="math-inline" src="https://latex.codecogs.com/svg.latex?q_h" alt="math"> denote the (calibrated or assumed) probability that the executor resolves <img class="math-inline" src="https://latex.codecogs.com/svg.latex?h" alt="math"> directly under its allocated retry budget — that is, the <img class="math-inline" src="https://latex.codecogs.com/svg.latex?q_h%5E%7B%5Cmathrm%7BLB%7D%7D" alt="math"> supplied by whichever local-rate model (Corollaries cor:product-iid--cor:product-deterministic) applies. Let <img class="math-inline" src="https://latex.codecogs.com/svg.latex?q_%7Bc_i%7D" alt="math"> denote the analogous resolution probability for child <img class="math-inline" src="https://latex.codecogs.com/svg.latex?c_i" alt="math">. Let <img class="math-inline" src="https://latex.codecogs.com/svg.latex?q_%7B%5Cmathrm%7Bexp%7D%7D" alt="math"> be the probability that the refinement step itself is proposed validly and accepted by the validator, and let <img class="math-inline" src="https://latex.codecogs.com/svg.latex?q_%7B%5Cmathrm%7Bcomp%7D%7D" alt="math"> be the probability that the children can be recomposed into a validated solution for <img class="math-inline" src="https://latex.codecogs.com/svg.latex?h" alt="math">.</p>
+    <section class="statement proposition"><div class="statement-title">Proposition: When refinement improves recovery</div>
+    <p> Suppose that, conditional on refinement being accepted, the events ``<img class="math-inline" src="https://latex.codecogs.com/svg.latex?c_i" alt="math"> resolved&#x27;&#x27; for <img class="math-inline" src="https://latex.codecogs.com/svg.latex?i%3D1%2C%5Cldots%2Cm" alt="math"> and ``recomposition succeeds&#x27;&#x27; are mutually independent — a substantive assumption, equivalent to asserting that no shared latent failure mode couples the children. Then refinement improves the probability of resolving <img class="math-inline" src="https://latex.codecogs.com/svg.latex?h" alt="math"> whenever</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?q_%7B%5Cmathrm%7Bexp%7D%7D%0A%5Cleft%28%5Cprod_%7Bi%3D1%7D%5Em%20q_%7Bc_i%7D%5Cright%29%0Aq_%7B%5Cmathrm%7Bcomp%7D%7D%0A%5C%3B%3E%5C%3B%0Aq_h." alt="Equation"></figure>
+    <p>Without the cross-child independence assumption, the same comparison holds with <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Cprod_%7Bi%3D1%7D%5Em%20q_%7Bc_i%7D" alt="math"> replaced by the joint resolution probability <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5CPr%5B%5Ctext%7Ball%20children%20resolved%7D%5Cmid%20%5Ctext%7Brefinement%20accepted%7D%5D" alt="math">, which must be supplied by the local-rate model.</p>
+    </section>
+    <section class="proof"><div class="proof-title">Proof</div>
+    <p>The left-hand side is the probability that refinement is accepted, every child obligation is resolved, and recomposition succeeds, assuming the stated factorisation across children. The right-hand side is the calibrated probability of resolving <img class="math-inline" src="https://latex.codecogs.com/svg.latex?h" alt="math"> without refinement. Refinement is beneficial exactly when the former exceeds the latter. The fall-back form follows by replacing the product with the joint probability and applying the same inequality.</p>
+    </section>
+    <p><span class="paragraph-title">Interpretation..</span></p>
+    <p>This is a decision rule for adaptive decomposition under whichever model of local resolution the system has calibrated. When local rates are <img class="math-inline" src="https://latex.codecogs.com/svg.latex?p_h" alt="math"> and samples are i.i.d., <img class="math-inline" src="https://latex.codecogs.com/svg.latex?q_h" alt="math"> takes the form <img class="math-inline" src="https://latex.codecogs.com/svg.latex?1-%281-p_h%29%5E%7Bb_h%7D" alt="math"> and the comparison reduces to the original retry-vs-refinement formula. When samples are correlated, <img class="math-inline" src="https://latex.codecogs.com/svg.latex?q_h" alt="math"> may be much smaller than this i.i.d. value, and the comparison should use the calibrated <img class="math-inline" src="https://latex.codecogs.com/svg.latex?q_h" alt="math"> rather than substituting the i.i.d. formula. Naively using the i.i.d. amplified rate when samples share a latent failure mode tends to make refinement look worse than it is, since diverse children can break a shared failure mode that a single coarser obligation cannot.</p>
+    <h2 id="noisy-validators">Noisy Validators</h2>
+    <p>Exact validators are the cleanest case. For freeform reasoning, validators may be noisy. Two distinct false-accept rates that are easy to confuse must be kept separate:</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?%5Calpha_h%5E%7B%5Crightarrow%7D%0A%3D%0A%5CPr%5Bg%28s%2CU%29%3D1%20%5Cmid%20U%20%5Ctext%7B%20is%20invalid%7D%5D%0A%5Cquad%5Ctext%7B%28conditional%20false-accept%20rate%29%2C%7D" alt="Equation"></figure>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?%5Calpha_h%5E%7B%5Cleftarrow%7D%0A%3D%0A%5CPr%5BU%20%5Ctext%7B%20is%20invalid%7D%20%5Cmid%20g%28s%2CU%29%3D1%5D%0A%5Cquad%5Ctext%7B%28posterior%20false-accept%20rate%29%2C%7D" alt="Equation"></figure>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?%5Cbeta_h%0A%3D%0A%5CPr%5Bg%28s%2CU%29%3D0%20%5Cmid%20U%20%5Ctext%7B%20is%20valid%7D%5D%0A%5Cquad%5Ctext%7B%28false-reject%20rate%29.%7D" alt="Equation"></figure>
+    <p>The two false-accept rates are related by Bayes,</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?%5Calpha_h%5E%7B%5Cleftarrow%7D%0A%3D%0A%5Cfrac%7B%5Calpha_h%5E%7B%5Crightarrow%7D%5C%2C%5CPr%5BU%20%5Ctext%7B%20invalid%7D%5D%7D%0A%20%20%20%20%20%7B%5Calpha_h%5E%7B%5Crightarrow%7D%5C%2C%5CPr%5BU%20%5Ctext%7B%20invalid%7D%5D%0A%20%20%20%20%20%20%2B%281-%5Cbeta_h%29%5C%2C%5CPr%5BU%20%5Ctext%7B%20valid%7D%5D%7D%2C" alt="Equation"></figure>
+    <p>and <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Calpha_h%5E%7B%5Cleftarrow%7D" alt="math"> can be much larger than <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Calpha_h%5E%7B%5Crightarrow%7D" alt="math"> when the proposal kernel is weak (high <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5CPr%5BU%5Ctext%7B%20invalid%7D%5D" alt="math">) or the validator is conservative on valid proposals (high <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Cbeta_h" alt="math">). The two yield genuinely different contamination bounds.</p>
+    <section class="statement theorem"><div class="statement-title">Theorem: Contamination bound, per-invocation form</div>
+    <p> Let <img class="math-inline" src="https://latex.codecogs.com/svg.latex?N" alt="math"> be the (random) total number of validator invocations during a run, with deterministic upper bound <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Cbar%7BN%7D" alt="math"> given by retry budget plus the commit cap. If every validator invocation has conditional false-accept rate at most <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Calpha_%7B%5Cmax%7D%5E%7B%5Crightarrow%7D" alt="math">, then</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?%5CPr%5B%5Cexists%20%5Ctext%7B%20bad%20committed%20update%7D%5D%0A%5C%3B%5Cle%5C%3B%0A%5Cbar%7BN%7D%5C%2C%5Calpha_%7B%5Cmax%7D%5E%7B%5Crightarrow%7D." alt="Equation"></figure>
+    </section>
+    <section class="proof"><div class="proof-title">Proof</div>
+    <p>Index validator invocations by <img class="math-inline" src="https://latex.codecogs.com/svg.latex?j%3D1%2C%5Cdots%2CN" alt="math">. Let <img class="math-inline" src="https://latex.codecogs.com/svg.latex?V_j%3D%5Cmathbf%7B1%7D%5Bg_j%3D1%5D" alt="math"> and <img class="math-inline" src="https://latex.codecogs.com/svg.latex?I_j%3D%5Cmathbf%7B1%7D%5BU_j%20%5Ctext%7B%20invalid%7D%5D" alt="math">. A bad commit at invocation <img class="math-inline" src="https://latex.codecogs.com/svg.latex?j" alt="math"> is the event <img class="math-inline" src="https://latex.codecogs.com/svg.latex?V_j%3D1%5Cwedge%20I_j%3D1" alt="math">, with</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?%5CPr%5BV_j%3D1%2C%20I_j%3D1%5D%0A%3D%5CPr%5BV_j%3D1%5Cmid%20I_j%3D1%5D%5C%2C%5CPr%5BI_j%3D1%5D%0A%5Cle%20%5Calpha_%7B%5Cmax%7D%5E%7B%5Crightarrow%7D%5Ccdot%201." alt="Equation"></figure>
+    <p>Union-bounding over the at most <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Cbar%7BN%7D" alt="math"> invocations,</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?%5CPr%5C%21%5Cleft%5B%5Cbigcup_%7Bj%3D1%7D%5E%7BN%7D%5C%7BV_j%3D1%2C%20I_j%3D1%5C%7D%5Cright%5D%0A%5Cle%20%5Csum_%7Bj%3D1%7D%5E%7B%5Cbar%7BN%7D%7D%5CPr%5BV_j%3D1%2C%20I_j%3D1%5D%0A%5Cle%20%5Cbar%7BN%7D%5C%2C%5Calpha_%7B%5Cmax%7D%5E%7B%5Crightarrow%7D.%20%5Cqedhere" alt="Equation"></figure>
+    </section>
+    <section class="statement theorem"><div class="statement-title">Theorem: Contamination bound, per-commit form</div>
+    <p> If the executor produces at most <img class="math-inline" src="https://latex.codecogs.com/svg.latex?K" alt="math"> accepted commits and every accepted commit satisfies <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5CPr%5BU%5Ctext%7B%20invalid%7D%5Cmid%20g%28s%2CU%29%3D1%5D%5Cle%5Calpha_%7B%5Cmax%7D%5E%7B%5Cleftarrow%7D" alt="math">, then</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?%5CPr%5B%5Cexists%20%5Ctext%7B%20bad%20committed%20update%7D%5D%0A%5C%3B%5Cle%5C%3BK%5C%2C%5Calpha_%7B%5Cmax%7D%5E%7B%5Cleftarrow%7D." alt="Equation"></figure>
+    </section>
+    <section class="proof"><div class="proof-title">Proof</div>
+    <p>For commit <img class="math-inline" src="https://latex.codecogs.com/svg.latex?i%5Cin%5C%7B1%2C%5Cdots%2CK%5C%7D" alt="math"> let <img class="math-inline" src="https://latex.codecogs.com/svg.latex?B_i" alt="math"> be the event that commit <img class="math-inline" src="https://latex.codecogs.com/svg.latex?i" alt="math"> is invalid. By assumption <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5CPr%5BB_i%5D%5Cle%5Calpha_%7B%5Cmax%7D%5E%7B%5Cleftarrow%7D" alt="math">. Union-bounding, <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5CPr%5B%5Cbigcup_%7Bi%3D1%7D%5E%7BK%7DB_i%5D%5Cle%20K%5C%2C%5Calpha_%7B%5Cmax%7D%5E%7B%5Cleftarrow%7D" alt="math">.</p>
+    </section>
+    <p><span class="paragraph-title">Why the distinction matters..</span></p>
+    <p>A naive union bound of the form <img class="math-inline" src="https://latex.codecogs.com/svg.latex?K%5Calpha_%7B%5Cmax%7D%5E%7B%5Crightarrow%7D" alt="math">, mixing a commit count with a conditional false-accept rate, is incorrect. As a counterexample, suppose all proposals are invalid (<img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5CPr%5BU%20%5Ctext%7B%20invalid%7D%5D%3D1" alt="math">), <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Calpha%5E%7B%5Crightarrow%7D%3D10%5E%7B-3%7D" alt="math">, the retry budget allows <img class="math-inline" src="https://latex.codecogs.com/svg.latex?10%5E4" alt="math"> invocations, and the executor halts after <img class="math-inline" src="https://latex.codecogs.com/svg.latex?K%3D1" alt="math"> accept. Every accept is then a bad commit, and</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?%5CPr%5B%5Cexists%20%5Ctext%7B%20bad%20commit%7D%5D%0A%3D1-%281-10%5E%7B-3%7D%29%5E%7B10%5E4%7D%5Capprox%201%2C" alt="Equation"></figure>
+    <p>which exceeds <img class="math-inline" src="https://latex.codecogs.com/svg.latex?K%5Calpha%5E%7B%5Crightarrow%7D%3D10%5E%7B-3%7D" alt="math"> by three orders of magnitude. Theorem thm:contamination-noisy-invocation gives the correct value <img class="math-inline" src="https://latex.codecogs.com/svg.latex?10%5E4%5Ccdot%2010%5E%7B-3%7D%3D10" alt="math">, which is vacuous but not false; this reflects that the operating regime is genuinely unsafe.</p>
+    <p><span class="paragraph-title">Which bound to use..</span></p>
+    <p>The conditional rate <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Calpha_h%5E%7B%5Crightarrow%7D" alt="math"> is what one usually estimates when calibrating a learned validator (held-out invalid examples passed through the validator). The per-invocation bound is therefore the directly measurable one, at the cost of paying for every rejected attempt. The per-commit bound is tighter when it applies, but <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Calpha_h%5E%7B%5Cleftarrow%7D" alt="math"> depends on the proposal distribution and is not a property of the validator alone.</p>
+    <p><span class="paragraph-title">Effect of false rejects on recovery..</span></p>
+    <p>False rejects do not contaminate state, but they reduce recovery probability. If the model proposes a valid local update with probability <img class="math-inline" src="https://latex.codecogs.com/svg.latex?p_h" alt="math"> and the validator rejects valid proposals with probability <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Cbeta_h" alt="math">, then the effective accepted local success probability is</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?p%27_h%20%3D%20p_h%281-%5Cbeta_h%29%2C" alt="Equation"></figure>
+    <p>and retry amplification becomes</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?q%27_h%20%3D%201-%281-p_h%281-%5Cbeta_h%29%29%5E%7Bb_h%7D." alt="Equation"></figure>
+    <h2 id="open-problems">Open Problems</h2>
+    <p></p>
+    <p>The conditional guarantees above leave the substantive design problems open. We collect them here.</p>
+    <p><span class="paragraph-title">Constructing sound validators..</span></p>
+    <p>Theorem thm:contamination-safety assumes a sound validator. For most freeform reasoning targets (natural-language proofs, multi-step plans with side effects, open-ended program synthesis), constructing such a validator <em>is</em> the central problem. The framework is most directly useful for tasks that admit a cheap, exact local checker: numeric solvers, executable code with deterministic oracles, formal proofs in a checkable calculus, and constraint problems with verifier subroutines. Identifying the boundary of validator-friendly tasks, and designing decompositions that push freeform problems into validator- friendly sub-obligations, are the substantive research questions.</p>
+    <p><span class="paragraph-title">Optimal budget allocation across obligations..</span></p>
+    <p>Given a total invocation budget <img class="math-inline" src="https://latex.codecogs.com/svg.latex?B" alt="math"> and required obligations <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Cmathcal%7BR%7D%3D%5C%7Bh_1%2C%5Cdots%2Ch_M%5C%7D" alt="math"> with estimated local success rates <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Chat%20p_1%2C%5Cdots%2C%5Chat%20p_M" alt="math">, the natural objective derived from the product lower bound is</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?%5Cmax_%7Bb_1%2C%5Cdots%2Cb_M%5Cge%200%7D%0A%5C%3B%0A%5Csum_%7Bi%3D1%7D%5E%7BM%7D%5Clog%5C%21%5Cleft%281-%281-%5Chat%20p_i%29%5E%7Bb_i%7D%5Cright%29%0A%5Cquad%5Ctext%7Bs.t.%7D%5Cquad%0A%5Csum_%7Bi%3D1%7D%5E%7BM%7D%20b_i%20%5Cle%20B." alt="Equation"></figure>
+    <p>This is a separable concave allocation; its KKT conditions yield a water-filling rule</p>
+    <figure class="math-display"><img src="https://latex.codecogs.com/svg.latex?%5Cfrac%7B%281-%5Chat%20p_i%29%5E%7Bb_i%7D%5Clog%5Cfrac%7B1%7D%7B1-%5Chat%20p_i%7D%7D%0A%20%20%20%20%20%7B1-%281-%5Chat%20p_i%29%5E%7Bb_i%7D%7D%0A%5C%3B%3D%5C%3B%0A%5Clambda%0A%5Cquad%5Cforall%20i%5Cin%5Cmathcal%7BR%7D%2C" alt="Equation"></figure>
+    <p>for a common dual <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Clambda" alt="math"> tuned to the budget. With unknown <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Chat%20p_i" alt="math">, the problem becomes a structured multi-armed bandit: each obligation is a Bernoulli arm with unknown success probability, retries are pulls, but pulls also drain a shared budget and feed into a topological dependency. Whether standard strategies (UCB, Thompson sampling, or an explore-then-allocate phase based on the water-filling rule above) admit useful regret guarantees against the offline product optimum is open.</p>
+    <p><span class="paragraph-title">Adaptive refinement policies..</span></p>
+    <p>Proposition prop:refinement-helps compares ``solve <img class="math-inline" src="https://latex.codecogs.com/svg.latex?h" alt="math"> directly&#x27;&#x27; against ``refine <img class="math-inline" src="https://latex.codecogs.com/svg.latex?h" alt="math"> then solve its children&#x27;&#x27; as if they were exclusive. In practice, the executor first attempts <img class="math-inline" src="https://latex.codecogs.com/svg.latex?h" alt="math"> for some number of tries and refines only on persistent failure. The right object is a sequential policy that, after <img class="math-inline" src="https://latex.codecogs.com/svg.latex?k" alt="math"> failed attempts on <img class="math-inline" src="https://latex.codecogs.com/svg.latex?h" alt="math">, decides among continue, refine, or abandon, given a posterior over <img class="math-inline" src="https://latex.codecogs.com/svg.latex?p_h" alt="math"> and the remaining budget. Casting this as an optimal stopping problem and characterising the resulting policy (presumably a threshold rule on the posterior mean of <img class="math-inline" src="https://latex.codecogs.com/svg.latex?p_h" alt="math"> relative to the per-child rates) is open.</p>
+    <p>&lt;span class=&quot;paragraph-title&quot;&gt;Strengthening the contamination bound under correlated validator errors..&lt;/span&gt; The per-invocation union bound Theorem thm:contamination-noisy-invocation is loose when validator false accepts are correlated across invocations, e.g. a learned validator with a systematic blind spot for a particular invalid pattern. In that regime the right object is a mixture model over latent ``vulnerability classes&#x27;&#x27; that the validator either does or does not catch, with concentration measured against the structure of the proposal distribution rather than the number of attempts. We do not address this here.</p>
+    <p><span class="paragraph-title">Joint optimisation of validator and proposer..</span></p>
+    <p>The framework treats <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Cpi_%5Ctheta" alt="math"> and <img class="math-inline" src="https://latex.codecogs.com/svg.latex?g" alt="math"> as independent. In practice they share a model family, and improving the validator can degrade the proposer (and vice versa) under a fixed compute budget. The Pareto frontier between <img class="math-inline" src="https://latex.codecogs.com/svg.latex?p_h" alt="math">, <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Calpha_h%5E%7B%5Crightarrow%7D" alt="math">, and <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Cbeta_h" alt="math"> at fixed compute is the practically relevant object, and is unaddressed.</p>
+    <p><span class="paragraph-title">Quantifying the latent-mode variance..</span></p>
+    <p>Proposition prop:correlation-upper-bound reduces the gap between realised and ideal retry amplification to the variance of <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Crho%28Z%29" alt="math">. Empirical calibration of this variance for representative model/prompt families, together with a quantitative theory of how diversity-inducing interventions shrink it, would convert Theorem thm:retry-amplification from an asymptotic target into a usable operating bound.</p>
+    <h2 id="summary-of-claims">Summary of Claims</h2>
+    <p>The transactional structured reasoning framework supports two core theoretical claims, one structural and one stochastic.</p>
+    <p><span class="paragraph-title">Contamination safety and conditional correctness..</span></p>
+    <p>Under clean initialization, exclusive commit authority, faithful rollback, sound validation, final-answer dependence only on committed state, and answer-extraction soundness, two things follow:</p>
+    <ol>
+    <li>every committed state reachable by the executor is clean (Theorem thm:contamination-safety);</li>
+    <li>if the executor emits a final answer, that answer is correct</li>
+    <p>(Corollary cor:conditional-correctness).</p>
+    </ol>
+    <p>Contamination safety is the structural part — bad samples don&#x27;t enter committed state — and is unconditional given the assumptions. Correctness of an emitted answer additionally requires that the validator certify the root certificate before extraction. Neither result claims the executor will emit; failure modes (timeout, stall, budget exhaustion) remain.</p>
+    <p><span class="paragraph-title">Safe retry plus conditional recovery improvement..</span></p>
+    <p>Treating the LLM as a stochastic proposal kernel, transactional retries under exact validation cannot increase contamination risk relative to a one-shot baseline (rejected attempts roll back to a clean state). The quantitative improvement they provide depends on a local-rate model:</p>
+    <ul>
+    <li>under conditional independence, the per-obligation rate amplifies from</li>
+    <p><img class="math-inline" src="https://latex.codecogs.com/svg.latex?p_h" alt="math"> to <img class="math-inline" src="https://latex.codecogs.com/svg.latex?1-%281-p_h%29%5E%7Bb_h%7D" alt="math"> (Theorem thm:retry-amplification);</p>
+    <li>under shared latent failure modes, that i.i.d. rate is an <em>upper</em></li>
+    <p>bound on what is achievable, and the realised rate can be as low as <img class="math-inline" src="https://latex.codecogs.com/svg.latex?p_h" alt="math"> (Proposition prop:correlation-upper-bound);</p>
+    <li>under a calibrated uniform persistence parameter <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Crho_h" alt="math">, the rate</li>
+    <p>is at least <img class="math-inline" src="https://latex.codecogs.com/svg.latex?1-%281-p_h%29%5Crho_h%5E%7B%5C%2Cb_h-1%7D" alt="math">, interpolating between the two extremes.</p>
+    </ul>
+    <p>The global product lower bound (Theorem thm:product-abstract) is stated abstractly in terms of per-obligation lower bounds <img class="math-inline" src="https://latex.codecogs.com/svg.latex?q_h%5E%7B%5Cmathrm%7BLB%7D%7D" alt="math">, which the local-rate model supplies. Refinement is beneficial when the analogous expression for refinement exceeds <img class="math-inline" src="https://latex.codecogs.com/svg.latex?q_h" alt="math"> for the same calibrated rates.</p>
+    <p><span class="paragraph-title">Scope..</span></p>
+    <p>These are conditional guarantees, not claims that arbitrary long-horizon reasoning is solved. The structural guarantees (no contamination, conditional correctness) hold whenever the assumptions hold. The recovery improvement is guaranteed to be safe but its magnitude is a function of validator strength, local proposal quality, and sample diversity — none of which the framework itself produces. The substantive engineering questions (constructing sound validators for the task class, inducing enough sample diversity to push <img class="math-inline" src="https://latex.codecogs.com/svg.latex?%5Crho_h" alt="math"> below 1, allocating retry budget across obligations) remain open and are surveyed in Section sec:open-problems.</p>
+  </main>
+</body>
+</html>
