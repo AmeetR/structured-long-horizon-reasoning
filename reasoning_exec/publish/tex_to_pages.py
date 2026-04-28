@@ -47,7 +47,7 @@ def main() -> None:
     parser.add_argument(
         "--medium-output",
         default="",
-        help="Optional path to write a Pandoc-rendered Medium import page with MathML.",
+        help="Optional path to write a Pandoc-rendered Medium import page with equation images.",
     )
     parser.add_argument(
         "--canonical-url",
@@ -88,7 +88,7 @@ def render_medium_with_pandoc(source: Path, output: Path, canonical_url: str = "
                 "--to",
                 "html5",
                 "--standalone",
-                "--mathml",
+                "--webtex=https://latex.codecogs.com/svg.latex?",
                 "--metadata",
                 "title=Transactional Structured Reasoning: Contamination Safety and Recovery",
                 "-o",
