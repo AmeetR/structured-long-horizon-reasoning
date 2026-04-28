@@ -7,6 +7,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
@@ -102,6 +103,29 @@ def render_medium_with_pandoc(source: Path, output: Path, canonical_url: str = "
         canonical = f'<link rel="canonical" href="{html.escape(canonical_url, quote=True)}" />'
         html_page = html_page.replace("</head>", f"  {canonical}\n</head>", 1)
         output.write_text(html_page, encoding="utf-8")
+    localize_webtex_images(output)
+
+
+def localize_webtex_images(output: Path) -> None:
+    html_page = output.read_text(encoding="utf-8")
+    asset_dir = output.parent / "assets"
+    asset_dir.mkdir(parents=True, exist_ok=True)
+    for stale in asset_dir.glob("eq_*.svg"):
+        stale.unlink()
+
+    src_pattern = re.compile(r'src="(https://latex\.codecogs\.com/svg\.latex\?[^"]+)"')
+    srcs = list(dict.fromkeys(src_pattern.findall(html_page)))
+    replacements: dict[str, str] = {}
+    for index, src in enumerate(srcs, start=1):
+        filename = f"eq_{index:03d}.svg"
+        target = asset_dir / filename
+        request = urllib.request.Request(src, headers={"User-Agent": "tex2pages/1.0"})
+        with urllib.request.urlopen(request, timeout=30) as response:
+            target.write_bytes(response.read())
+        replacements[src] = f"assets/{filename}"
+
+    html_page = src_pattern.sub(lambda match: f'src="{replacements[match.group(1)]}"', html_page)
+    output.write_text(html_page, encoding="utf-8")
 
 
 def render_article(

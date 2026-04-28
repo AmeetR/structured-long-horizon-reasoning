@@ -202,7 +202,7 @@ probability of eventually finding a valid local update without
 increasing contamination risk under exact validation, but the amount of
 amplification is conditional: it is the i.i.d. rate <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%201-%281-p_h%29%5E%7Bb_h%7D"
+src="assets/eq_001.svg"
 alt="1-(1-p_h)^{b_h}" title="1-(1-p_h)^{b_h}" class="math inline" />
 only under sample independence, is upper-bounded by it under shared
 latent failure modes, and is recovered in calibrated form via a
@@ -214,89 +214,89 @@ state to mutable proof/claim state.</p>
 <h1 id="setup">Setup</h1>
 <p>Let a problem instance be represented by a rooted dependency
 structure <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20G%20%3D%20%28%5Cmathcal%7BH%7D%2C%20E%2C%20r%29%2C"
+src="assets/eq_002.svg"
 alt="G = (\mathcal{H}, E, r)," title="G = (\mathcal{H}, E, r),"
 class="math display" /> where <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Cmathcal%7BH%7D"
+src="assets/eq_003.svg"
 alt="\mathcal{H}" title="\mathcal{H}" class="math inline" /> is a finite
 set of reasoning obligations, <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20E" alt="E"
+src="assets/eq_004.svg" alt="E"
 title="E" class="math inline" /> is a dependency relation, and <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20r%20%5Cin%20%5Cmathcal%7BH%7D"
+src="assets/eq_005.svg"
 alt="r \in \mathcal{H}" title="r \in \mathcal{H}" class="math inline" />
 is the root obligation whose solution determines the final answer.</p>
 <p>The committed reasoning state at time <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20t" alt="t"
+src="assets/eq_006.svg" alt="t"
 title="t" class="math inline" /> is <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20s_t%20%3D%20%28F_t%2C%20D_t%2C%20K_t%2C%20%5Csigma_t%2C%20%5CPi_t%2C%20B_t%29%2C"
+src="assets/eq_007.svg"
 alt="s_t = (F_t, D_t, K_t, \sigma_t, \Pi_t, B_t),"
 title="s_t = (F_t, D_t, K_t, \sigma_t, \Pi_t, B_t),"
 class="math display" /> where <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20F_t" alt="F_t"
+src="assets/eq_008.svg" alt="F_t"
 title="F_t" class="math inline" /> is the actionable frontier, <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20D_t" alt="D_t"
+src="assets/eq_009.svg" alt="D_t"
 title="D_t" class="math inline" /> is the set of expanded obligations,
 <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20K_t" alt="K_t"
+src="assets/eq_010.svg" alt="K_t"
 title="K_t" class="math inline" /> is the set of solved obligations,
 <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Csigma_t"
+src="assets/eq_011.svg"
 alt="\sigma_t" title="\sigma_t" class="math inline" /> is the map of
 committed values or claims, <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5CPi_t"
+src="assets/eq_012.svg"
 alt="\Pi_t" title="\Pi_t" class="math inline" /> is the set of
 certificates/provenance records, and <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20B_t" alt="B_t"
+src="assets/eq_013.svg" alt="B_t"
 title="B_t" class="math inline" /> is the remaining retry budget.</p>
 <p>A local proposal is an update <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20u_t%20%5Cin%20%5Cmathcal%7BU%7D."
+src="assets/eq_014.svg"
 alt="u_t \in \mathcal{U}." title="u_t \in \mathcal{U}."
 class="math display" /> Depending on the task, <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20u_t" alt="u_t"
+src="assets/eq_015.svg" alt="u_t"
 title="u_t" class="math inline" /> may be a numeric local solution, an
 executable local expression, an assignment claim, an elimination claim,
 or a structural expansion.</p>
 <p>The LLM is modeled as a stochastic proposal kernel: <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20U_%7Bh%2Ck%7D%20%5Csim%20%5Cpi_%5Ctheta%28%5Ccdot%20%5Cmid%20s%2C%20h%2C%20k%29%2C"
+src="assets/eq_016.svg"
 alt="U_{h,k} \sim \pi_\theta(\cdot \mid s, h, k),"
 title="U_{h,k} \sim \pi_\theta(\cdot \mid s, h, k),"
 class="math display" /> where <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20h" alt="h"
+src="assets/eq_017.svg" alt="h"
 title="h" class="math inline" /> is the current obligation and <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20k" alt="k"
+src="assets/eq_018.svg" alt="k"
 title="k" class="math inline" /> is the attempt index. The executor does
 not directly trust samples from <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Cpi_%5Ctheta"
+src="assets/eq_019.svg"
 alt="\pi_\theta" title="\pi_\theta" class="math inline" />. Every
 proposed update is passed through a validator <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20g%28s%2Cu%29%20%5Cin%20%5C%7B0%2C1%5C%7D."
+src="assets/eq_020.svg"
 alt="g(s,u) \in \{0,1\}." title="g(s,u) \in \{0,1\}."
 class="math display" /></p>
 <div class="definition">
 <p><strong>Definition 1</strong> (Committed-state transition). <em>Given
 state <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20s" alt="s"
+src="assets/eq_021.svg" alt="s"
 title="s" class="math inline" /> and proposal <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20u" alt="u"
+src="assets/eq_022.svg" alt="u"
 title="u" class="math inline" />, let <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20s%20%5Coplus%20u"
+src="assets/eq_023.svg"
 alt="s \oplus u" title="s \oplus u" class="math inline" /> denote the
 candidate state obtained by applying <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20u" alt="u"
+src="assets/eq_022.svg" alt="u"
 title="u" class="math inline" /> to a copy of <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20s" alt="s"
+src="assets/eq_021.svg" alt="s"
 title="s" class="math inline" />. The committed transition is <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20T%28s%2Cu%29%20%3D%0A%5Cbegin%7Bcases%7D%0As%20%5Coplus%20u%20%26%20%5Ctext%7Bif%20%7D%20g%28s%2Cu%29%3D1%20%5Ctext%7B%20and%20%7D%20V%28s%20%5Coplus%20u%29%20%3C%20V%28s%29%2C%5C%5C%0As%20%26%20%5Ctext%7Botherwise.%7D%0A%5Cend%7Bcases%7D"
+src="assets/eq_024.svg"
 alt="T(s,u) =
 \begin{cases}
 s \oplus u &amp; \text{if } g(s,u)=1 \text{ and } V(s \oplus u) &lt; V(s),\\
@@ -307,94 +307,94 @@ s \oplus u &amp; \text{if } g(s,u)=1 \text{ and } V(s \oplus u) &lt; V(s),\\
 s &amp; \text{otherwise.}
 \end{cases}" class="math display" /> The rejected case is a rollback:
 the committed state remains exactly <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20s" alt="s"
+src="assets/eq_021.svg" alt="s"
 title="s" class="math inline" />.</em></p>
 </div>
 <div class="definition">
 <p><strong>Definition 2</strong> (Rejection memory). <em>The executor
 may also maintain an auxiliary rejection memory <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20R_t" alt="R_t"
+src="assets/eq_025.svg" alt="R_t"
 title="R_t" class="math inline" /> containing records of rejected
 proposals, validator reasons, and retry counts. This is operational
 feedback, not committed reasoning state. It may condition later LLM
 proposals, but it is excluded from <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Csigma_t"
+src="assets/eq_011.svg"
 alt="\sigma_t" title="\sigma_t" class="math inline" />, <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5CPi_t"
+src="assets/eq_012.svg"
 alt="\Pi_t" title="\Pi_t" class="math inline" />, and final answer
 extraction.</em></p>
 <p><em>On a rejected proposal <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20u_t" alt="u_t"
+src="assets/eq_015.svg" alt="u_t"
 title="u_t" class="math inline" /> for obligation <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20h_t" alt="h_t"
+src="assets/eq_026.svg" alt="h_t"
 title="h_t" class="math inline" />, the operational context may change
 from <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%28s_t%2CR_t%29"
+src="assets/eq_027.svg"
 alt="(s_t,R_t)" title="(s_t,R_t)" class="math inline" /> to <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20%28s_t%2C%20R_t%20%5Ccup%20%5C%7B%28h_t%2Cu_t%2C%5Cmathrm%7Breason%7D_t%29%5C%7D%29%2C"
+src="assets/eq_028.svg"
 alt="(s_t, R_t \cup \{(h_t,u_t,\mathrm{reason}_t)\}),"
 title="(s_t, R_t \cup \{(h_t,u_t,\mathrm{reason}_t)\}),"
 class="math display" /> or to a bounded/windowed version of that update.
 The committed projection remains exactly <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20s_t" alt="s_t"
+src="assets/eq_029.svg" alt="s_t"
 title="s_t" class="math inline" />. On an accepted update, <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20R_t" alt="R_t"
+src="assets/eq_025.svg" alt="R_t"
 title="R_t" class="math inline" /> may be reset or scoped to the new
 committed state, because the entailment context has changed.</em></p>
 </div>
 <div class="definition">
 <p><strong>Definition 3</strong> (Bad and clean states). <em>Let <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Cmathsf%7BBad%7D%28s%29%3D1"
+src="assets/eq_030.svg"
 alt="\mathsf{Bad}(s)=1" title="\mathsf{Bad}(s)=1" class="math inline" />
 if committed state <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20s" alt="s"
+src="assets/eq_021.svg" alt="s"
 title="s" class="math inline" /> contains at least one invalid committed
 claim, value, or certificate. Otherwise <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Cmathsf%7BBad%7D%28s%29%3D0"
+src="assets/eq_031.svg"
 alt="\mathsf{Bad}(s)=0" title="\mathsf{Bad}(s)=0"
 class="math inline" />. Define <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20%5Cmathsf%7BClean%7D%28s%29%20%5Ciff%20%5Cmathsf%7BBad%7D%28s%29%3D0."
+src="assets/eq_032.svg"
 alt="\mathsf{Clean}(s) \iff \mathsf{Bad}(s)=0."
 title="\mathsf{Clean}(s) \iff \mathsf{Bad}(s)=0."
 class="math display" /> The predicate <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Cmathsf%7BClean%7D"
+src="assets/eq_033.svg"
 alt="\mathsf{Clean}" title="\mathsf{Clean}" class="math inline" />
 concerns committed reasoning state only. The LLM may generate invalid
 hidden text, invalid drafts, or invalid candidate proposals; these are
 not contamination unless they enter <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Csigma_t"
+src="assets/eq_011.svg"
 alt="\sigma_t" title="\sigma_t" class="math inline" /> or <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5CPi_t"
+src="assets/eq_012.svg"
 alt="\Pi_t" title="\Pi_t" class="math inline" />. Rejection memory <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20R_t" alt="R_t"
+src="assets/eq_025.svg" alt="R_t"
 title="R_t" class="math inline" /> is also not contamination, provided
 final answer extraction ignores <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20R_t" alt="R_t"
+src="assets/eq_025.svg" alt="R_t"
 title="R_t" class="math inline" /> and <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20R_t" alt="R_t"
+src="assets/eq_025.svg" alt="R_t"
 title="R_t" class="math inline" /> is not treated as a committed fact
 store.</em></p>
 </div>
 <div class="definition">
 <p><strong>Definition 4</strong> (Progress potential). <em><img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20V%3A%20%5Cmathcal%7BS%7D%5Cto%20%5Cmathbb%7BN%7D"
+src="assets/eq_034.svg"
 alt="V: \mathcal{S}\to \mathbb{N}" title="V: \mathcal{S}\to \mathbb{N}"
 class="math inline" /> is a nonnegative integer potential measuring
 unresolved work. In the current implementation this may be an
 action-unit potential such as <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20V%28s%29%3D%0A%7C%5C%7Bh%20%5Cin%20%5Cmathcal%7BH%7D%3A%20h%20%5Cnotin%20K_t%5C%7D%7C%0A%2B%0A%7C%5C%7Bh%20%5Cin%20%5Cmathcal%7BH%7D%3A%20%5Cmathrm%7BCh%7D%28h%29%5Cneq%5Cemptyset%2C%20h%5Cnotin%20D_t%5C%7D%7C."
+src="assets/eq_035.svg"
 alt="V(s)=
 |\{h \in \mathcal{H}: h \notin K_t\}|
 +
@@ -405,7 +405,7 @@ title="V(s)=
 |\{h \in \mathcal{H}: \mathrm{Ch}(h)\neq\emptyset, h\notin D_t\}|."
 class="math display" /> For logic-grid tasks, <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20V" alt="V"
+src="assets/eq_036.svg" alt="V"
 title="V" class="math inline" /> may instead count unresolved person
 obligations and remaining candidate claims.</em></p>
 </div>
@@ -416,7 +416,7 @@ the final answer.</p>
 <div id="ass:initial-clean" class="assumption">
 <p><strong>Assumption 1</strong> (Initial clean state). <em><img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20%5Cmathsf%7BClean%7D%28s_0%29."
+src="assets/eq_037.svg"
 alt="\mathsf{Clean}(s_0)." title="\mathsf{Clean}(s_0)."
 class="math display" /></em></p>
 </div>
@@ -424,7 +424,7 @@ class="math display" /></em></p>
 <p><strong>Assumption 2</strong> (Exclusive commit authority). <em>Only
 the transactional executor can mutate committed state fields <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%28D_t%2CK_t%2C%5Csigma_t%2C%5CPi_t%29"
+src="assets/eq_038.svg"
 alt="(D_t,K_t,\sigma_t,\Pi_t)" title="(D_t,K_t,\sigma_t,\Pi_t)"
 class="math inline" />. Model samples, prompts, scratchpads, and
 rejected candidate states are not directly committed.</em></p>
@@ -432,21 +432,21 @@ rejected candidate states are not directly committed.</em></p>
 <div id="ass:faithful-rollback" class="assumption">
 <p><strong>Assumption 3</strong> (Faithful rollback). <em>If a proposal
 <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20u" alt="u"
+src="assets/eq_022.svg" alt="u"
 title="u" class="math inline" /> is rejected, the next committed state
 equals the previous committed state: <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20T%28s%2Cu%29%3Ds."
+src="assets/eq_039.svg"
 alt="T(s,u)=s." title="T(s,u)=s." class="math display" /></em></p>
 </div>
 <div id="ass:validator-soundness" class="assumption">
 <p><strong>Assumption 4</strong> (Validator soundness). <em>For every
 clean state <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20s" alt="s"
+src="assets/eq_021.svg" alt="s"
 title="s" class="math inline" /> and proposal <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20u" alt="u"
+src="assets/eq_022.svg" alt="u"
 title="u" class="math inline" />, <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20%5Cmathsf%7BClean%7D%28s%29%20%5Cwedge%20g%28s%2Cu%29%3D1%20%5Cimplies%20%5Cmathsf%7BClean%7D%28s%20%5Coplus%20u%29."
+src="assets/eq_040.svg"
 alt="\mathsf{Clean}(s) \wedge g(s,u)=1 \implies \mathsf{Clean}(s \oplus u)."
 title="\mathsf{Clean}(s) \wedge g(s,u)=1 \implies \mathsf{Clean}(s \oplus u)."
 class="math display" /> For exact validators, this is enforced by
@@ -457,15 +457,15 @@ proof checker, or entailment checker.</em></p>
 <p><strong>Assumption 5</strong> (Final answer reads only committed
 state). <em>The final answer is computed by a function <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20A%20%3A%20%5Cmathcal%7BS%7D%5Cto%20%5Cmathcal%7BY%7D"
+src="assets/eq_041.svg"
 alt="A : \mathcal{S}\to \mathcal{Y}"
 title="A : \mathcal{S}\to \mathcal{Y}" class="math display" /> that
 depends only on committed fields such as <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Csigma_t"
+src="assets/eq_011.svg"
 alt="\sigma_t" title="\sigma_t" class="math inline" /> and <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5CPi_t"
+src="assets/eq_012.svg"
 alt="\Pi_t" title="\Pi_t" class="math inline" />, not on rejected
 proposals or hidden LLM drafts.</em></p>
 </div>
@@ -473,23 +473,23 @@ proposals or hidden LLM drafts.</em></p>
 <p><strong>Assumption 6</strong> (Answer-extraction soundness). <em>The
 executor emits a final answer only when the root obligation <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20r" alt="r"
+src="assets/eq_042.svg" alt="r"
 title="r" class="math inline" /> has been solved, i.e. <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20r%5Cin%20K_t"
+src="assets/eq_043.svg"
 alt="r\in K_t" title="r\in K_t" class="math inline" />, and the answer
 is computed deterministically from a committed certificate <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5CPi_t%28r%29"
+src="assets/eq_044.svg"
 alt="\Pi_t(r)" title="\Pi_t(r)" class="math inline" /> that the same
 validator <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20g" alt="g"
+src="assets/eq_045.svg" alt="g"
 title="g" class="math inline" /> has accepted as a witness for <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Csigma_t%28r%29"
+src="assets/eq_046.svg"
 alt="\sigma_t(r)" title="\sigma_t(r)" class="math inline" /> being the
 correct value of <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20r" alt="r"
+src="assets/eq_042.svg" alt="r"
 title="r" class="math inline" />. Equivalently, the validator is invoked
 on the root certificate before any answer leaves the executor, and
 accepted certificates correctly witness their claims under the
@@ -513,7 +513,7 @@ href="#ass:validator-soundness" data-reference-type="ref"
 data-reference="ass:validator-soundness">4</a>). Then every committed
 state reachable by the transactional executor is clean: <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20%5Cforall%20t%20%5Cge%200%2C%5Cquad%20%5Cmathsf%7BClean%7D%28s_t%29."
+src="assets/eq_047.svg"
 alt="\forall t \ge 0,\quad \mathsf{Clean}(s_t)."
 title="\forall t \ge 0,\quad \mathsf{Clean}(s_t)."
 class="math display" /> Consequently, rejected or invalid intermediate
@@ -526,62 +526,62 @@ clean committed state, and Assumption <a href="#ass:answer-extraction"
 data-reference-type="ref" data-reference="ass:answer-extraction">6</a>
 is needed only for the correctness corollary below; the cleanness of
 <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20s_t" alt="s_t"
+src="assets/eq_029.svg" alt="s_t"
 title="s_t" class="math inline" /> itself does not depend on
 either.)</em></p>
 </div>
 <div class="proof">
 <p><em>Proof.</em> The proof is by induction on <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20t" alt="t"
+src="assets/eq_006.svg" alt="t"
 title="t" class="math inline" />.</p>
 <p><strong>Base case.</strong> By the initial clean-state assumption,
 <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Cmathsf%7BClean%7D%28s_0%29"
+src="assets/eq_048.svg"
 alt="\mathsf{Clean}(s_0)" title="\mathsf{Clean}(s_0)"
 class="math inline" />.</p>
 <p><strong>Inductive step.</strong> Assume <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Cmathsf%7BClean%7D%28s_t%29"
+src="assets/eq_049.svg"
 alt="\mathsf{Clean}(s_t)" title="\mathsf{Clean}(s_t)"
 class="math inline" />. Consider a proposal <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20u_t" alt="u_t"
+src="assets/eq_015.svg" alt="u_t"
 title="u_t" class="math inline" />. There are two cases.</p>
 <p>If <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20u_t" alt="u_t"
+src="assets/eq_015.svg" alt="u_t"
 title="u_t" class="math inline" /> is rejected, faithful rollback gives
 <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20s_%7Bt%2B1%7D%3DT%28s_t%2Cu_t%29%3Ds_t."
+src="assets/eq_050.svg"
 alt="s_{t+1}=T(s_t,u_t)=s_t." title="s_{t+1}=T(s_t,u_t)=s_t."
 class="math display" /> Therefore <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Cmathsf%7BClean%7D%28s_%7Bt%2B1%7D%29"
+src="assets/eq_051.svg"
 alt="\mathsf{Clean}(s_{t+1})" title="\mathsf{Clean}(s_{t+1})"
 class="math inline" /> by the induction hypothesis.</p>
 <p>If <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20u_t" alt="u_t"
+src="assets/eq_015.svg" alt="u_t"
 title="u_t" class="math inline" /> is accepted, then <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20g%28s_t%2Cu_t%29%3D1"
+src="assets/eq_052.svg"
 alt="g(s_t,u_t)=1" title="g(s_t,u_t)=1" class="math inline" /> and <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20s_%7Bt%2B1%7D%3Ds_t%5Coplus%20u_t."
+src="assets/eq_053.svg"
 alt="s_{t+1}=s_t\oplus u_t." title="s_{t+1}=s_t\oplus u_t."
 class="math display" /> By validator soundness and <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Cmathsf%7BClean%7D%28s_t%29"
+src="assets/eq_049.svg"
 alt="\mathsf{Clean}(s_t)" title="\mathsf{Clean}(s_t)"
 class="math inline" />, it follows that <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20%5Cmathsf%7BClean%7D%28s_t%5Coplus%20u_t%29%2C"
+src="assets/eq_054.svg"
 alt="\mathsf{Clean}(s_t\oplus u_t),"
 title="\mathsf{Clean}(s_t\oplus u_t)," class="math display" /> and hence
 <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Cmathsf%7BClean%7D%28s_%7Bt%2B1%7D%29"
+src="assets/eq_051.svg"
 alt="\mathsf{Clean}(s_{t+1})" title="\mathsf{Clean}(s_{t+1})"
 class="math inline" />.</p>
 <p>Thus <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Cmathsf%7BClean%7D%28s_t%29"
+src="assets/eq_049.svg"
 alt="\mathsf{Clean}(s_t)" title="\mathsf{Clean}(s_t)"
 class="math inline" /> holds for all reachable committed states. Since
 the final answer function reads only committed state, rejected or
@@ -591,7 +591,7 @@ failing to contribute a valid committed update. ◻</p>
 <div class="corollary">
 <p><strong>Corollary 1</strong> (No poisoning under exact validation).
 <em>If the validator is exact, <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Cmathsf%7BClean%7D%28s_0%29"
+src="assets/eq_048.svg"
 alt="\mathsf{Clean}(s_0)" title="\mathsf{Clean}(s_0)"
 class="math inline" />, and the final answer depends only on committed
 state, then the final answer cannot be poisoned by invalid rejected
@@ -610,25 +610,25 @@ the executor emits a final answer, that answer is correct.</em></p>
 data-reference-type="ref"
 data-reference="thm:contamination-safety">1</a> every committed state
 <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20s_t" alt="s_t"
+src="assets/eq_029.svg" alt="s_t"
 title="s_t" class="math inline" /> is clean. By Assumption <a
 href="#ass:answer-extraction" data-reference-type="ref"
 data-reference="ass:answer-extraction">6</a> an answer is emitted only
 when <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20r%5Cin%20K_t"
+src="assets/eq_043.svg"
 alt="r\in K_t" title="r\in K_t" class="math inline" /> and the validator
 has accepted the root certificate <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5CPi_t%28r%29"
+src="assets/eq_044.svg"
 alt="\Pi_t(r)" title="\Pi_t(r)" class="math inline" />; exact validation
 then implies <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5CPi_t%28r%29"
+src="assets/eq_044.svg"
 alt="\Pi_t(r)" title="\Pi_t(r)" class="math inline" /> correctly
 witnesses <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Csigma_t%28r%29"
+src="assets/eq_046.svg"
 alt="\sigma_t(r)" title="\sigma_t(r)" class="math inline" />. The
 emitted answer is a deterministic function of these committed fields, so
 it agrees with the true value of <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20r" alt="r"
+src="assets/eq_042.svg" alt="r"
 title="r" class="math inline" />. ◻</p>
 </div>
 <h4 id="interpretation.">Interpretation.</h4>
@@ -654,37 +654,37 @@ but unhelpful updates forever.</p>
 <div class="lemma">
 <p><strong>Lemma 1</strong> (Monotone progress). <em>If every accepted
 proposal satisfies <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20V%28s%20%5Coplus%20u%29%20%3C%20V%28s%29%2C"
+src="assets/eq_055.svg"
 alt="V(s \oplus u) &lt; V(s)," title="V(s \oplus u) &lt; V(s),"
 class="math display" /> and rejected proposals leave <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20s" alt="s"
+src="assets/eq_021.svg" alt="s"
 title="s" class="math inline" /> unchanged, then <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20V%28s_t%29"
+src="assets/eq_056.svg"
 alt="V(s_t)" title="V(s_t)" class="math inline" /> strictly decreases on
 accepted steps and never increases on rejected steps.</em></p>
 </div>
 <div class="proof">
 <p><em>Proof.</em> Accepted steps decrease <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20V" alt="V"
+src="assets/eq_036.svg" alt="V"
 title="V" class="math inline" /> by the commit rule. Rejected steps
 produce <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20s_%7Bt%2B1%7D%3Ds_t"
+src="assets/eq_057.svg"
 alt="s_{t+1}=s_t" title="s_{t+1}=s_t" class="math inline" />, so <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20V%28s_%7Bt%2B1%7D%29%3DV%28s_t%29"
+src="assets/eq_058.svg"
 alt="V(s_{t+1})=V(s_t)" title="V(s_{t+1})=V(s_t)"
 class="math inline" />. ◻</p>
 </div>
 <div class="theorem">
 <p><strong>Theorem 2</strong> (Finite-budget termination). <em>Assume
 <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20V" alt="V"
+src="assets/eq_036.svg" alt="V"
 title="V" class="math inline" /> is a nonnegative integer, accepted
 steps strictly decrease <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20V" alt="V"
+src="assets/eq_036.svg" alt="V"
 title="V" class="math inline" />, and rejected steps consume finite
 retry budget. Then the executor terminates with success, stall, budget
 exhaustion, or a configured max-step cap.</em></p>
@@ -692,11 +692,11 @@ exhaustion, or a configured max-step cap.</em></p>
 <div class="proof">
 <p><em>Proof.</em> There can be at most <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20V%28s_0%29"
+src="assets/eq_059.svg"
 alt="V(s_0)" title="V(s_0)" class="math inline" /> accepted steps before
 the potential reaches zero, and at most <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20B_0" alt="B_0"
+src="assets/eq_060.svg" alt="B_0"
 title="B_0" class="math inline" /> rejected steps before retry budget is
 exhausted. A configured max-step cap gives an additional finite
 bound. ◻</p>
@@ -706,13 +706,13 @@ bound. ◻</p>
 local failures are non-catastrophic: after rollback, the executor can
 try again from the same clean state.</p>
 <p>Fix a clean state <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20s" alt="s"
+src="assets/eq_021.svg" alt="s"
 title="s" class="math inline" /> and a frontier obligation <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20h" alt="h"
+src="assets/eq_017.svg" alt="h"
 title="h" class="math inline" />. Define the one-shot local success
 probability <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20p_h%28s%29%20%3D%0A%5CPr_%7BU%20%5Csim%20%5Cpi_%5Ctheta%28%5Ccdot%20%5Cmid%20s%2Ch%29%7D%0A%5Cleft%5B%0Ag%28s%2CU%29%3D1%0A%5C%20%5Cwedge%5C%0AV%28s%5Coplus%20U%29%3CV%28s%29%0A%5Cright%5D."
+src="assets/eq_061.svg"
 alt="p_h(s) =
 \Pr_{U \sim \pi_\theta(\cdot \mid s,h)}
 \left[
@@ -731,25 +731,25 @@ sample proposes an acceptable, progressive local update.</p>
 <p><strong>Theorem 3</strong> (Retry amplification, i.i.d. regime).
 <em>Suppose the executor attempts obligation <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20h" alt="h"
+src="assets/eq_017.svg" alt="h"
 title="h" class="math inline" /> up to <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20b_h" alt="b_h"
+src="assets/eq_062.svg" alt="b_h"
 title="b_h" class="math inline" /> times from the same clean committed
 state <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20s" alt="s"
+src="assets/eq_021.svg" alt="s"
 title="s" class="math inline" />, rejected attempts leave <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20s" alt="s"
+src="assets/eq_021.svg" alt="s"
 title="s" class="math inline" /> unchanged, and attempts are
 conditionally independent with identical local success probability <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20p_h%28s%29"
+src="assets/eq_063.svg"
 alt="p_h(s)" title="p_h(s)" class="math inline" />. Then the probability
 of at least one valid commit for <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20h" alt="h"
+src="assets/eq_017.svg" alt="h"
 title="h" class="math inline" /> is <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20q_h%28s%2Cb_h%29%20%3D%0A1-%281-p_h%28s%29%29%5E%7Bb_h%7D."
+src="assets/eq_064.svg"
 alt="q_h(s,b_h) =
 1-(1-p_h(s))^{b_h}." title="q_h(s,b_h) =
 1-(1-p_h(s))^{b_h}." class="math display" /></em></p>
@@ -757,17 +757,17 @@ alt="q_h(s,b_h) =
 <div class="proof">
 <p><em>Proof.</em> Each attempt fails with probability <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%201-p_h%28s%29"
+src="assets/eq_065.svg"
 alt="1-p_h(s)" title="1-p_h(s)" class="math inline" />. By conditional
 independence, all <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20b_h" alt="b_h"
+src="assets/eq_062.svg" alt="b_h"
 title="b_h" class="math inline" /> attempts fail with probability <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20%281-p_h%28s%29%29%5E%7Bb_h%7D."
+src="assets/eq_066.svg"
 alt="(1-p_h(s))^{b_h}." title="(1-p_h(s))^{b_h}."
 class="math display" /> Therefore at least one attempt succeeds with
 probability <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%201-%281-p_h%28s%29%29%5E%7Bb_h%7D."
+src="assets/eq_067.svg"
 alt="1-(1-p_h(s))^{b_h}." title="1-(1-p_h(s))^{b_h}."
 class="math display" /> Because rejected attempts roll back to the same
 clean committed state, failed samples do not alter the success
@@ -776,10 +776,10 @@ probability by contaminating future attempts. ◻</p>
 <div class="corollary">
 <p><strong>Corollary 3</strong> (Almost-sure local recovery under
 nonzero support). <em>If <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20p_h%28s%29%3E0"
+src="assets/eq_068.svg"
 alt="p_h(s)&gt;0" title="p_h(s)&gt;0" class="math inline" />, then <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20%5Clim_%7Bb_h%5Cto%5Cinfty%7D%20q_h%28s%2Cb_h%29%3D1."
+src="assets/eq_069.svg"
 alt="\lim_{b_h\to\infty} q_h(s,b_h)=1."
 title="\lim_{b_h\to\infty} q_h(s,b_h)=1."
 class="math display" /></em></p>
@@ -794,49 +794,49 @@ Amplification</h1>
 <p>Theorem <a href="#thm:retry-amplification" data-reference-type="ref"
 data-reference="thm:retry-amplification">3</a> assumes that the <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20b_h" alt="b_h"
+src="assets/eq_062.svg" alt="b_h"
 title="b_h" class="math inline" /> retries on obligation <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20h" alt="h"
+src="assets/eq_017.svg" alt="h"
 title="h" class="math inline" /> are conditionally independent.
 Empirically, repeated samples from a fixed LLM on a fixed prompt are
 correlated: failure modes tend to repeat. The realistic generative model
 has a latent “hardness” or “failure-mode” variable <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20Z" alt="Z"
+src="assets/eq_070.svg" alt="Z"
 title="Z" class="math inline" /> that is sampled once per obligation
 (encoding, e.g., which sub-pattern of the prompt the model is currently
 confusing), with attempts conditionally independent given <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20Z" alt="Z"
+src="assets/eq_070.svg" alt="Z"
 title="Z" class="math inline" />.</p>
 <div id="prop:correlation-upper-bound" class="proposition">
 <p><strong>Proposition 1</strong> (Correlation makes retry amplification
 an upper bound). <em>Suppose attempts on obligation <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20h" alt="h"
+src="assets/eq_017.svg" alt="h"
 title="h" class="math inline" /> share a latent variable <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20Z" alt="Z"
+src="assets/eq_070.svg" alt="Z"
 title="Z" class="math inline" /> such that, conditional on <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20Z" alt="Z"
+src="assets/eq_070.svg" alt="Z"
 title="Z" class="math inline" />, the failure indicators <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20Y_k%3D%5Cmathbf%7B1%7D%5BX_k%3D0%5D"
+src="assets/eq_071.svg"
 alt="Y_k=\mathbf{1}[X_k=0]" title="Y_k=\mathbf{1}[X_k=0]"
 class="math inline" /> are i.i.d. Bernoulli<img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%28%5Crho%28Z%29%29"
+src="assets/eq_072.svg"
 alt="(\rho(Z))" title="(\rho(Z))" class="math inline" /> for some
 measurable <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Crho%3AZ%5Cto%5B0%2C1%5D"
+src="assets/eq_073.svg"
 alt="\rho:Z\to[0,1]" title="\rho:Z\to[0,1]" class="math inline" /> with
 <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Cmathbb%7BE%7D%5B%5Crho%28Z%29%5D%3D1-p_h"
+src="assets/eq_074.svg"
 alt="\mathbb{E}[\rho(Z)]=1-p_h" title="\mathbb{E}[\rho(Z)]=1-p_h"
 class="math inline" />. Then <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20%5CPr%5BY_1%3D%5Ccdots%3DY_%7Bb_h%7D%3D1%5D%0A%3D%5Cmathbb%7BE%7D%5C%21%5Cleft%5B%5Crho%28Z%29%5E%7Bb_h%7D%5Cright%5D%0A%5C%3B%5Cge%5C%3B%0A%5Cbigl%28%5Cmathbb%7BE%7D%5B%5Crho%28Z%29%5D%5Cbigr%29%5E%7Bb_h%7D%0A%3D%281-p_h%29%5E%7Bb_h%7D%2C"
+src="assets/eq_075.svg"
 alt="\Pr[Y_1=\cdots=Y_{b_h}=1]
 =\mathbb{E}\!\left[\rho(Z)^{b_h}\right]
 \;\ge\;
@@ -847,10 +847,10 @@ alt="\Pr[Y_1=\cdots=Y_{b_h}=1]
 \bigl(\mathbb{E}[\rho(Z)]\bigr)^{b_h}
 =(1-p_h)^{b_h}," class="math display" /> by Jensen’s inequality applied
 to the convex function <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20x%5Cmapsto%20x%5E%7Bb_h%7D"
+src="assets/eq_076.svg"
 alt="x\mapsto x^{b_h}" title="x\mapsto x^{b_h}" class="math inline" />.
 Equivalently, <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20%5CPr%5B%5Ctext%7Bsuccess%20in%20%7D%20b_h%20%5Ctext%7B%20tries%7D%5D%0A%5C%3B%5Cle%5C%3B%0A1-%281-p_h%29%5E%7Bb_h%7D."
+src="assets/eq_077.svg"
 alt="\Pr[\text{success in } b_h \text{ tries}]
 \;\le\;
 1-(1-p_h)^{b_h}." title="\Pr[\text{success in } b_h \text{ tries}]
@@ -862,35 +862,35 @@ data-reference-type="ref" data-reference="thm:retry-amplification">3</a>
 is therefore an <em>upper</em> bound on the achievable retry
 amplification under the latent-mode model, not a guarantee. The gap <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Cmathbb%7BE%7D%5B%5Crho%28Z%29%5E%7Bb_h%7D%5D-%281-p_h%29%5E%7Bb_h%7D"
+src="assets/eq_078.svg"
 alt="\mathbb{E}[\rho(Z)^{b_h}]-(1-p_h)^{b_h}"
 title="\mathbb{E}[\rho(Z)^{b_h}]-(1-p_h)^{b_h}" class="math inline" />
 grows with the variance of <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Crho%28Z%29"
+src="assets/eq_079.svg"
 alt="\rho(Z)" title="\rho(Z)" class="math inline" />: when failure mode
 is essentially deterministic per-prompt (<img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Crho%28Z%29%5Cin%5C%7B0%2C1%5C%7D"
+src="assets/eq_080.svg"
 alt="\rho(Z)\in\{0,1\}" title="\rho(Z)\in\{0,1\}" class="math inline" />
 almost surely), retries achieve no amplification and the realised
 success rate is exactly <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20p_h" alt="p_h"
+src="assets/eq_081.svg" alt="p_h"
 title="p_h" class="math inline" /> regardless of <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20b_h" alt="b_h"
+src="assets/eq_062.svg" alt="b_h"
 title="b_h" class="math inline" />.</p>
 <h4 id="diversity-restores-amplification.">Diversity restores
 amplification.</h4>
 <p>The framework therefore implicitly relies on diversity-inducing
 machinery to make samples behave more like independent draws and reduce
 the variance of <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Crho%28Z%29"
+src="assets/eq_079.svg"
 alt="\rho(Z)" title="\rho(Z)" class="math inline" />. Practical
 mechanisms include sampling temperature, prompt paraphrasing, varied
 few-shot exemplars, distinct draft variables, and ensembling across
 decoders or model instances. Each such intervention can be viewed as
 enlarging the support of <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20Z" alt="Z"
+src="assets/eq_070.svg" alt="Z"
 title="Z" class="math inline" /> relative to a fixed-prompt
 baseline.</p>
 <h4 id="a-more-conservative-practical-bound.">A more conservative
@@ -899,33 +899,33 @@ practical bound.</h4>
 Theorem <a href="#thm:retry-amplification" data-reference-type="ref"
 data-reference="thm:retry-amplification">3</a> is the conditional
 persistence bound. Let <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20F_k%3D%5C%7BY_1%3D%5Ccdots%3DY_k%3D1%5C%7D"
+src="assets/eq_082.svg"
 alt="F_k=\{Y_1=\cdots=Y_k=1\}" title="F_k=\{Y_1=\cdots=Y_k=1\}"
 class="math inline" /> be the event that the first <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20k" alt="k"
+src="assets/eq_018.svg" alt="k"
 title="k" class="math inline" /> attempts on obligation <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20h" alt="h"
+src="assets/eq_017.svg" alt="h"
 title="h" class="math inline" /> all fail, and assume the
 <em>uniform</em> persistence condition <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20%5CPr%5BY_%7Bk%2B1%7D%3D1%20%5Cmid%20F_k%5D%20%5C%3B%5Cle%5C%3B%20%5Crho_h%0A%5Cquad%20%5Ctext%7Bfor%20all%20%7D%20k%3D1%2C%5Cdots%2Cb_h-1%2C"
+src="assets/eq_083.svg"
 alt="\Pr[Y_{k+1}=1 \mid F_k] \;\le\; \rho_h
 \quad \text{for all } k=1,\dots,b_h-1,"
 title="\Pr[Y_{k+1}=1 \mid F_k] \;\le\; \rho_h
 \quad \text{for all } k=1,\dots,b_h-1," class="math display" /> with
 <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Crho_h%5Cin%5B1-p_h%2C1%5D"
+src="assets/eq_084.svg"
 alt="\rho_h\in[1-p_h,1]" title="\rho_h\in[1-p_h,1]"
 class="math inline" />. This is a stronger assumption than mere one-step
 correlation: failures must remain at most <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Crho_h"
+src="assets/eq_085.svg"
 alt="\rho_h" title="\rho_h" class="math inline" />-likely conditional on
 <em>all</em> previous failures, not only on the immediately previous
 one. Then, applying the chain rule, <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20%5CPr%5BF_%7Bb_h%7D%5D%0A%5C%3B%3D%5C%3B%0A%5CPr%5BY_1%3D1%5D%5Cprod_%7Bk%3D1%7D%5E%7Bb_h-1%7D%5CPr%5BY_%7Bk%2B1%7D%3D1%5Cmid%20F_k%5D%0A%5C%3B%5Cle%5C%3B%0A%281-p_h%29%5C%2C%5Crho_h%5E%7B%5C%2Cb_h-1%7D%2C"
+src="assets/eq_086.svg"
 alt="\Pr[F_{b_h}]
 \;=\;
 \Pr[Y_1=1]\prod_{k=1}^{b_h-1}\Pr[Y_{k+1}=1\mid F_k]
@@ -936,7 +936,7 @@ alt="\Pr[F_{b_h}]
 \;\le\;
 (1-p_h)\,\rho_h^{\,b_h-1}," class="math display" /> so <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20%5CPr%5B%5Ctext%7Bsuccess%20in%20%7D%20b_h%20%5Ctext%7B%20tries%7D%5D%0A%5C%3B%5Cge%5C%3B%0A1%20-%20%281-p_h%29%5C%2C%5Crho_h%5E%7B%5C%2Cb_h-1%7D."
+src="assets/eq_087.svg"
 alt="\Pr[\text{success in } b_h \text{ tries}]
 \;\ge\;
 1 - (1-p_h)\,\rho_h^{\,b_h-1}."
@@ -944,44 +944,44 @@ title="\Pr[\text{success in } b_h \text{ tries}]
 \;\ge\;
 1 - (1-p_h)\,\rho_h^{\,b_h-1}." class="math display" /> The bound
 interpolates between independence (<img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Crho_h%3D1-p_h"
+src="assets/eq_088.svg"
 alt="\rho_h=1-p_h" title="\rho_h=1-p_h" class="math inline" />,
 recovering the Theorem <a href="#thm:retry-amplification"
 data-reference-type="ref" data-reference="thm:retry-amplification">3</a>
 rate) and total correlation (<img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Crho_h%3D1"
+src="assets/eq_089.svg"
 alt="\rho_h=1" title="\rho_h=1" class="math inline" />, no amplification
 beyond the first attempt). The uniform persistence parameter <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Crho_h"
+src="assets/eq_085.svg"
 alt="\rho_h" title="\rho_h" class="math inline" /> can be calibrated
 from logged retry trajectories by computing, for each prefix length <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20k" alt="k"
+src="assets/eq_018.svg" alt="k"
 title="k" class="math inline" />, the empirical fraction of trajectories
 whose <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%28k%7B%2B%7D1%29"
+src="assets/eq_090.svg"
 alt="(k{+}1)" title="(k{+}1)" class="math inline" />-st attempt fails
 given <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20F_k" alt="F_k"
+src="assets/eq_091.svg" alt="F_k"
 title="F_k" class="math inline" />, and taking the supremum over <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20k" alt="k"
+src="assets/eq_018.svg" alt="k"
 title="k" class="math inline" />.</p>
 <h1 id="global-success-under-oracle-structure">Global Success Under
 Oracle Structure</h1>
 <p>Let <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Cmathcal%7BR%7D%20%5Csubseteq%20%5Cmathcal%7BH%7D"
+src="assets/eq_092.svg"
 alt="\mathcal{R} \subseteq \mathcal{H}"
 title="\mathcal{R} \subseteq \mathcal{H}" class="math inline" /> be the
 set of required obligations for a successful derivation under a fixed
 oracle structure, topologically ordered as <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20h_1%2C%5Cldots%2Ch_M"
+src="assets/eq_093.svg"
 alt="h_1,\ldots,h_M" title="h_1,\ldots,h_M" class="math inline" /> along
 dependency edges. Suppose the executor must obtain one valid commit for
 each <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20h%5Cin%5Cmathcal%7BR%7D"
+src="assets/eq_094.svg"
 alt="h\in\mathcal{R}" title="h\in\mathcal{R}" class="math inline" />. We
 separate the structural chain-rule argument from the local-rate
 model.</p>
@@ -989,23 +989,23 @@ model.</p>
 <p><strong>Theorem 4</strong> (Product lower bound, abstract form).
 <em>Assume exact validation and rollback safety. Suppose that for each
 obligation <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20h_i" alt="h_i"
+src="assets/eq_095.svg" alt="h_i"
 title="h_i" class="math inline" />, conditional on all prior obligations
 <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20h_1%2C%5Cldots%2Ch_%7Bi-1%7D"
+src="assets/eq_096.svg"
 alt="h_1,\ldots,h_{i-1}" title="h_1,\ldots,h_{i-1}"
 class="math inline" /> having been resolved (i.e. on reaching a clean
 committed state in which <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20h_i" alt="h_i"
+src="assets/eq_095.svg" alt="h_i"
 title="h_i" class="math inline" /> becomes the active frontier element),
 the executor resolves <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20h_i" alt="h_i"
+src="assets/eq_095.svg" alt="h_i"
 title="h_i" class="math inline" /> with probability at least <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20q_%7Bh_i%7D%5E%7B%5Cmathrm%7BLB%7D%7D"
+src="assets/eq_097.svg"
 alt="q_{h_i}^{\mathrm{LB}}" title="q_{h_i}^{\mathrm{LB}}"
 class="math inline" />. Then <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20%5CPr%5B%5Cmathrm%7Bsuccess%7D%5D%0A%5C%3B%5Cge%5C%3B%0A%5Cprod_%7Bi%3D1%7D%5E%7BM%7D%20q_%7Bh_i%7D%5E%7B%5Cmathrm%7BLB%7D%7D."
+src="assets/eq_098.svg"
 alt="\Pr[\mathrm{success}]
 \;\ge\;
 \prod_{i=1}^{M} q_{h_i}^{\mathrm{LB}}." title="\Pr[\mathrm{success}]
@@ -1014,13 +1014,13 @@ alt="\Pr[\mathrm{success}]
 </div>
 <div class="proof">
 <p><em>Proof.</em> Let <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20E_i" alt="E_i"
+src="assets/eq_099.svg" alt="E_i"
 title="E_i" class="math inline" /> denote the event that <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20h_i" alt="h_i"
+src="assets/eq_095.svg" alt="h_i"
 title="h_i" class="math inline" /> is resolved. By the chain rule, <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20%5CPr%5C%21%5Cleft%5B%5Cbigcap_%7Bi%3D1%7D%5E%7BM%7DE_i%5Cright%5D%0A%3D%5Cprod_%7Bi%3D1%7D%5E%7BM%7D%5CPr%5C%21%5Cleft%5BE_i%5C%3B%5Cbigg%7C%5C%3B%5Cbigcap_%7Bj%3Ci%7DE_j%5Cright%5D%0A%5C%3B%5Cge%5C%3B%0A%5Cprod_%7Bi%3D1%7D%5E%7BM%7D%20q_%7Bh_i%7D%5E%7B%5Cmathrm%7BLB%7D%7D%2C"
+src="assets/eq_100.svg"
 alt="\Pr\!\left[\bigcap_{i=1}^{M}E_i\right]
 =\prod_{i=1}^{M}\Pr\!\left[E_i\;\bigg|\;\bigcap_{j&lt;i}E_j\right]
 \;\ge\;
@@ -1034,38 +1034,38 @@ validation and clean predecessor states (Theorem <a
 href="#thm:contamination-safety" data-reference-type="ref"
 data-reference="thm:contamination-safety">1</a>) ensure the
 preconditions of each <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20q_%7Bh_i%7D%5E%7B%5Cmathrm%7BLB%7D%7D"
+src="assets/eq_097.svg"
 alt="q_{h_i}^{\mathrm{LB}}" title="q_{h_i}^{\mathrm{LB}}"
 class="math inline" /> are satisfied along any path that reaches <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20h_i" alt="h_i"
+src="assets/eq_095.svg" alt="h_i"
 title="h_i" class="math inline" />. ◻</p>
 </div>
 <p>The role of any specific local model — i.i.d. retries, persistence
 bound, exchangeable mixture — is to supply <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20q_%7Bh_i%7D%5E%7B%5Cmathrm%7BLB%7D%7D"
+src="assets/eq_097.svg"
 alt="q_{h_i}^{\mathrm{LB}}" title="q_{h_i}^{\mathrm{LB}}"
 class="math inline" />. Three natural instantiations:</p>
 <div id="cor:product-iid" class="corollary">
 <p><strong>Corollary 4</strong> (Instantiation: independent retries).
 <em>If, conditional on reaching the state at which <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20h_i" alt="h_i"
+src="assets/eq_095.svg" alt="h_i"
 title="h_i" class="math inline" /> is attempted, the <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20b_%7Bh_i%7D"
+src="assets/eq_101.svg"
 alt="b_{h_i}" title="b_{h_i}" class="math inline" /> retries are
 i.i.d. with marginal success probability at least <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20p_%7Bh_i%7D"
+src="assets/eq_102.svg"
 alt="p_{h_i}" title="p_{h_i}" class="math inline" />, then <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20q_%7Bh_i%7D%5E%7B%5Cmathrm%7BLB%7D%7D%20%3D%201-%281-p_%7Bh_i%7D%29%5E%7Bb_%7Bh_i%7D%7D"
+src="assets/eq_103.svg"
 alt="q_{h_i}^{\mathrm{LB}} = 1-(1-p_{h_i})^{b_{h_i}}"
 title="q_{h_i}^{\mathrm{LB}} = 1-(1-p_{h_i})^{b_{h_i}}"
 class="math inline" /> and <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20%5CPr%5B%5Cmathrm%7Bsuccess%7D%5D%0A%5C%3B%5Cge%5C%3B%0A%5Cprod_%7Bi%3D1%7D%5E%7BM%7D%5Cleft%281-%281-p_%7Bh_i%7D%29%5E%7Bb_%7Bh_i%7D%7D%5Cright%29."
+src="assets/eq_104.svg"
 alt="\Pr[\mathrm{success}]
 \;\ge\;
 \prod_{i=1}^{M}\left(1-(1-p_{h_i})^{b_{h_i}}\right)."
@@ -1078,20 +1078,20 @@ class="math display" /></em></p>
 <p><strong>Corollary 5</strong> (Instantiation: persistence-calibrated
 retries). <em>If, conditional on reaching the state at which <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20h_i" alt="h_i"
+src="assets/eq_095.svg" alt="h_i"
 title="h_i" class="math inline" /> is attempted, retries on <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20h_i" alt="h_i"
+src="assets/eq_095.svg" alt="h_i"
 title="h_i" class="math inline" /> satisfy the uniform persistence
 condition with parameter <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Crho_%7Bh_i%7D%5Cin%5B1-p_%7Bh_i%7D%2C1%5D"
+src="assets/eq_105.svg"
 alt="\rho_{h_i}\in[1-p_{h_i},1]" title="\rho_{h_i}\in[1-p_{h_i},1]"
 class="math inline" />, then <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20q_%7Bh_i%7D%5E%7B%5Cmathrm%7BLB%7D%7D%20%3D%201%20-%20%281-p_%7Bh_i%7D%29%5Crho_%7Bh_i%7D%5E%7B%5C%2Cb_%7Bh_i%7D-1%7D"
+src="assets/eq_106.svg"
 alt="q_{h_i}^{\mathrm{LB}} = 1 - (1-p_{h_i})\rho_{h_i}^{\,b_{h_i}-1}"
 title="q_{h_i}^{\mathrm{LB}} = 1 - (1-p_{h_i})\rho_{h_i}^{\,b_{h_i}-1}"
 class="math inline" /> and <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20%5CPr%5B%5Cmathrm%7Bsuccess%7D%5D%0A%5C%3B%5Cge%5C%3B%0A%5Cprod_%7Bi%3D1%7D%5E%7BM%7D%5Cleft%281-%281-p_%7Bh_i%7D%29%5C%2C%5Crho_%7Bh_i%7D%5E%7B%5C%2Cb_%7Bh_i%7D-1%7D%5Cright%29."
+src="assets/eq_107.svg"
 alt="\Pr[\mathrm{success}]
 \;\ge\;
 \prod_{i=1}^{M}\left(1-(1-p_{h_i})\,\rho_{h_i}^{\,b_{h_i}-1}\right)."
@@ -1104,40 +1104,40 @@ class="math display" /></em></p>
 <p><strong>Corollary 6</strong> (Instantiation: deterministic per-prompt
 failure). <em>If on each obligation the failure mode is essentially
 deterministic given the prompt (<img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Crho%28Z%29%5Cin%5C%7B0%2C1%5C%7D"
+src="assets/eq_080.svg"
 alt="\rho(Z)\in\{0,1\}" title="\rho(Z)\in\{0,1\}" class="math inline" />
 a.s. in the latent-mode model of Proposition <a
 href="#prop:correlation-upper-bound" data-reference-type="ref"
 data-reference="prop:correlation-upper-bound">1</a>), then <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20q_%7Bh_i%7D%5E%7B%5Cmathrm%7BLB%7D%7D%20%3D%20p_%7Bh_i%7D"
+src="assets/eq_108.svg"
 alt="q_{h_i}^{\mathrm{LB}} = p_{h_i}"
 title="q_{h_i}^{\mathrm{LB}} = p_{h_i}" class="math inline" />
 regardless of <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20b_%7Bh_i%7D"
+src="assets/eq_101.svg"
 alt="b_{h_i}" title="b_{h_i}" class="math inline" />, and the lower
 bound degenerates to the one-shot structured baseline <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Cprod_i%20p_%7Bh_i%7D"
+src="assets/eq_109.svg"
 alt="\prod_i p_{h_i}" title="\prod_i p_{h_i}"
 class="math inline" />.</em></p>
 </div>
 <div class="corollary">
 <p><strong>Corollary 7</strong> (Uniform i.i.d. lower bound). <em>If, in
 addition to the i.i.d. instantiation, <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20p_h%20%5Cge%20p_%7B%5Cmin%7D%3E0"
+src="assets/eq_110.svg"
 alt="p_h \ge p_{\min}&gt;0" title="p_h \ge p_{\min}&gt;0"
 class="math inline" /> and <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20b_h%5Cge%20b"
+src="assets/eq_111.svg"
 alt="b_h\ge b" title="b_h\ge b" class="math inline" /> for all <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20h%5Cin%5Cmathcal%7BR%7D"
+src="assets/eq_094.svg"
 alt="h\in\mathcal{R}" title="h\in\mathcal{R}" class="math inline" />,
 and <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%7C%5Cmathcal%7BR%7D%7C%3DM"
+src="assets/eq_112.svg"
 alt="|\mathcal{R}|=M" title="|\mathcal{R}|=M" class="math inline" />,
 then <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20%5CPr%5B%5Cmathrm%7Bsuccess%7D%5D%0A%5C%3B%5Cge%5C%3B%0A%5Cleft%281-%281-p_%7B%5Cmin%7D%29%5Eb%5Cright%29%5EM."
+src="assets/eq_113.svg"
 alt="\Pr[\mathrm{success}]
 \;\ge\;
 \left(1-(1-p_{\min})^b\right)^M." title="\Pr[\mathrm{success}]
@@ -1150,17 +1150,17 @@ non-transactional structured execution.</h4>
 <p>A one-shot structured baseline that commits the first local proposal
 succeeds with probability approximately <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Cprod_%7Bh%5Cin%5Cmathcal%7BR%7D%7D%20p_h"
+src="assets/eq_114.svg"
 alt="\prod_{h\in\mathcal{R}} p_h" title="\prod_{h\in\mathcal{R}} p_h"
 class="math inline" /> (and is also unsafe: rejected proposals can
 corrupt downstream state). Transactional retry changes the local factor
 from <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20p_h" alt="p_h"
+src="assets/eq_081.svg" alt="p_h"
 title="p_h" class="math inline" /> to <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20q_h%5E%7B%5Cmathrm%7BLB%7D%7D"
+src="assets/eq_115.svg"
 alt="q_h^{\mathrm{LB}}" title="q_h^{\mathrm{LB}}"
 class="math inline" />, where <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20q_h%5E%7B%5Cmathrm%7BLB%7D%7D%5Cin%5Bp_h%2C%5C%2C%201-%281-p_h%29%5E%7Bb_h%7D%5D"
+src="assets/eq_116.svg"
 alt="q_h^{\mathrm{LB}}\in[p_h,\, 1-(1-p_h)^{b_h}]"
 title="q_h^{\mathrm{LB}}\in[p_h,\, 1-(1-p_h)^{b_h}]"
 class="math inline" /> depending on the diversity of samples within an
@@ -1168,26 +1168,26 @@ obligation. Exact validation simultaneously prevents failed attempts
 from contaminating downstream obligations.</p>
 <h4 id="worked-example-same-p_h-four-different-global-rates.">Worked
 example: same <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20p_h" alt="p_h"
+src="assets/eq_081.svg" alt="p_h"
 title="p_h" class="math inline" />, four different global rates.</h4>
 <p>The choice of local-rate model dominates the global success
 probability, even with <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20p_h" alt="p_h"
+src="assets/eq_081.svg" alt="p_h"
 title="p_h" class="math inline" /> and <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20b_h" alt="b_h"
+src="assets/eq_062.svg" alt="b_h"
 title="b_h" class="math inline" /> held fixed. As an illustration take
 <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20M%3D10"
+src="assets/eq_117.svg"
 alt="M=10" title="M=10" class="math inline" /> identical obligations,
 per-attempt local success rate <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20p_h%3D0.30"
+src="assets/eq_118.svg"
 alt="p_h=0.30" title="p_h=0.30" class="math inline" />, retry budget
 <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20b_h%3D8"
+src="assets/eq_119.svg"
 alt="b_h=8" title="b_h=8" class="math inline" />, and persistence
 parameter <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Crho_h%3D0.85"
+src="assets/eq_120.svg"
 alt="\rho_h=0.85" title="\rho_h=0.85" class="math inline" />. Then:</p>
 <div class="center">
 <table>
@@ -1196,11 +1196,11 @@ alt="\rho_h=0.85" title="\rho_h=0.85" class="math inline" />. Then:</p>
 <th style="text-align: left;">Regime</th>
 <th style="text-align: left;">Per-obligation <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20q_h%5E%7B%5Cmathrm%7BLB%7D%7D"
+src="assets/eq_115.svg"
 alt="q_h^{\mathrm{LB}}" title="q_h^{\mathrm{LB}}"
 class="math inline" /></th>
 <th style="text-align: left;">Global <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5CPr%5B%5Ctext%7Bsuccess%7D%5D"
+src="assets/eq_121.svg"
 alt="\Pr[\text{success}]" title="\Pr[\text{success}]"
 class="math inline" /></th>
 </tr>
@@ -1209,49 +1209,49 @@ class="math inline" /></th>
 <tr>
 <td style="text-align: left;">One-shot baseline (<img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20b_h%3D1"
+src="assets/eq_122.svg"
 alt="b_h=1" title="b_h=1" class="math inline" />)</td>
 <td style="text-align: left;"><img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%200.30"
+src="assets/eq_123.svg"
 alt="0.30" title="0.30" class="math inline" /></td>
 <td style="text-align: left;"><img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Capprox%205.9%20%5Ctimes%2010%5E%7B-6%7D"
+src="assets/eq_124.svg"
 alt="\approx 5.9 \times 10^{-6}" title="\approx 5.9 \times 10^{-6}"
 class="math inline" /></td>
 </tr>
 <tr>
 <td style="text-align: left;">Deterministic per-prompt failure</td>
 <td style="text-align: left;"><img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%200.30"
+src="assets/eq_123.svg"
 alt="0.30" title="0.30" class="math inline" /></td>
 <td style="text-align: left;"><img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Capprox%205.9%20%5Ctimes%2010%5E%7B-6%7D"
+src="assets/eq_124.svg"
 alt="\approx 5.9 \times 10^{-6}" title="\approx 5.9 \times 10^{-6}"
 class="math inline" /></td>
 </tr>
 <tr>
 <td style="text-align: left;">Persistence-calibrated, <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Crho_h%3D0.85"
+src="assets/eq_120.svg"
 alt="\rho_h=0.85" title="\rho_h=0.85" class="math inline" /></td>
 <td style="text-align: left;"><img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%201-%281-p_h%29%5Crho_h%5E%7B%5C%2Cb_h-1%7D%5Capprox%200.776"
+src="assets/eq_125.svg"
 alt="1-(1-p_h)\rho_h^{\,b_h-1}\approx 0.776"
 title="1-(1-p_h)\rho_h^{\,b_h-1}\approx 0.776"
 class="math inline" /></td>
 <td style="text-align: left;"><img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Capprox%207.9%20%5Ctimes%2010%5E%7B-2%7D"
+src="assets/eq_126.svg"
 alt="\approx 7.9 \times 10^{-2}" title="\approx 7.9 \times 10^{-2}"
 class="math inline" /></td>
 </tr>
 <tr>
 <td style="text-align: left;">I.i.d. retries</td>
 <td style="text-align: left;"><img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%201-%281-p_h%29%5E%7Bb_h%7D%5Capprox%200.942"
+src="assets/eq_127.svg"
 alt="1-(1-p_h)^{b_h}\approx 0.942" title="1-(1-p_h)^{b_h}\approx 0.942"
 class="math inline" /></td>
 <td style="text-align: left;"><img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Capprox%205.5%20%5Ctimes%2010%5E%7B-1%7D"
+src="assets/eq_128.svg"
 alt="\approx 5.5 \times 10^{-1}" title="\approx 5.5 \times 10^{-1}"
 class="math inline" /></td>
 </tr>
@@ -1260,11 +1260,11 @@ class="math inline" /></td>
 </div>
 <p>The i.i.d. regime beats the persistence-calibrated regime by roughly
 a factor of <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%207" alt="7"
+src="assets/eq_129.svg" alt="7"
 title="7" class="math inline" />, and the persistence-calibrated regime
 beats the deterministic regime by roughly a factor of <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%201.3%5Ctimes%2010%5E4"
+src="assets/eq_130.svg"
 alt="1.3\times 10^4" title="1.3\times 10^4" class="math inline" />. Note
 that the deterministic regime is indistinguishable from the one-shot
 baseline at the global level: when each obligation’s failure mode is
@@ -1272,10 +1272,10 @@ fixed by the prompt, retries within an obligation are wasted and only
 diversity <em>across</em> prompts (or refinement) can help. The
 practical implication is that the operative quantity is not <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20b_h" alt="b_h"
+src="assets/eq_062.svg" alt="b_h"
 title="b_h" class="math inline" /> but the variance of <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Crho%28Z%29"
+src="assets/eq_079.svg"
 alt="\rho(Z)" title="\rho(Z)" class="math inline" /> that the executor’s
 diversity machinery induces.</p>
 <h1 id="recovery-by-refinement">Recovery by Refinement</h1>
@@ -1284,26 +1284,26 @@ coarse, the executor can refine it into smaller obligations.</p>
 <div class="definition">
 <p><strong>Definition 5</strong> (Refinement). <em>A refinement operator
 replaces a failed obligation <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20h" alt="h"
+src="assets/eq_017.svg" alt="h"
 title="h" class="math inline" /> with child obligations <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20%5Cmathsf%7BRefine%7D%28h%29%3D%5C%7Bc_1%2C%5Cldots%2Cc_m%5C%7D"
+src="assets/eq_131.svg"
 alt="\mathsf{Refine}(h)=\{c_1,\ldots,c_m\}"
 title="\mathsf{Refine}(h)=\{c_1,\ldots,c_m\}" class="math display" />
 plus, optionally, a recomposition obligation that combines the children
 into a solution for <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20h" alt="h"
+src="assets/eq_017.svg" alt="h"
 title="h" class="math inline" />.</em></p>
 </div>
 <p>Let <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20q_h" alt="q_h"
+src="assets/eq_132.svg" alt="q_h"
 title="q_h" class="math inline" /> denote the (calibrated or assumed)
 probability that the executor resolves <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20h" alt="h"
+src="assets/eq_017.svg" alt="h"
 title="h" class="math inline" /> directly under its allocated retry
 budget — that is, the <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20q_h%5E%7B%5Cmathrm%7BLB%7D%7D"
+src="assets/eq_115.svg"
 alt="q_h^{\mathrm{LB}}" title="q_h^{\mathrm{LB}}" class="math inline" />
 supplied by whichever local-rate model (Corollaries <a
 href="#cor:product-iid" data-reference-type="ref"
@@ -1311,41 +1311,41 @@ data-reference="cor:product-iid">4</a>–<a
 href="#cor:product-deterministic" data-reference-type="ref"
 data-reference="cor:product-deterministic">6</a>) applies. Let <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20q_%7Bc_i%7D"
+src="assets/eq_133.svg"
 alt="q_{c_i}" title="q_{c_i}" class="math inline" /> denote the
 analogous resolution probability for child <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20c_i" alt="c_i"
+src="assets/eq_134.svg" alt="c_i"
 title="c_i" class="math inline" />. Let <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20q_%7B%5Cmathrm%7Bexp%7D%7D"
+src="assets/eq_135.svg"
 alt="q_{\mathrm{exp}}" title="q_{\mathrm{exp}}" class="math inline" />
 be the probability that the refinement step itself is proposed validly
 and accepted by the validator, and let <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20q_%7B%5Cmathrm%7Bcomp%7D%7D"
+src="assets/eq_136.svg"
 alt="q_{\mathrm{comp}}" title="q_{\mathrm{comp}}" class="math inline" />
 be the probability that the children can be recomposed into a validated
 solution for <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20h" alt="h"
+src="assets/eq_017.svg" alt="h"
 title="h" class="math inline" />.</p>
 <div id="prop:refinement-helps" class="proposition">
 <p><strong>Proposition 2</strong> (When refinement improves recovery).
 <em>Suppose that, conditional on refinement being accepted, the events
 “<img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20c_i" alt="c_i"
+src="assets/eq_134.svg" alt="c_i"
 title="c_i" class="math inline" /> resolved” for <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20i%3D1%2C%5Cldots%2Cm"
+src="assets/eq_137.svg"
 alt="i=1,\ldots,m" title="i=1,\ldots,m" class="math inline" /> and
 “recomposition succeeds” are mutually independent — a substantive
 assumption, equivalent to asserting that no shared latent failure mode
 couples the children. Then refinement improves the probability of
 resolving <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20h" alt="h"
+src="assets/eq_017.svg" alt="h"
 title="h" class="math inline" /> whenever <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20q_%7B%5Cmathrm%7Bexp%7D%7D%0A%5Cleft%28%5Cprod_%7Bi%3D1%7D%5Em%20q_%7Bc_i%7D%5Cright%29%0Aq_%7B%5Cmathrm%7Bcomp%7D%7D%0A%5C%3B%3E%5C%3B%0Aq_h."
+src="assets/eq_138.svg"
 alt="q_{\mathrm{exp}}
 \left(\prod_{i=1}^m q_{c_i}\right)
 q_{\mathrm{comp}}
@@ -1357,11 +1357,11 @@ q_{\mathrm{comp}}
 q_h." class="math display" /> Without the cross-child independence
 assumption, the same comparison holds with <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Cprod_%7Bi%3D1%7D%5Em%20q_%7Bc_i%7D"
+src="assets/eq_139.svg"
 alt="\prod_{i=1}^m q_{c_i}" title="\prod_{i=1}^m q_{c_i}"
 class="math inline" /> replaced by the joint resolution probability <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5CPr%5B%5Ctext%7Ball%20children%20resolved%7D%5Cmid%20%5Ctext%7Brefinement%20accepted%7D%5D"
+src="assets/eq_140.svg"
 alt="\Pr[\text{all children resolved}\mid \text{refinement accepted}]"
 title="\Pr[\text{all children resolved}\mid \text{refinement accepted}]"
 class="math inline" />, which must be supplied by the local-rate
@@ -1373,7 +1373,7 @@ is accepted, every child obligation is resolved, and recomposition
 succeeds, assuming the stated factorisation across children. The
 right-hand side is the calibrated probability of resolving <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20h" alt="h"
+src="assets/eq_017.svg" alt="h"
 title="h" class="math inline" /> without refinement. Refinement is
 beneficial exactly when the former exceeds the latter. The fall-back
 form follows by replacing the product with the joint probability and
@@ -1383,21 +1383,21 @@ applying the same inequality. ◻</p>
 <p>This is a decision rule for adaptive decomposition under whichever
 model of local resolution the system has calibrated. When local rates
 are <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20p_h" alt="p_h"
+src="assets/eq_081.svg" alt="p_h"
 title="p_h" class="math inline" /> and samples are i.i.d., <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20q_h" alt="q_h"
+src="assets/eq_132.svg" alt="q_h"
 title="q_h" class="math inline" /> takes the form <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%201-%281-p_h%29%5E%7Bb_h%7D"
+src="assets/eq_001.svg"
 alt="1-(1-p_h)^{b_h}" title="1-(1-p_h)^{b_h}" class="math inline" /> and
 the comparison reduces to the original retry-vs-refinement formula. When
 samples are correlated, <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20q_h" alt="q_h"
+src="assets/eq_132.svg" alt="q_h"
 title="q_h" class="math inline" /> may be much smaller than this
 i.i.d. value, and the comparison should use the calibrated <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20q_h" alt="q_h"
+src="assets/eq_132.svg" alt="q_h"
 title="q_h" class="math inline" /> rather than substituting the
 i.i.d. formula. Naively using the i.i.d. amplified rate when samples
 share a latent failure mode tends to make refinement look worse than it
@@ -1407,7 +1407,7 @@ coarser obligation cannot.</p>
 <p>Exact validators are the cleanest case. For freeform reasoning,
 validators may be noisy. Two distinct false-accept rates that are easy
 to confuse must be kept separate: <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20%5Calpha_h%5E%7B%5Crightarrow%7D%0A%3D%0A%5CPr%5Bg%28s%2CU%29%3D1%20%5Cmid%20U%20%5Ctext%7B%20is%20invalid%7D%5D%0A%5Cquad%5Ctext%7B%28conditional%20false-accept%20rate%29%2C%7D"
+src="assets/eq_141.svg"
 alt="\alpha_h^{\rightarrow}
 =
 \Pr[g(s,U)=1 \mid U \text{ is invalid}]
@@ -1417,7 +1417,7 @@ title="\alpha_h^{\rightarrow}
 \Pr[g(s,U)=1 \mid U \text{ is invalid}]
 \quad\text{(conditional false-accept rate),}" class="math display" />
 <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20%5Calpha_h%5E%7B%5Cleftarrow%7D%0A%3D%0A%5CPr%5BU%20%5Ctext%7B%20is%20invalid%7D%20%5Cmid%20g%28s%2CU%29%3D1%5D%0A%5Cquad%5Ctext%7B%28posterior%20false-accept%20rate%29%2C%7D"
+src="assets/eq_142.svg"
 alt="\alpha_h^{\leftarrow}
 =
 \Pr[U \text{ is invalid} \mid g(s,U)=1]
@@ -1426,7 +1426,7 @@ alt="\alpha_h^{\leftarrow}
 \Pr[U \text{ is invalid} \mid g(s,U)=1]
 \quad\text{(posterior false-accept rate),}" class="math display" /> <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20%5Cbeta_h%0A%3D%0A%5CPr%5Bg%28s%2CU%29%3D0%20%5Cmid%20U%20%5Ctext%7B%20is%20valid%7D%5D%0A%5Cquad%5Ctext%7B%28false-reject%20rate%29.%7D"
+src="assets/eq_143.svg"
 alt="\beta_h
 =
 \Pr[g(s,U)=0 \mid U \text{ is valid}]
@@ -1436,7 +1436,7 @@ alt="\beta_h
 \quad\text{(false-reject rate).}" class="math display" /> The two
 false-accept rates are related by Bayes, <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20%5Calpha_h%5E%7B%5Cleftarrow%7D%0A%3D%0A%5Cfrac%7B%5Calpha_h%5E%7B%5Crightarrow%7D%5C%2C%5CPr%5BU%20%5Ctext%7B%20invalid%7D%5D%7D%0A%20%20%20%20%20%7B%5Calpha_h%5E%7B%5Crightarrow%7D%5C%2C%5CPr%5BU%20%5Ctext%7B%20invalid%7D%5D%0A%20%20%20%20%20%20%2B%281-%5Cbeta_h%29%5C%2C%5CPr%5BU%20%5Ctext%7B%20valid%7D%5D%7D%2C"
+src="assets/eq_144.svg"
 alt="\alpha_h^{\leftarrow}
 =
 \frac{\alpha_h^{\rightarrow}\,\Pr[U \text{ invalid}]}
@@ -1447,36 +1447,36 @@ alt="\alpha_h^{\leftarrow}
      {\alpha_h^{\rightarrow}\,\Pr[U \text{ invalid}]
       +(1-\beta_h)\,\Pr[U \text{ valid}]}," class="math display" /> and
 <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Calpha_h%5E%7B%5Cleftarrow%7D"
+src="assets/eq_145.svg"
 alt="\alpha_h^{\leftarrow}" title="\alpha_h^{\leftarrow}"
 class="math inline" /> can be much larger than <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Calpha_h%5E%7B%5Crightarrow%7D"
+src="assets/eq_146.svg"
 alt="\alpha_h^{\rightarrow}" title="\alpha_h^{\rightarrow}"
 class="math inline" /> when the proposal kernel is weak (high <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5CPr%5BU%5Ctext%7B%20invalid%7D%5D"
+src="assets/eq_147.svg"
 alt="\Pr[U\text{ invalid}]" title="\Pr[U\text{ invalid}]"
 class="math inline" />) or the validator is conservative on valid
 proposals (high <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Cbeta_h"
+src="assets/eq_148.svg"
 alt="\beta_h" title="\beta_h" class="math inline" />). The two yield
 genuinely different contamination bounds.</p>
 <div id="thm:contamination-noisy-invocation" class="theorem">
 <p><strong>Theorem 5</strong> (Contamination bound, per-invocation
 form). <em>Let <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20N" alt="N"
+src="assets/eq_149.svg" alt="N"
 title="N" class="math inline" /> be the (random) total number of
 validator invocations during a run, with deterministic upper bound <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Cbar%7BN%7D"
+src="assets/eq_150.svg"
 alt="\bar{N}" title="\bar{N}" class="math inline" /> given by retry
 budget plus the commit cap. If every validator invocation has
 conditional false-accept rate at most <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Calpha_%7B%5Cmax%7D%5E%7B%5Crightarrow%7D"
+src="assets/eq_151.svg"
 alt="\alpha_{\max}^{\rightarrow}" title="\alpha_{\max}^{\rightarrow}"
 class="math inline" />, then <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20%5CPr%5B%5Cexists%20%5Ctext%7B%20bad%20committed%20update%7D%5D%0A%5C%3B%5Cle%5C%3B%0A%5Cbar%7BN%7D%5C%2C%5Calpha_%7B%5Cmax%7D%5E%7B%5Crightarrow%7D."
+src="assets/eq_152.svg"
 alt="\Pr[\exists \text{ bad committed update}]
 \;\le\;
 \bar{N}\,\alpha_{\max}^{\rightarrow}."
@@ -1487,33 +1487,33 @@ title="\Pr[\exists \text{ bad committed update}]
 <div class="proof">
 <p><em>Proof.</em> Index validator invocations by <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20j%3D1%2C%5Cdots%2CN"
+src="assets/eq_153.svg"
 alt="j=1,\dots,N" title="j=1,\dots,N" class="math inline" />. Let <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20V_j%3D%5Cmathbf%7B1%7D%5Bg_j%3D1%5D"
+src="assets/eq_154.svg"
 alt="V_j=\mathbf{1}[g_j=1]" title="V_j=\mathbf{1}[g_j=1]"
 class="math inline" /> and <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20I_j%3D%5Cmathbf%7B1%7D%5BU_j%20%5Ctext%7B%20invalid%7D%5D"
+src="assets/eq_155.svg"
 alt="I_j=\mathbf{1}[U_j \text{ invalid}]"
 title="I_j=\mathbf{1}[U_j \text{ invalid}]" class="math inline" />. A
 bad commit at invocation <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20j" alt="j"
+src="assets/eq_156.svg" alt="j"
 title="j" class="math inline" /> is the event <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20V_j%3D1%5Cwedge%20I_j%3D1"
+src="assets/eq_157.svg"
 alt="V_j=1\wedge I_j=1" title="V_j=1\wedge I_j=1"
 class="math inline" />, with <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20%5CPr%5BV_j%3D1%2C%20I_j%3D1%5D%0A%3D%5CPr%5BV_j%3D1%5Cmid%20I_j%3D1%5D%5C%2C%5CPr%5BI_j%3D1%5D%0A%5Cle%20%5Calpha_%7B%5Cmax%7D%5E%7B%5Crightarrow%7D%5Ccdot%201."
+src="assets/eq_158.svg"
 alt="\Pr[V_j=1, I_j=1]
 =\Pr[V_j=1\mid I_j=1]\,\Pr[I_j=1]
 \le \alpha_{\max}^{\rightarrow}\cdot 1." title="\Pr[V_j=1, I_j=1]
 =\Pr[V_j=1\mid I_j=1]\,\Pr[I_j=1]
 \le \alpha_{\max}^{\rightarrow}\cdot 1." class="math display" />
 Union-bounding over the at most <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Cbar%7BN%7D"
+src="assets/eq_150.svg"
 alt="\bar{N}" title="\bar{N}" class="math inline" /> invocations, <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20%5CPr%5C%21%5Cleft%5B%5Cbigcup_%7Bj%3D1%7D%5E%7BN%7D%5C%7BV_j%3D1%2C%20I_j%3D1%5C%7D%5Cright%5D%0A%5Cle%20%5Csum_%7Bj%3D1%7D%5E%7B%5Cbar%7BN%7D%7D%5CPr%5BV_j%3D1%2C%20I_j%3D1%5D%0A%5Cle%20%5Cbar%7BN%7D%5C%2C%5Calpha_%7B%5Cmax%7D%5E%7B%5Crightarrow%7D."
+src="assets/eq_159.svg"
 alt="\Pr\!\left[\bigcup_{j=1}^{N}\{V_j=1, I_j=1\}\right]
 \le \sum_{j=1}^{\bar{N}}\Pr[V_j=1, I_j=1]
 \le \bar{N}\,\alpha_{\max}^{\rightarrow}."
@@ -1524,14 +1524,14 @@ title="\Pr\!\left[\bigcup_{j=1}^{N}\{V_j=1, I_j=1\}\right]
 <div id="thm:contamination-noisy-posterior" class="theorem">
 <p><strong>Theorem 6</strong> (Contamination bound, per-commit form).
 <em>If the executor produces at most <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20K" alt="K"
+src="assets/eq_160.svg" alt="K"
 title="K" class="math inline" /> accepted commits and every accepted
 commit satisfies <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5CPr%5BU%5Ctext%7B%20invalid%7D%5Cmid%20g%28s%2CU%29%3D1%5D%5Cle%5Calpha_%7B%5Cmax%7D%5E%7B%5Cleftarrow%7D"
+src="assets/eq_161.svg"
 alt="\Pr[U\text{ invalid}\mid g(s,U)=1]\le\alpha_{\max}^{\leftarrow}"
 title="\Pr[U\text{ invalid}\mid g(s,U)=1]\le\alpha_{\max}^{\leftarrow}"
 class="math inline" />, then <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20%5CPr%5B%5Cexists%20%5Ctext%7B%20bad%20committed%20update%7D%5D%0A%5C%3B%5Cle%5C%3BK%5C%2C%5Calpha_%7B%5Cmax%7D%5E%7B%5Cleftarrow%7D."
+src="assets/eq_162.svg"
 alt="\Pr[\exists \text{ bad committed update}]
 \;\le\;K\,\alpha_{\max}^{\leftarrow}."
 title="\Pr[\exists \text{ bad committed update}]
@@ -1539,63 +1539,63 @@ title="\Pr[\exists \text{ bad committed update}]
 </div>
 <div class="proof">
 <p><em>Proof.</em> For commit <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20i%5Cin%5C%7B1%2C%5Cdots%2CK%5C%7D"
+src="assets/eq_163.svg"
 alt="i\in\{1,\dots,K\}" title="i\in\{1,\dots,K\}" class="math inline" />
 let <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20B_i" alt="B_i"
+src="assets/eq_164.svg" alt="B_i"
 title="B_i" class="math inline" /> be the event that commit <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20i" alt="i"
+src="assets/eq_165.svg" alt="i"
 title="i" class="math inline" /> is invalid. By assumption <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5CPr%5BB_i%5D%5Cle%5Calpha_%7B%5Cmax%7D%5E%7B%5Cleftarrow%7D"
+src="assets/eq_166.svg"
 alt="\Pr[B_i]\le\alpha_{\max}^{\leftarrow}"
 title="\Pr[B_i]\le\alpha_{\max}^{\leftarrow}" class="math inline" />.
 Union-bounding, <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5CPr%5B%5Cbigcup_%7Bi%3D1%7D%5E%7BK%7DB_i%5D%5Cle%20K%5C%2C%5Calpha_%7B%5Cmax%7D%5E%7B%5Cleftarrow%7D"
+src="assets/eq_167.svg"
 alt="\Pr[\bigcup_{i=1}^{K}B_i]\le K\,\alpha_{\max}^{\leftarrow}"
 title="\Pr[\bigcup_{i=1}^{K}B_i]\le K\,\alpha_{\max}^{\leftarrow}"
 class="math inline" />. ◻</p>
 </div>
 <h4 id="why-the-distinction-matters.">Why the distinction matters.</h4>
 <p>A naive union bound of the form <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20K%5Calpha_%7B%5Cmax%7D%5E%7B%5Crightarrow%7D"
+src="assets/eq_168.svg"
 alt="K\alpha_{\max}^{\rightarrow}" title="K\alpha_{\max}^{\rightarrow}"
 class="math inline" />, mixing a commit count with a conditional
 false-accept rate, is incorrect. As a counterexample, suppose all
 proposals are invalid (<img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5CPr%5BU%20%5Ctext%7B%20invalid%7D%5D%3D1"
+src="assets/eq_169.svg"
 alt="\Pr[U \text{ invalid}]=1" title="\Pr[U \text{ invalid}]=1"
 class="math inline" />), <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Calpha%5E%7B%5Crightarrow%7D%3D10%5E%7B-3%7D"
+src="assets/eq_170.svg"
 alt="\alpha^{\rightarrow}=10^{-3}" title="\alpha^{\rightarrow}=10^{-3}"
 class="math inline" />, the retry budget allows <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%2010%5E4"
+src="assets/eq_171.svg"
 alt="10^4" title="10^4" class="math inline" /> invocations, and the
 executor halts after <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20K%3D1"
+src="assets/eq_172.svg"
 alt="K=1" title="K=1" class="math inline" /> accept. Every accept is
 then a bad commit, and <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20%5CPr%5B%5Cexists%20%5Ctext%7B%20bad%20commit%7D%5D%0A%3D1-%281-10%5E%7B-3%7D%29%5E%7B10%5E4%7D%5Capprox%201%2C"
+src="assets/eq_173.svg"
 alt="\Pr[\exists \text{ bad commit}]
 =1-(1-10^{-3})^{10^4}\approx 1," title="\Pr[\exists \text{ bad commit}]
 =1-(1-10^{-3})^{10^4}\approx 1," class="math display" /> which exceeds
 <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20K%5Calpha%5E%7B%5Crightarrow%7D%3D10%5E%7B-3%7D"
+src="assets/eq_174.svg"
 alt="K\alpha^{\rightarrow}=10^{-3}"
 title="K\alpha^{\rightarrow}=10^{-3}" class="math inline" /> by three
 orders of magnitude. Theorem <a
 href="#thm:contamination-noisy-invocation" data-reference-type="ref"
 data-reference="thm:contamination-noisy-invocation">5</a> gives the
 correct value <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%2010%5E4%5Ccdot%2010%5E%7B-3%7D%3D10"
+src="assets/eq_175.svg"
 alt="10^4\cdot 10^{-3}=10" title="10^4\cdot 10^{-3}=10"
 class="math inline" />, which is vacuous but not false; this reflects
 that the operating regime is genuinely unsafe.</p>
 <h4 id="which-bound-to-use.">Which bound to use.</h4>
 <p>The conditional rate <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Calpha_h%5E%7B%5Crightarrow%7D"
+src="assets/eq_146.svg"
 alt="\alpha_h^{\rightarrow}" title="\alpha_h^{\rightarrow}"
 class="math inline" /> is what one usually estimates when calibrating a
 learned validator (held-out invalid examples passed through the
@@ -1603,7 +1603,7 @@ validator). The per-invocation bound is therefore the directly
 measurable one, at the cost of paying for every rejected attempt. The
 per-commit bound is tighter when it applies, but <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Calpha_h%5E%7B%5Cleftarrow%7D"
+src="assets/eq_145.svg"
 alt="\alpha_h^{\leftarrow}" title="\alpha_h^{\leftarrow}"
 class="math inline" /> depends on the proposal distribution and is not a
 property of the validator alone.</p>
@@ -1612,17 +1612,17 @@ recovery.</h4>
 <p>False rejects do not contaminate state, but they reduce recovery
 probability. If the model proposes a valid local update with probability
 <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20p_h" alt="p_h"
+src="assets/eq_081.svg" alt="p_h"
 title="p_h" class="math inline" /> and the validator rejects valid
 proposals with probability <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Cbeta_h"
+src="assets/eq_148.svg"
 alt="\beta_h" title="\beta_h" class="math inline" />, then the effective
 accepted local success probability is <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20p%27_h%20%3D%20p_h%281-%5Cbeta_h%29%2C"
+src="assets/eq_176.svg"
 alt="p&#39;_h = p_h(1-\beta_h)," title="p&#39;_h = p_h(1-\beta_h),"
 class="math display" /> and retry amplification becomes <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20q%27_h%20%3D%201-%281-p_h%281-%5Cbeta_h%29%29%5E%7Bb_h%7D."
+src="assets/eq_177.svg"
 alt="q&#39;_h = 1-(1-p_h(1-\beta_h))^{b_h}."
 title="q&#39;_h = 1-(1-p_h(1-\beta_h))^{b_h}."
 class="math display" /></p>
@@ -1646,18 +1646,18 @@ substantive research questions.</p>
 <h4 id="optimal-budget-allocation-across-obligations.">Optimal budget
 allocation across obligations.</h4>
 <p>Given a total invocation budget <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20B" alt="B"
+src="assets/eq_178.svg" alt="B"
 title="B" class="math inline" /> and required obligations <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Cmathcal%7BR%7D%3D%5C%7Bh_1%2C%5Cdots%2Ch_M%5C%7D"
+src="assets/eq_179.svg"
 alt="\mathcal{R}=\{h_1,\dots,h_M\}"
 title="\mathcal{R}=\{h_1,\dots,h_M\}" class="math inline" /> with
 estimated local success rates <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Chat%20p_1%2C%5Cdots%2C%5Chat%20p_M"
+src="assets/eq_180.svg"
 alt="\hat p_1,\dots,\hat p_M" title="\hat p_1,\dots,\hat p_M"
 class="math inline" />, the natural objective derived from the product
 lower bound is <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20%5Cmax_%7Bb_1%2C%5Cdots%2Cb_M%5Cge%200%7D%0A%5C%3B%0A%5Csum_%7Bi%3D1%7D%5E%7BM%7D%5Clog%5C%21%5Cleft%281-%281-%5Chat%20p_i%29%5E%7Bb_i%7D%5Cright%29%0A%5Cquad%5Ctext%7Bs.t.%7D%5Cquad%0A%5Csum_%7Bi%3D1%7D%5E%7BM%7D%20b_i%20%5Cle%20B."
+src="assets/eq_181.svg"
 alt="\max_{b_1,\dots,b_M\ge 0}
 \;
 \sum_{i=1}^{M}\log\!\left(1-(1-\hat p_i)^{b_i}\right)
@@ -1669,7 +1669,7 @@ alt="\max_{b_1,\dots,b_M\ge 0}
 \sum_{i=1}^{M} b_i \le B." class="math display" /> This is a separable
 concave allocation; its KKT conditions yield a water-filling rule <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Cdisplaystyle%20%5Cfrac%7B%281-%5Chat%20p_i%29%5E%7Bb_i%7D%5Clog%5Cfrac%7B1%7D%7B1-%5Chat%20p_i%7D%7D%0A%20%20%20%20%20%7B1-%281-%5Chat%20p_i%29%5E%7Bb_i%7D%7D%0A%5C%3B%3D%5C%3B%0A%5Clambda%0A%5Cquad%5Cforall%20i%5Cin%5Cmathcal%7BR%7D%2C"
+src="assets/eq_182.svg"
 alt="\frac{(1-\hat p_i)^{b_i}\log\frac{1}{1-\hat p_i}}
      {1-(1-\hat p_i)^{b_i}}
 \;=\;
@@ -1681,10 +1681,10 @@ title="\frac{(1-\hat p_i)^{b_i}\log\frac{1}{1-\hat p_i}}
 \lambda
 \quad\forall i\in\mathcal{R}," class="math display" /> for a common dual
 <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Clambda"
+src="assets/eq_183.svg"
 alt="\lambda" title="\lambda" class="math inline" /> tuned to the
 budget. With unknown <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Chat%20p_i"
+src="assets/eq_184.svg"
 alt="\hat p_i" title="\hat p_i" class="math inline" />, the problem
 becomes a structured multi-armed bandit: each obligation is a Bernoulli
 arm with unknown success probability, retries are pulls, but pulls also
@@ -1697,36 +1697,36 @@ policies.</h4>
 <p>Proposition <a href="#prop:refinement-helps"
 data-reference-type="ref" data-reference="prop:refinement-helps">2</a>
 compares “solve <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20h" alt="h"
+src="assets/eq_017.svg" alt="h"
 title="h" class="math inline" /> directly” against “refine <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20h" alt="h"
+src="assets/eq_017.svg" alt="h"
 title="h" class="math inline" /> then solve its children” as if they
 were exclusive. In practice, the executor first attempts <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20h" alt="h"
+src="assets/eq_017.svg" alt="h"
 title="h" class="math inline" /> for some number of tries and refines
 only on persistent failure. The right object is a sequential policy
 that, after <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20k" alt="k"
+src="assets/eq_018.svg" alt="k"
 title="k" class="math inline" /> failed attempts on <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20h" alt="h"
+src="assets/eq_017.svg" alt="h"
 title="h" class="math inline" />, decides among continue, refine, or
 abandon, given a posterior over <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20p_h" alt="p_h"
+src="assets/eq_081.svg" alt="p_h"
 title="p_h" class="math inline" /> and the remaining budget. Casting
 this as an optimal stopping problem and characterising the resulting
 policy (presumably a threshold rule on the posterior mean of <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20p_h" alt="p_h"
+src="assets/eq_081.svg" alt="p_h"
 title="p_h" class="math inline" /> relative to the per-child rates) is
 open.</p>
 <h4
 id="strengthening-the-contamination-bound-under-correlated-validator-errors.">Strengthening
 the contamination bound under correlated validator errors.</h4>
 <p>The per-invocation union bound <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Cbar%20N%5C%2C%5Calpha_%7B%5Cmax%7D%5E%7B%5Crightarrow%7D"
+src="assets/eq_185.svg"
 alt="\bar N\,\alpha_{\max}^{\rightarrow}"
 title="\bar N\,\alpha_{\max}^{\rightarrow}" class="math inline" /> of
 Theorem <a href="#thm:contamination-noisy-invocation"
@@ -1742,20 +1742,20 @@ here.</p>
 <h4 id="joint-optimisation-of-validator-and-proposer.">Joint
 optimisation of validator and proposer.</h4>
 <p>The framework treats <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Cpi_%5Ctheta"
+src="assets/eq_019.svg"
 alt="\pi_\theta" title="\pi_\theta" class="math inline" /> and <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20g" alt="g"
+src="assets/eq_045.svg" alt="g"
 title="g" class="math inline" /> as independent. In practice they share
 a model family, and improving the validator can degrade the proposer
 (and vice versa) under a fixed compute budget. The Pareto frontier
 between <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20p_h" alt="p_h"
+src="assets/eq_081.svg" alt="p_h"
 title="p_h" class="math inline" />, <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Calpha_h%5E%7B%5Crightarrow%7D"
+src="assets/eq_146.svg"
 alt="\alpha_h^{\rightarrow}" title="\alpha_h^{\rightarrow}"
 class="math inline" />, and <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Cbeta_h"
+src="assets/eq_148.svg"
 alt="\beta_h" title="\beta_h" class="math inline" /> at fixed compute is
 the practically relevant object, and is unaddressed.</p>
 <h4 id="quantifying-the-latent-mode-variance.">Quantifying the
@@ -1765,7 +1765,7 @@ data-reference-type="ref"
 data-reference="prop:correlation-upper-bound">1</a> reduces the gap
 between realised and ideal retry amplification to the variance of <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Crho%28Z%29"
+src="assets/eq_079.svg"
 alt="\rho(Z)" title="\rho(Z)" class="math inline" />. Empirical
 calibration of this variance for representative model/prompt families,
 together with a quantitative theory of how diversity-inducing
@@ -1806,25 +1806,25 @@ local-rate model:</p>
 <ul>
 <li><p>under conditional independence, the per-obligation rate amplifies
 from <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20p_h" alt="p_h"
+src="assets/eq_081.svg" alt="p_h"
 title="p_h" class="math inline" /> to <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%201-%281-p_h%29%5E%7Bb_h%7D"
+src="assets/eq_001.svg"
 alt="1-(1-p_h)^{b_h}" title="1-(1-p_h)^{b_h}" class="math inline" />
 (Theorem <a href="#thm:retry-amplification" data-reference-type="ref"
 data-reference="thm:retry-amplification">3</a>);</p></li>
 <li><p>under shared latent failure modes, that i.i.d. rate is an
 <em>upper</em> bound on what is achievable, and the realised rate can be
 as low as <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20p_h" alt="p_h"
+src="assets/eq_081.svg" alt="p_h"
 title="p_h" class="math inline" /> (Proposition <a
 href="#prop:correlation-upper-bound" data-reference-type="ref"
 data-reference="prop:correlation-upper-bound">1</a>);</p></li>
 <li><p>under a calibrated uniform persistence parameter <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Crho_h"
+src="assets/eq_085.svg"
 alt="\rho_h" title="\rho_h" class="math inline" />, the rate is at least
 <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%201-%281-p_h%29%5Crho_h%5E%7B%5C%2Cb_h-1%7D"
+src="assets/eq_186.svg"
 alt="1-(1-p_h)\rho_h^{\,b_h-1}" title="1-(1-p_h)\rho_h^{\,b_h-1}"
 class="math inline" />, interpolating between the two extremes.</p></li>
 </ul>
@@ -1832,12 +1832,12 @@ class="math inline" />, interpolating between the two extremes.</p></li>
 href="#thm:product-abstract" data-reference-type="ref"
 data-reference="thm:product-abstract">4</a>) is stated abstractly in
 terms of per-obligation lower bounds <img style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20q_h%5E%7B%5Cmathrm%7BLB%7D%7D"
+src="assets/eq_115.svg"
 alt="q_h^{\mathrm{LB}}" title="q_h^{\mathrm{LB}}"
 class="math inline" />, which the local-rate model supplies. Refinement
 is beneficial when the analogous expression for refinement exceeds <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20q_h" alt="q_h"
+src="assets/eq_132.svg" alt="q_h"
 title="q_h" class="math inline" /> for the same calibrated rates.</p>
 <h4 id="scope.">Scope.</h4>
 <p>These are conditional guarantees, not claims that arbitrary
@@ -1849,7 +1849,7 @@ and sample diversity — none of which the framework itself produces. The
 substantive engineering questions (constructing sound validators for the
 task class, inducing enough sample diversity to push <img
 style="vertical-align:middle"
-src="https://latex.codecogs.com/svg.latex?%5Ctextstyle%20%5Crho_h"
+src="assets/eq_085.svg"
 alt="\rho_h" title="\rho_h" class="math inline" /> below 1, allocating
 retry budget across obligations) remain open and are surveyed in
 Section <a href="#sec:open-problems" data-reference-type="ref"
